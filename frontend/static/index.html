@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copyright Security</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="brand-name">Copyright Security</span>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active" data-view="dashboard">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-view="cases">
+                <i class="fa-solid fa-folder"></i>
+                <span>Case Manager</span>
+            </a>
+            <a href="#" class="nav-item" data-view="verification">
+                <i class="fa-solid fa-square-check"></i>
+                <span>Verification Center</span>
+            </a>
+            <a href="#" class="nav-item" data-view="library">
+                <i class="fa-solid fa-fingerprint"></i>
+                <span>Video Fingerprinter</span>
+            </a>
+            <a href="#" class="nav-item" data-view="scanner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Infringement Scanner</span>
+            </a>
+            <a href="#" class="nav-item" data-view="reports">
+                <i class="fa-solid fa-scale-balanced"></i>
+                <span>DMCA Generator</span>
+            </a>
+            <a href="#" class="nav-item" data-view="security">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Security Center</span>
+            </a>
+            <a href="#" class="nav-item" data-view="settings">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div id="sidebar-user-info" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; display: none;">
+                Logged in as: <strong id="sidebar-username-label" style="color: white;">Guest</strong>
+            </div>
+            <button class="btn btn-logout btn-sm" id="btn-logout" style="display: none;">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+            </button>
+            <p style="margin-top: 12px;">Version 1.0.0</p>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Sticky Header -->
+        <header>
+            <div class="page-title" id="page-current-title">Dashboard Overview</div>
+            <div class="header-actions">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; color: var(--text-secondary);">Active Case:</span>
+                    <select id="global-case-select" class="case-selector">
+                        <option value="">-- Select Case --</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="btn-header-new-case">
+                    <i class="fa-solid fa-plus"></i> New Case
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Views -->
+        <div class="content-wrapper">
+
+            <!-- 1. DASHBOARD VIEW -->
+            <section id="view-dashboard" class="container view-pane">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Total Cases</h3>
+                            <p id="stat-cases-count">0</p>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-folder-open"></i></div>
+                    </div>
+                    <div class="stat-card info">
+                        <div class="stat-info">
+                            <h3>Open Cases</h3>
+                            <p id="stat-open-cases-count">0</p>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-info">
+                            <h3>Resolved</h3>
+                            <p id="stat-resolved-cases-count">0</p>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-info">
+                            <h3>Archived</h3>
+                            <p id="stat-archived-cases-count">0</p>
+                        </div>
+                        <div class="stat-icon"><i class="fa-solid fa-box-archive"></i></div>
+                    </div>
+                </div>
+
+                <!-- Analytics Charts Grid (Epic 5) -->
+                <div class="dashboard-charts-grid" id="dashboard-charts-container" style="display: none;">
+                    <div class="panel chart-panel">
+                        <div class="panel-header chart-panel-header">
+                            <h3 class="panel-title chart-panel-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent); margin-right: 8px;"></i>Platform Distribution</h3>
+                        </div>
+                        <div class="chart-canvas-container">
+                            <canvas id="chart-platform-dist"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="panel chart-panel">
+                        <div class="panel-header chart-panel-header">
+                            <h3 class="panel-title chart-panel-title"><i class="fa-solid fa-chart-bar" style="color: var(--color-warning); margin-right: 8px;"></i>Similarity Ranges</h3>
+                        </div>
+                        <div class="chart-canvas-container">
+                            <canvas id="chart-similarity-ranges"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="panel chart-panel">
+                        <div class="panel-header chart-panel-header">
+                            <h3 class="panel-title chart-panel-title"><i class="fa-solid fa-circle-info" style="color: var(--color-info); margin-right: 8px;"></i>Infringement Status</h3>
+                        </div>
+                        <div class="chart-canvas-container">
+                            <canvas id="chart-status-breakdown"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Infringements Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Recent Infringement Matches</h2>
+                        <button class="btn btn-secondary btn-sm" onclick="app.switchView('scanner')">Scan New URL</button>
+                    </div>
+                    <div class="evidence-list" id="dashboard-recent-evidence">
+                        <!-- Dynamically filled -->
+                        <div class="spinner-container"><p>Select a case above to load dashboard analytics.</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. CASES VIEW -->
+            <section id="view-cases" class="container view-pane" style="display: none;">
+                <div class="panel" style="margin-bottom: 20px;">
+                    <div class="panel-header" style="flex-wrap: wrap; gap: 16px;">
+                        <h2 class="panel-title">Your Copyright Protection Cases</h2>
+                        <button class="btn btn-primary" id="btn-cases-new-case">
+                            <i class="fa-solid fa-plus"></i> Add New Case
+                        </button>
+                    </div>
+                    
+                    <!-- Search, Filters, and Sorting Controls Bar -->
+                    <div class="filter-bar" style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; padding: 12px; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light);">
+                        <div style="flex: 1; min-width: 200px; position: relative;">
+                            <input type="text" id="case-search-input" class="form-input" placeholder="Search by ID, title, client, platform, owner, or tags..." style="padding-left: 36px; margin-bottom: 0;">
+                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
+                        </div>
+                        <div style="min-width: 130px;">
+                            <select id="case-filter-status" class="form-input" style="margin-bottom: 0;">
+                                <option value="">All Statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Investigating">Investigating</option>
+                                <option value="Scanning">Scanning</option>
+                                <option value="Evidence Collected">Evidence Collected</option>
+                                <option value="Verified">Verified</option>
+                                <option value="DMCA Draft">DMCA Draft</option>
+                                <option value="DMCA Sent">DMCA Sent</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Archived">Archived</option>
+                            </select>
+                        </div>
+                        <div style="min-width: 130px;">
+                            <select id="case-filter-priority" class="form-input" style="margin-bottom: 0;">
+                                <option value="">All Priorities</option>
+                                <option value="Critical">Critical</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div style="min-width: 130px;">
+                            <select id="case-filter-platform" class="form-input" style="margin-bottom: 0;">
+                                <option value="">All Platforms</option>
+                                <option value="YouTube">YouTube</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="Facebook Pages">Facebook Pages</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="TikTok">TikTok</option>
+                                <option value="X (Twitter)">X (Twitter)</option>
+                                <option value="Telegram">Telegram</option>
+                                <option value="Websites">Websites</option>
+                                <option value="Vimeo">Vimeo</option>
+                                <option value="Dailymotion">Dailymotion</option>
+                            </select>
+                        </div>
+                        <div style="min-width: 130px;">
+                            <select id="case-filter-owner" class="form-input" style="margin-bottom: 0;">
+                                <option value="">All Owners</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">Date From:</span>
+                            <input type="date" id="case-filter-start-date" class="form-input" style="margin-bottom: 0; padding: 4px 8px; width: 120px;" title="Start Date">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">To:</span>
+                            <input type="date" id="case-filter-end-date" class="form-input" style="margin-bottom: 0; padding: 4px 8px; width: 120px;" title="End Date">
+                        </div>
+                        <div style="min-width: 130px;">
+                            <select id="case-sort-by" class="form-input" style="margin-bottom: 0;">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="priority">Priority Order</option>
+                                <option value="status">Status Order</option>
+                                <option value="alphabetical">Alphabetical</option>
+                                <option value="evidence_count">Evidence Count</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Split Layout: List on Left, Details & Timeline on Right -->
+                <div class="enterprise-split-layout">
+                    <div class="panel" style="margin-bottom: 0; min-height: 500px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="table-responsive" style="overflow-x: auto; flex: 1;">
+                            <table class="enterprise-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; color: var(--text-primary);">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-light); background: var(--bg-dark);">
+                                        <th style="padding: 10px 4px;">ID</th>
+                                        <th style="padding: 10px 4px;">Case Name</th>
+                                        <th style="padding: 10px 4px;">Owner</th>
+                                        <th style="padding: 10px 4px;">Platform</th>
+                                        <th style="padding: 10px 4px;">Priority</th>
+                                        <th style="padding: 10px 4px;">Status</th>
+                                        <th style="padding: 10px 4px;">Created</th>
+                                        <th style="padding: 10px 4px;">Updated</th>
+                                        <th style="padding: 10px 4px;">Evidence</th>
+                                        <th style="padding: 10px 4px;">Leaks</th>
+                                        <th style="padding: 10px 4px;">Verification</th>
+                                        <th style="padding: 10px 4px; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cases-table-body">
+                                    <!-- Dynamically populated rows -->
+                                </tbody>
+                            </table>
+                            <div id="cases-list-grid" style="display: none;"></div>
+                        </div>
+                        
+                        <!-- Pagination controls -->
+                        <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 6px 0 6px; border-top: 1px solid var(--border-light); margin-top: 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 11px; color: var(--text-secondary);">Show:</span>
+                                <select id="case-pagination-limit" class="form-input" style="width: 70px; margin-bottom: 0; padding: 4px 6px; height: auto; font-size: 11px; background: var(--bg-dark); border-color: var(--border-light); color: var(--text-primary);">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span id="case-pagination-info" style="font-size: 11px; color: var(--text-secondary);">0-0 of 0</span>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-sm" id="btn-case-page-prev" style="padding: 3px 6px; font-size: 11px;"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-case-page-next" style="padding: 3px 6px; font-size: 11px;"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Details & Timeline Panel -->
+                    <div class="panel" id="cases-details-panel" style="margin-bottom: 0; position: sticky; top: 20px; min-height: 500px;">
+                        <div id="case-details-empty-state" class="spinner-container" style="height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--text-secondary);">
+                             <i class="fa-solid fa-folder-open" style="font-size: 48px; margin-bottom: 16px; color: var(--border-light);"></i>
+                             <p>Select a case folder to view full details and chronological timeline activity history.</p>
+                        </div>
+                        
+                        <div id="case-details-content" style="display: none;">
+                            <!-- Header Info -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+                                <div>
+                                    <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent);">Case ID: <span id="detail-case-id">N/A</span></span>
+                                    <h3 id="detail-case-title" class="panel-title" style="margin-top: 4px; font-size: 20px;">Case Folder Name</h3>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-secondary btn-sm" id="btn-edit-case" style="padding: 6px 10px;">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" id="btn-delete-case-action" style="padding: 6px 10px; background: #ea4335;">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Tabs Navigation -->
+                            <div class="tabs-nav" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); margin-bottom: 16px; padding-bottom: 8px;">
+                                <button class="btn btn-sm btn-secondary active" id="tab-btn-details" style="padding: 6px 12px; font-size: 12px;">Details & Activity</button>
+                                <button class="btn btn-sm btn-secondary" id="tab-btn-evidence" style="padding: 6px 12px; font-size: 12px;">Evidence Files</button>
+                            </div>
+                            
+                            <!-- Tab 1: Details & Activity Panel -->
+                            <div id="panel-tab-details">
+                                <!-- Badges grid -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Client Name</span>
+                                        <strong id="detail-case-client" style="font-size: 13px;">Acme Corp</strong>
+                                    </div>
+                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Platform</span>
+                                        <span id="detail-case-platform" class="badge badge-active" style="display: inline-block; margin-top: 4px;">YouTube</span>
+                                    </div>
+                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Priority</span>
+                                        <span id="detail-case-priority" class="badge" style="display: inline-block; margin-top: 4px;">High</span>
+                                    </div>
+                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Status</span>
+                                        <span id="detail-case-status" class="badge" style="display: inline-block; margin-top: 4px;">Active</span>
+                                    </div>
+                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); grid-column: span 2;">
+                                        <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Tags</span>
+                                        <div id="detail-case-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Extra details -->
+                                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+                                    <span style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 4px;">Description / Work Notes</span>
+                                    <p id="detail-case-description">No description notes available.</p>
+                                </div>
+                                
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; background: var(--bg-dark); padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;">
+                                    <span>Owner: <strong id="detail-case-owner">Unknown</strong></span>
+                                    <span>Date Created: <strong id="detail-case-created">N/A</strong></span>
+                                </div>
+                                
+                                <!-- Case Notes / Timeline Header -->
+                                <div style="border-top: 1px solid var(--border-light); padding-top: 16px; margin-top: 16px;">
+                                    <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent);"></i> Activity Timeline
+                                    </h4>
+                                    
+                                    <!-- Add Note box -->
+                                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                                        <input type="text" id="case-add-note-input" class="form-input" placeholder="Type a note to append to timeline..." style="margin-bottom: 0; font-size: 12px;">
+                                        <button class="btn btn-primary" id="btn-save-case-note" style="padding: 6px 12px; font-size: 12px;">Add</button>
+                                    </div>
+                                    
+                                    <!-- Timeline items list -->
+                                    <div id="case-timeline-container" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+                                        <!-- Timeline components -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab 2: Evidence Files Panel -->
+                            <div id="panel-tab-evidence" style="display: none;">
+                                <!-- Drag & Drop File Upload Region -->
+                                <div id="evidence-upload-zone" style="border: 2px dashed var(--border-light); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s; background: var(--bg-dark); margin-bottom: 16px;">
+                                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 32px; color: var(--accent); margin-bottom: 8px; display: block;"></i>
+                                    <span style="font-size: 12px; color: var(--text-primary); font-weight: 600; display: block;">Drag & drop evidence files here</span>
+                                    <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-top: 4px;">Supports Images, Videos, Documents (Max 50MB)</span>
+                                    <input type="file" id="evidence-file-input" style="display: none;" multiple>
+                                </div>
+                                
+                                <!-- Search and Filters for Evidence -->
+                                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                    <input type="text" id="evidence-search-input" class="form-input" placeholder="Search files..." style="margin-bottom: 0; font-size: 11px; flex: 1; padding: 6px 8px;">
+                                    <select id="evidence-filter-type" class="form-input" style="margin-bottom: 0; font-size: 11px; width: 110px; padding: 6px;">
+                                        <option value="">All Types</option>
+                                        <option value="image">Images</option>
+                                        <option value="video">Videos</option>
+                                        <option value="document">Documents</option>
+                                        <option value="link">Links</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- File Uploading Progress Loader -->
+                                <div id="evidence-upload-progress" style="display: none; background: var(--bg-dark); border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span>Uploading files...</span>
+                                        <span id="evidence-upload-percent">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden;">
+                                        <div id="evidence-upload-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Evidence files list -->
+                                <div id="evidence-files-list" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">
+                                    <!-- Dynamic elements filled by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2b. VERIFICATION CENTER VIEW -->
+            <section id="view-verification" class="container view-pane" style="display: none;">
+                <p style="margin-top: -24px; margin-bottom: 24px; color: var(--text-secondary); font-size: 14px;">Verify copyright evidence before generating reports.</p>
+                
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Verified Cases</h3>
+                            <p id="verify-stat-verified">0</p>
+                        </div>
+                        <div class="stat-icon success">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Pending Review</h3>
+                            <p id="verify-stat-pending">0</p>
+                        </div>
+                        <div class="stat-icon warning">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Rejected Cases</h3>
+                            <p id="verify-stat-rejected">0</p>
+                        </div>
+                        <div class="stat-icon danger">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Success Rate</h3>
+                            <p id="verify-stat-rate">0%</p>
+                        </div>
+                        <div class="stat-icon info">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verification Main Table Panel -->
+                <div class="panel" style="margin-bottom: 32px;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Evidence Verification Queue</h2>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-secondary btn-sm" id="btn-verify-refresh">
+                                <i class="fa-solid fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto; width: 100%;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Verification ID</th>
+                                    <th>Case Name</th>
+                                    <th>Owner</th>
+                                    <th>Evidence Count</th>
+                                    <th>AI Score</th>
+                                    <th>Status</th>
+                                    <th>Reviewer</th>
+                                    <th>Last Updated</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="verification-table-body">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Verification Detail Panel -->
+                <div class="panel" id="verification-detail-panel" style="display: none;">
+                    <div class="panel-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 16px; margin-bottom: 24px;">
+                        <h2 class="panel-title" id="verify-detail-case-title">Case Verification Details</h2>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-success btn-sm" id="btn-verify-approve">
+                                <i class="fa-solid fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-danger btn-sm" id="btn-verify-reject">
+                                <i class="fa-solid fa-xmark"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+                        <!-- Left Column: Assets & Evaluation -->
+                        <div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label class="form-label" style="font-weight: 600;">Evidence Summary</label>
+                                <div id="verify-detail-summary" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.5; border: 1px solid var(--border-light);">
+                                    No summary available.
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600;">Metadata Validation</label>
+                                    <div id="verify-detail-meta-val" style="padding: 8px 12px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                                        Pending
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight: 600;">Hash Verification</label>
+                                    <div id="verify-detail-hash-val" style="padding: 8px 12px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                                        Pending
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label class="form-label" style="font-weight: 600;">Original Copyright Asset</label>
+                                <div id="verify-detail-originals" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <!-- List of originals -->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight: 600;">Evidence Files Under Scan</label>
+                                <div id="verify-detail-evidence" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;">
+                                    <!-- List of evidence -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Reviewer Logs & Actions -->
+                        <div>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label class="form-label" style="font-weight: 600;">AI Similarity Metrics</label>
+                                <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Confidence Score</div>
+                                        <div style="font-size: 28px; font-weight: 700; color: white;" id="verify-detail-ai-score">0%</div>
+                                    </div>
+                                    <div id="verify-detail-confidence-badge" style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                        Medium Match
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label class="form-label" style="font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+                                    Reviewer Activity & Audit Trail
+                                    <button class="btn btn-secondary btn-xs" id="btn-verify-add-note">
+                                        <i class="fa-solid fa-plus"></i> Add Note
+                                    </button>
+                                </label>
+                                <div id="verify-detail-notes-timeline" style="display: flex; flex-direction: column; gap: 12px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
+                                    <!-- Timeline notes -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. LIBRARY / FINGERPRINTER VIEW -->
+            <section id="view-library" class="container view-pane" style="display: none;">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Original Video Registry</h2>
+                        <span id="library-case-badge" class="badge badge-info">No Active Case</span>
+                    </div>
+                    
+                    <!-- Drag and Drop Upload -->
+                    <div class="upload-zone" id="original-upload-zone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <h4>Upload Original Video Content</h4>
+                        <p>Drag and drop MP4, MKV, or AVI file here, or click to browse</p>
+                        <input type="file" id="original-file-input" style="display: none;" accept="video/*">
+                    </div>
+                    
+                    <div class="upload-progress-container" id="upload-progress-bar-container" style="display: none; margin-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                            <span>Uploading and Fingerprinting...</span>
+                            <span id="upload-progress-percent">0%</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden;">
+                            <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s;"></div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 32px 0 16px; font-size: 18px; color: white;">Fingerprinted Work Library</h3>
+                    <div class="file-list" id="originals-file-list">
+                        <!-- Dynamically listed original videos -->
+                        <div class="spinner-container"><p>Select an active case to list uploaded files.</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. SCANNER VIEW -->
+            <section id="view-scanner" class="container view-pane" style="display: none;">
+                <div class="scanner-container">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Scan Social Media URL for Infringements</h2>
+                            <span id="scanner-case-badge" class="badge badge-info">No Active Case</span>
+                        </div>
+                        
+                        <div class="scanner-input-box">
+                            <input type="url" id="scanner-url-input" class="form-input" placeholder="Paste YouTube, TikTok, Facebook, or Instagram video URL...">
+                            <button class="btn btn-primary" id="btn-run-scan">
+                                <i class="fa-solid fa-magnifying-glass"></i> Scan URL
+                            </button>
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: -12px;">
+                            * The scanner will inspect the link, read creator metadata, download a worst-resolution buffer, and check frame sequence similarity.
+                        </p>
+                    </div>
+
+                    <!-- Scan Results Panel -->
+                    <div class="panel" id="scan-results-panel" style="display: none;">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Scan Results</h2>
+                        </div>
+                        <div id="scan-results-content">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Verified Case Matches list -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Scanned Leaks & Claims</h2>
+                        </div>
+                        <div class="evidence-list" id="scanned-evidence-list">
+                            <!-- Dynamically loaded evidence rows -->
+                            <div class="spinner-container"><p>Select a case to view scanned leaks.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. DMCA REPORTS VIEW -->
+            <section id="view-reports" class="container view-pane" style="display: none;">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">DMCA Report notice generator</h2>
+                        <span id="reports-case-badge" class="badge badge-info">No Active Case</span>
+                    </div>
+                    
+                    <div class="dmca-split-view">
+                        <!-- Left Side: Select Evidence and Contact details -->
+                        <div class="panel" style="background: rgba(255,255,255,0.01); border-color: var(--border-light); margin: 0; padding: 20px;">
+                            <h3 style="font-size: 16px; color: white; margin-bottom: 16px;">Step 1: Notice Configuration</h3>
+                            
+                            <form id="dmca-config-form">
+                                <div class="form-group">
+                                    <label class="form-label">Target Infringement Match</label>
+                                    <select id="dmca-evidence-select" class="form-input" required>
+                                        <option value="">-- Choose verified leak --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Notice Template Type</label>
+                                    <select id="dmca-template-select" class="form-input">
+                                        <option value="standard">Standard DMCA Takedown</option>
+                                        <option value="youtube">YouTube Copyright Notice</option>
+                                        <option value="tiktok">TikTok IP Report</option>
+                                        <option value="meta">Meta Rights Complaint</option>
+                                        <option value="cease_desist">Cease-and-Desist Letter</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Copyright Owner Legal Name</label>
+                                    <input type="text" id="dmca-owner-name" class="form-input" required placeholder="e.g. John Doe, Media Corp">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Authorized Sender Name</label>
+                                    <input type="text" id="dmca-sender-name" class="form-input" required placeholder="e.g. John Doe (Agent)">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sender Email Address</label>
+                                    <input type="email" id="dmca-sender-email" class="form-input" required placeholder="e.g. agent@company.com">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sender Phone Number (Optional)</label>
+                                    <input type="tel" id="dmca-sender-phone" class="form-input" placeholder="e.g. +1 555 1234">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sender Mailing Address (Optional)</label>
+                                    <textarea id="dmca-sender-address" class="form-input" rows="2" placeholder="Street Address, City, Country"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Draw Signature</label>
+                                    <div style="background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 8px;">
+                                        <canvas id="dmca-signature-canvas" width="300" height="100" style="background: white; border-radius: var(--radius-sm); cursor: crosshair; display: block; width: 100%; height: 100px;"></canvas>
+                                        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                                            <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-signature" style="padding: 4px 8px; font-size: 11px;">Clear Signature</button>
+                                            <span style="font-size: 11px; color: var(--text-secondary); align-self: center;">Draw with mouse or touch</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; margin-bottom: 16px;">
+                                    <input type="checkbox" id="dmca-declaration-check" required style="margin-top: 4px; cursor: pointer;">
+                                    <label class="form-label" style="font-size: 12px; cursor: pointer; user-select: none;" for="dmca-declaration-check">
+                                        I represent that the information in this notification is accurate, and under penalty of perjury, that I am authorized to act.
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fa-solid fa-gears"></i> Draft DMCA Notice
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Right Side: Draft Text Preview -->
+                        <div class="dmca-editor-panel panel" style="background: rgba(255,255,255,0.01); border-color: var(--border-light); margin: 0; padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h3 style="font-size: 16px; color: white;">Step 2: Legal Draft Preview</h3>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="btn btn-secondary btn-sm" id="btn-copy-dmca" disabled>
+                                        <i class="fa-solid fa-copy"></i> Copy Text
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-download-dmca" disabled>
+                                        <i class="fa-solid fa-download"></i> Save Notice
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-export-pdf" disabled>
+                                        <i class="fa-solid fa-file-pdf"></i> PDF
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-export-docx" disabled>
+                                        <i class="fa-solid fa-file-word"></i> DOCX
+                                    </button>
+                                </div>
+                            </div>
+                            <textarea id="dmca-notice-output" class="dmca-textarea" readonly placeholder="Enter notice config details on the left and click 'Draft DMCA Notice' to preview legal text..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. SECURITY CENTER VIEW (Epic 6) -->
+            <section id="view-security" class="container view-pane" style="display: none;">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title"><i class="fa-solid fa-user-shield" style="color: var(--accent); margin-right: 10px;"></i>System Audit Trail & Security Logs</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="security-action-filter" class="case-selector" style="padding: 6px 12px; font-size: 13px;">
+                                <option value="">-- All Actions --</option>
+                                <option value="LOGIN">LOGIN</option>
+                                <option value="LOGOUT">LOGOUT</option>
+                                <option value="CREATE_CASE">CREATE_CASE</option>
+                                <option value="UPDATE_CASE">UPDATE_CASE</option>
+                                <option value="DELETE_CASE">DELETE_CASE</option>
+                                <option value="UPLOAD_ORIGINAL">UPLOAD_ORIGINAL</option>
+                                <option value="DELETE_ORIGINAL">DELETE_ORIGINAL</option>
+                                <option value="ENQUEUE_SCAN">ENQUEUE_SCAN</option>
+                                <option value="LINK_SCAN_COMPLETE">LINK_SCAN_COMPLETE</option>
+                                <option value="UPDATE_EVIDENCE_STATUS">UPDATE_EVIDENCE_STATUS</option>
+                                <option value="CREATE_NOTE">CREATE_NOTE</option>
+                                <option value="CREATE_REPORT">CREATE_REPORT</option>
+                            </select>
+                            <button class="btn btn-secondary btn-sm" id="btn-refresh-audit"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+                        </div>
+                    </div>
+                    
+                    <div class="audit-log-container" style="overflow-x: auto; margin-top: 16px;">
+                        <table class="audit-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
+                                    <th style="padding: 12px 16px;">Timestamp</th>
+                                    <th style="padding: 12px 16px;">Action</th>
+                                    <th style="padding: 12px 16px;">Target</th>
+                                    <th style="padding: 12px 16px;">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="security-audit-tbody">
+                                <!-- Dynamically loaded audit logs -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination Controls -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+                        <span id="audit-pagination-info" style="font-size: 13px; color: var(--text-secondary);">Showing 0-0 entries</span>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary btn-sm" id="btn-audit-prev" disabled>Previous</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-audit-next" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. SETTINGS VIEW -->
+            <section id="view-settings" class="container view-pane" style="display: none;">
+                <div class="panel" style="max-width: 600px; margin: 0 auto;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Default DMCA Settings</h2>
+                    </div>
+                    <form id="settings-defaults-form">
+                        <div class="form-group">
+                            <label class="form-label">Default Copyright Owner Name</label>
+                            <input type="text" id="setting-owner" class="form-input" placeholder="e.g. Acme Studios">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Default Representative Name</label>
+                            <input type="text" id="setting-sender" class="form-input" placeholder="e.g. Legal Dept">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Default Representative Email</label>
+                            <input type="email" id="setting-email" class="form-input" placeholder="e.g. legal@acmestudios.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Default Phone Number</label>
+                            <input type="tel" id="setting-phone" class="form-input" placeholder="e.g. +1 (555) 019-9011">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Default Mailing Address</label>
+                            <textarea id="setting-address" class="form-input" rows="3" placeholder="123 Creator Lane, Suite 100, Los Angeles, CA, 90210"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Default Credentials</button>
+                    </form>
+                </div>
+
+                <!-- USER REGISTRATION PANEL (Admin-Only) -->
+                <div class="panel" id="panel-user-management" style="max-width: 600px; margin: 24px auto 0; display: none;">
+                    <div class="panel-header">
+                        <h2 class="panel-title"><i class="fa-solid fa-users" style="color: var(--accent); margin-right: 8px;"></i>User Registration</h2>
+                    </div>
+                    <form id="user-registration-form">
+                        <div class="form-group">
+                            <label class="form-label" for="reg-username">Username</label>
+                            <input type="text" id="reg-username" class="form-input" required placeholder="e.g. jsmith">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="reg-email">Email Address</label>
+                            <input type="email" id="reg-email" class="form-input" required placeholder="e.g. jsmith@company.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="reg-password">Password</label>
+                            <input type="password" id="reg-password" class="form-input" required placeholder="••••••••">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="reg-role">System Role</label>
+                            <select id="reg-role" class="form-input" required>
+                                <option value="Guest">Guest (Read-only)</option>
+                                <option value="Reviewer">Reviewer (Read, Scan)</option>
+                                <option value="Editor">Editor (Read, Edit, Upload, Scan)</option>
+                                <option value="Admin">Admin (Full Access)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register New User</button>
+                    </form>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- NEW CASE MODAL -->
+    <div class="modal-overlay" id="modal-new-case-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Protection Case</h3>
+                <button class="modal-close" id="btn-close-case-modal">&times;</button>
+            </div>
+            <form id="new-case-form">
+                <div class="form-group">
+                    <label class="form-label">Case Name <span style="color: var(--accent);">*</span></label>
+                    <input type="text" id="case-title-input" class="form-input" required placeholder="e.g. Summer Promo Campaign">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Client Name <span style="color: var(--accent);">*</span></label>
+                    <input type="text" id="case-client-input" class="form-input" required placeholder="e.g. Acme Corp">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Platform <span style="color: var(--accent);">*</span></label>
+                    <select id="case-platform-input" class="form-input" required>
+                        <option value="YouTube">YouTube</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Facebook Pages">Facebook Pages</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="X (Twitter)">X (Twitter)</option>
+                        <option value="Telegram">Telegram</option>
+                        <option value="Websites">Websites</option>
+                        <option value="Vimeo">Vimeo</option>
+                        <option value="Dailymotion">Dailymotion</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Priority <span style="color: var(--accent);">*</span></label>
+                    <select id="case-priority-input" class="form-input" required>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Owner</label>
+                    <select id="case-owner-input" class="form-input">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" id="case-tags-input" class="form-input" placeholder="e.g. video, urgent, platform">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description / Work Notes</label>
+                    <textarea id="case-desc-input" class="form-input" rows="3" placeholder="e.g. Tracking copyright for Acme promo clips..."></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-case-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Case</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT CASE MODAL -->
+    <div class="modal-overlay" id="modal-edit-case-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Protection Case</h3>
+                <button class="modal-close" id="btn-close-edit-case-modal">&times;</button>
+            </div>
+            <form id="edit-case-form">
+                <div class="form-group">
+                    <label class="form-label">Case Name <span style="color: var(--accent);">*</span></label>
+                    <input type="text" id="edit-case-title-input" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Client Name <span style="color: var(--accent);">*</span></label>
+                    <input type="text" id="edit-case-client-input" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Platform <span style="color: var(--accent);">*</span></label>
+                    <select id="edit-case-platform-input" class="form-input" required>
+                        <option value="YouTube">YouTube</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Facebook Pages">Facebook Pages</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="X (Twitter)">X (Twitter)</option>
+                        <option value="Telegram">Telegram</option>
+                        <option value="Websites">Websites</option>
+                        <option value="Vimeo">Vimeo</option>
+                        <option value="Dailymotion">Dailymotion</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Priority <span style="color: var(--accent);">*</span></label>
+                    <select id="edit-case-priority-input" class="form-input" required>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status <span style="color: var(--accent);">*</span></label>
+                    <select id="edit-case-status-input" class="form-input" required>
+                        <option value="Draft">Draft</option>
+                        <option value="Investigating">Investigating</option>
+                        <option value="Scanning">Scanning</option>
+                        <option value="Evidence Collected">Evidence Collected</option>
+                        <option value="Verified">Verified</option>
+                        <option value="DMCA Draft">DMCA Draft</option>
+                        <option value="DMCA Sent">DMCA Sent</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Archived">Archived</option>
+                        <option value="Active">Active</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Suspended">Suspended</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Owner</label>
+                    <select id="edit-case-owner-input" class="form-input">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags (comma-separated)</label>
+                    <input type="text" id="edit-case-tags-input" class="form-input" placeholder="e.g. video, urgent, platform">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description / Work Notes</label>
+                    <textarea id="edit-case-desc-input" class="form-input" rows="3"></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-edit-case-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- EVIDENCE VIEWER MODAL -->
+    <div class="modal-overlay" id="modal-evidence-viewer-overlay" style="display: none; z-index: 1100;">
+        <div class="modal" style="max-width: 700px; width: 90%;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="evidence-viewer-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">Evidence File Preview</h3>
+                <button class="modal-close" id="btn-close-evidence-viewer">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-dark);">
+                <!-- Image Container with Zoom support -->
+                <div id="evidence-viewer-image-container" style="display: none; text-align: center; width: 100%; overflow: hidden; position: relative;">
+                    <div style="overflow: auto; max-height: 400px; padding: 10px; border-radius: 6px; background: rgba(0,0,0,0.2);">
+                        <img id="evidence-viewer-image" src="" alt="Evidence Preview" style="max-width: 100%; height: auto; transform-origin: center center; transition: transform 0.1s ease-out; border-radius: 4px;">
+                    </div>
+                    <div style="margin-top: 12px; display: flex; justify-content: center; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" id="btn-zoom-out" style="padding: 6px 12px;"><i class="fa-solid fa-magnifying-glass-minus"></i> Zoom Out</button>
+                        <button class="btn btn-secondary btn-sm" id="btn-zoom-reset" style="padding: 6px 12px;"><i class="fa-solid fa-arrows-to-eye"></i> Reset</button>
+                        <button class="btn btn-secondary btn-sm" id="btn-zoom-in" style="padding: 6px 12px;"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom In</button>
+                    </div>
+                </div>
+                
+                <!-- Video Container -->
+                <div id="evidence-viewer-video-container" style="display: none; width: 100%; text-align: center;">
+                    <video id="evidence-viewer-video" controls style="max-width: 100%; max-height: 400px; width: 100%; border-radius: 6px; outline: none; background: #000;"></video>
+                </div>
+                
+                <!-- Document / General File Container -->
+                <div id="evidence-viewer-doc-container" style="display: none; text-align: center; padding: 20px;">
+                    <i class="fa-solid fa-file-shield" id="evidence-viewer-doc-icon" style="font-size: 64px; color: var(--accent); margin-bottom: 16px;"></i>
+                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;" id="evidence-viewer-doc-name">file_name.pdf</p>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;" id="evidence-viewer-doc-size">0 KB</p>
+                    <a class="btn btn-primary" id="btn-download-evidence-doc" href="" download style="display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-download"></i> Download Document
+                    </a>
+                </div>
+                
+                <!-- External URL / Link Container -->
+                <div id="evidence-viewer-link-container" style="display: none; text-align: center; padding: 20px;">
+                    <i class="fa-solid fa-link" style="font-size: 64px; color: var(--accent); margin-bottom: 16px;"></i>
+                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;" id="evidence-viewer-link-title">Suspect Link</p>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; word-break: break-all;" id="evidence-viewer-link-url">https://example.com</p>
+                    <a class="btn btn-primary" id="btn-open-evidence-link" href="" target="_blank" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-up-right-from-square"></i> Open suspect link
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 12px 20px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center;">
+                <span>Uploaded by: <strong id="evidence-viewer-uploader">N/A</strong></span>
+                <span id="evidence-viewer-timestamp">N/A</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- VERIFICATION CENTER MODALS -->
+    <!-- 1. APPROVE VERIFICATION MODAL -->
+    <div class="modal-overlay" id="modal-verify-approve" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Approve Evidence Verification</h3>
+                <button class="modal-close" id="btn-close-verify-approve-modal">&times;</button>
+            </div>
+            <form id="verify-approve-form">
+                <input type="hidden" id="verify-approve-record-id">
+                <div class="modal-body">
+                    <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">Select the validation steps that have been confirmed for this case asset:</p>
+                    
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="verify-approve-meta-check" required style="width: 16px; height: 16px; accent-color: var(--accent);">
+                            Metadata Validation Confirmed (Owner matches Registry)
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="verify-approve-hash-check" required style="width: 16px; height: 16px; accent-color: var(--accent);">
+                            Cryptographic File Hash Check Confirmed
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reviewer Notes (Optional)</label>
+                        <textarea id="verify-approve-notes" class="form-input" rows="3" placeholder="Add approval remarks or compliance details..."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-verify-approve">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Approve Verification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. REJECT VERIFICATION MODAL -->
+    <div class="modal-overlay" id="modal-verify-reject" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Reject Verification Record</h3>
+                <button class="modal-close" id="btn-close-verify-reject-modal">&times;</button>
+            </div>
+            <form id="verify-reject-form">
+                <input type="hidden" id="verify-reject-record-id">
+                <div class="modal-body">
+                    <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">Please state the reason for rejecting this copyright case evidence:</p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Reason for Rejection (Required)</label>
+                        <textarea id="verify-reject-notes" class="form-input" rows="3" required placeholder="e.g. Evidence hash mismatch or metadata verification failed."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-verify-reject">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: var(--color-danger);">Reject Verification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. ADD REVIEWER NOTE MODAL -->
+    <div class="modal-overlay" id="modal-verify-add-note" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Reviewer Notes</h3>
+                <button class="modal-close" id="btn-close-verify-note-modal">&times;</button>
+            </div>
+            <form id="verify-note-form">
+                <input type="hidden" id="verify-note-record-id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Note Message (Required)</label>
+                        <textarea id="verify-note-text" class="form-input" rows="4" required placeholder="Write details here..."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-verify-note">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- LOGIN SCREEN OVERLAY -->
+    <div class="login-overlay" id="login-screen-overlay">
+        <div class="login-card">
+            <div class="login-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <span class="brand-name">Copyright Security</span>
+            </div>
+            
+            <div class="login-error" id="login-error-msg">
+                Invalid email/username or password.
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="login-email-input">Email or Username</label>
+                    <input type="text" id="login-email-input" class="form-input" required placeholder="e.g. admin" autofocus autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="login-password-input">Password</label>
+                    <input type="password" id="login-password-input" class="form-input" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px; justify-content: center;">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification Drawer -->
+    <div class="toast-container" id="toast-drawer"></div>
+
+    <!-- Main Client-Side Logic Javascript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
