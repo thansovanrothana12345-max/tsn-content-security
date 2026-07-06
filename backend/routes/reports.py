@@ -381,10 +381,10 @@ def generate_report(request: ReportGenerateRequest, user: dict = Depends(require
     # Insert audit trail log
     cursor.execute(
         """
-        INSERT INTO audit_logs (action, entity_type, entity_id, details_json)
-        VALUES ('CREATE_REPORT', 'dmca_report', ?, ?)
+        INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
+        VALUES (?, 'CREATE_REPORT', 'dmca_report', ?, ?)
         """,
-        (report_id, f'{{"template": "{request.template_type}", "case_id": {request.case_id}}}')
+        (user["id"], report_id, f'{{"template": "{request.template_type}", "case_id": {request.case_id}}}')
     )
     
     conn.commit()

@@ -55,7 +55,7 @@ def run_phase4_tests():
     
     try:
         # 1. Login Admin to get token
-        login_res = client.post("/api/v1/auth/login", json={"email": "admin", "password": "Admin123"})
+        login_res = client.post("/api/v1/auth/login", json={"email": "admin", "password": "AdminPassword123"})
         assert login_res.status_code == 200, "Admin login failed"
         admin_token = login_res.json()["token"]
         

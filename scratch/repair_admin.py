@@ -13,7 +13,7 @@ db_paths = [
     "dist/CopyrightCenter/storage/database.db"
 ]
 
-admin_hash = hash_password("Admin123")
+admin_hash = hash_password("AdminPassword123")
 
 for db_path in db_paths:
     if not os.path.exists(os.path.dirname(db_path)):

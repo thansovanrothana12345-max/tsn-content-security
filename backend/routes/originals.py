@@ -40,6 +40,53 @@ def get_video_duration(filepath: str) -> float:
         pass
     return 0.0
 
+def register_original_in_db(case_id: int, safe_filename: str, file_uuid: str, filesize: int, duration: float, destination_path: str, user: dict) -> int:
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Verify case folder exists
+    cursor.execute("SELECT id FROM cases WHERE id = ?", (case_id,))
+    if not cursor.fetchone():
+        conn.close()
+        if os.path.exists(destination_path):
+            os.remove(destination_path)
+        raise HTTPException(status_code=404, detail="Case folder not found.")
+        
+    try:
+        # Save to SQLite originals registry
+        cursor.execute(
+            """
+            INSERT INTO originals (case_id, filename, file_uuid, storage_provider, filesize, duration, fingerprint_json)
+            VALUES (?, ?, ?, 'local', ?, ?, '[]')
+            """,
+            (case_id, safe_filename, file_uuid, filesize, duration)
+        )
+        original_id = cursor.lastrowid
+        
+        # Log audit entry
+        details = json.dumps({"filename": safe_filename, "file_uuid": file_uuid, "filesize": filesize, "duration": duration})
+        cursor.execute("""
+            INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
+            VALUES (?, 'UPLOAD_ORIGINAL', 'original', ?, ?)
+        """, (user["id"], original_id, details))
+        
+        # Enqueue background fingerprint job
+        job_payload = json.dumps({"original_id": original_id, "filepath": destination_path})
+        cursor.execute("""
+            INSERT INTO background_jobs (case_id, job_type, status, payload_json)
+            VALUES (?, 'fingerprint_original', 'Queued', ?)
+        """, (case_id, job_payload))
+        
+        conn.commit()
+        return original_id
+    except sqlite3.Error as e:
+        conn.close()
+        if os.path.exists(destination_path):
+            os.remove(destination_path)
+        raise HTTPException(status_code=500, detail=f"Database write error: {str(e)}")
+    finally:
+        conn.close()
+
 # 1. List originals for a case
 @router.get("/{case_id}")
 def list_originals(case_id: int, user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))):
@@ -156,51 +203,15 @@ async def assemble_chunks(request: AssembleRequest, user: dict = Depends(require
          
     duration = get_video_duration(destination_path)
     
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Verify case folder exists
-    cursor.execute("SELECT id FROM cases WHERE id = ?", (request.case_id,))
-    if not cursor.fetchone():
-        conn.close()
-        if os.path.exists(destination_path):
-            os.remove(destination_path)
-        raise HTTPException(status_code=404, detail="Case folder not found.")
-        
-    try:
-        # Save to SQLite originals registry
-        # Note: fingerprint_json is null/pending during Phase 3 database upload
-        cursor.execute(
-            """
-            INSERT INTO originals (case_id, filename, file_uuid, storage_provider, filesize, duration, fingerprint_json)
-            VALUES (?, ?, ?, 'local', ?, ?, '[]')
-            """,
-            (request.case_id, safe_filename, file_uuid, filesize, duration)
-        )
-        original_id = cursor.lastrowid
-        
-        # Log audit entry
-        details = json.dumps({"filename": safe_filename, "file_uuid": file_uuid, "filesize": filesize, "duration": duration})
-        cursor.execute("""
-            INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
-            VALUES (?, 'UPLOAD_ORIGINAL', 'original', ?, ?)
-        """, (user["id"], original_id, details))
-        
-        # Enqueue background fingerprint job
-        job_payload = json.dumps({"original_id": original_id, "filepath": destination_path})
-        cursor.execute("""
-            INSERT INTO background_jobs (case_id, job_type, status, payload_json)
-            VALUES (?, 'fingerprint_original', 'Queued', ?)
-        """, (request.case_id, job_payload))
-        
-        conn.commit()
-    except sqlite3.Error as e:
-        conn.close()
-        if os.path.exists(destination_path):
-            os.remove(destination_path)
-        raise HTTPException(status_code=500, detail=f"Database write error: {str(e)}")
-        
-    conn.close()
+    original_id = register_original_in_db(
+        case_id=request.case_id,
+        safe_filename=safe_filename,
+        file_uuid=file_uuid,
+        filesize=filesize,
+        duration=duration,
+        destination_path=destination_path,
+        user=user
+    )
     
     # Clean up temporary chunk files directory
     try:
@@ -232,6 +243,13 @@ def delete_original(original_id: int, user: dict = Depends(require_role(["Admin"
         
     # Delete from database
     cursor.execute("DELETE FROM originals WHERE id = ?", (original_id,))
+    
+    # Clean up related background jobs, duplicate groups, and duplicate group members
+    cursor.execute("DELETE FROM background_jobs WHERE job_type = 'fingerprint_original' AND payload_json LIKE ?;", (f'%"original_id": {original_id}%',))
+    
+    file_uuid = row["file_uuid"]
+    cursor.execute("DELETE FROM duplicate_groups WHERE representative_file_uuid = ? AND representative_file_type = 'original';", (file_uuid,))
+    cursor.execute("DELETE FROM duplicate_group_members WHERE member_file_uuid = ? AND member_file_type = 'original';", (file_uuid,))
     
     # Log audit entry
     details = json.dumps({"filename": row["filename"], "file_uuid": row["file_uuid"]})
@@ -379,50 +397,15 @@ async def upload_original_single(
         
     duration = get_video_duration(destination_path)
     
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Verify case folder exists
-    cursor.execute("SELECT id FROM cases WHERE id = ?", (case_id,))
-    if not cursor.fetchone():
-        conn.close()
-        if os.path.exists(destination_path):
-            os.remove(destination_path)
-        raise HTTPException(status_code=404, detail="Case folder not found.")
-        
-    try:
-        # Save to SQLite originals registry
-        cursor.execute(
-            """
-            INSERT INTO originals (case_id, filename, file_uuid, storage_provider, filesize, duration, fingerprint_json)
-            VALUES (?, ?, ?, 'local', ?, ?, '[]')
-            """,
-            (case_id, safe_filename, file_uuid, filesize, duration)
-        )
-        original_id = cursor.lastrowid
-        
-        # Log audit entry
-        details = json.dumps({"filename": safe_filename, "file_uuid": file_uuid, "filesize": filesize, "duration": duration})
-        cursor.execute("""
-            INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
-            VALUES (?, 'UPLOAD_ORIGINAL', 'original', ?, ?)
-        """, (user["id"], original_id, details))
-        
-        # Enqueue background fingerprint job
-        job_payload = json.dumps({"original_id": original_id, "filepath": destination_path})
-        cursor.execute("""
-            INSERT INTO background_jobs (case_id, job_type, status, payload_json)
-            VALUES (?, 'fingerprint_original', 'Queued', ?)
-        """, (case_id, job_payload))
-        
-        conn.commit()
-    except sqlite3.Error as e:
-        conn.close()
-        if os.path.exists(destination_path):
-            os.remove(destination_path)
-        raise HTTPException(status_code=500, detail=f"Database write error: {str(e)}")
-        
-    conn.close()
+    original_id = register_original_in_db(
+        case_id=case_id,
+        safe_filename=safe_filename,
+        file_uuid=file_uuid,
+        filesize=filesize,
+        duration=duration,
+        destination_path=destination_path,
+        user=user
+    )
     return {
         "id": original_id,
         "filename": safe_filename,

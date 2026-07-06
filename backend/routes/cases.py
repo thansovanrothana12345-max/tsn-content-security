@@ -401,30 +401,14 @@ class NoteCreate(BaseModel):
 @router.get("/search")
 def search_cases(
     q: str,
+    response: Response,
     user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
 ):
-    """Searches cases fuzzy matching title, description, or tags."""
+    """Searches cases fuzzy matching title, description, or tags by delegating to list_cases."""
     if not q or len(q.strip()) == 0:
          raise HTTPException(status_code=400, detail="Search query parameter 'q' must not be empty.")
          
-    conn = get_db_connection()
-    try:
-        cursor = conn.cursor()
-        pattern = f"%{q.strip()}%"
-        cursor.execute("""
-             SELECT c.*, 
-                    u_owner.username as owner_username,
-                    u_assignee.username as assignee_username
-             FROM cases c
-             LEFT JOIN users u_owner ON c.owner_user_id = u_owner.id
-             LEFT JOIN users u_assignee ON c.assigned_user_id = u_assignee.id
-             WHERE c.title LIKE ? OR c.description LIKE ? OR c.tags LIKE ?
-             ORDER BY c.created_at DESC;
-        """, (pattern, pattern, pattern))
-        rows = cursor.fetchall()
-        return [dict(r) for r in rows]
-    finally:
-        conn.close()
+    return list_cases(response=response, q=q, user=user)
 
 @router.post("/{case_id}/notes", status_code=201)
 def create_case_note(

@@ -149,6 +149,11 @@ def delete_evidence(evidence_id: int, user: dict = Depends(require_role(["Admin"
     # Delete from DB
     cursor.execute("DELETE FROM evidence WHERE id = ?", (evidence_id,))
     
+    # Clean up duplicate groups where this evidence was representative or member
+    evidence_uuid_str = str(evidence_id)
+    cursor.execute("DELETE FROM duplicate_groups WHERE representative_file_uuid = ? AND representative_file_type = 'evidence';", (evidence_uuid_str,))
+    cursor.execute("DELETE FROM duplicate_group_members WHERE member_file_uuid = ? AND member_file_type = 'evidence';", (evidence_uuid_str,))
+    
     # Audit log
     details = json.dumps({"title": row["title"]})
     cursor.execute("""
@@ -401,7 +406,7 @@ def run_duplicate_scan(
 class EvidencePackageGenerateRequest(BaseModel):
     evidence_id: int
 
-@router.post("/evidence/packages/generate")
+@router.post("/packages/generate")
 def generate_evidence_package(
     request: EvidencePackageGenerateRequest,
     user: dict = Depends(require_role(["Admin", "Editor"]))
@@ -420,7 +425,7 @@ def generate_evidence_package(
     finally:
          conn.close()
 
-@router.get("/evidence/packages/{package_id}")
+@router.get("/packages/{package_id}")
 def get_evidence_package(
     package_id: int,
     user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
@@ -436,7 +441,7 @@ def get_evidence_package(
          
     return json.loads(row["package_json"])
 
-@router.get("/evidence/packages/{package_id}/export/json")
+@router.get("/packages/{package_id}/export/json")
 def export_evidence_package_json(
     package_id: int,
     user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
@@ -458,7 +463,7 @@ def export_evidence_package_json(
          headers={"Content-Disposition": f"attachment; filename=evidence_package_{package_id}.json"}
     )
 
-@router.get("/evidence/packages/{package_id}/export/zip")
+@router.get("/packages/{package_id}/export/zip")
 def export_evidence_package_zip(
     package_id: int,
     user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))

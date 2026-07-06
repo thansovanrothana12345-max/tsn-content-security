@@ -460,17 +460,17 @@ def init_db():
     cursor.execute("SELECT id, password_hash FROM users WHERE username = 'admin' OR email = 'admin@example.com';")
     admin_row = cursor.fetchone()
     if not admin_row:
-        admin_pass_hash = hash_password("Admin123")
+        admin_pass_hash = hash_password("AdminPassword123")
         cursor.execute("""
         INSERT INTO users (username, email, password_hash, role)
         VALUES ('admin', 'admin@example.com', ?, 'Admin');
         """, (admin_pass_hash,))
-        print("Default administrator seeded successfully (username: 'admin', password: 'Admin123').")
+        print("Default administrator seeded successfully (username: 'admin', password: 'AdminPassword123').")
     else:
         db_hash = admin_row["password_hash"]
         if not db_hash.startswith("$2b$") and not db_hash.startswith("$2a$"):
             print("Upgrading legacy administrator password hash to bcrypt...")
-            bcrypt_hash = hash_password("Admin123")
+            bcrypt_hash = hash_password("AdminPassword123")
             cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?;", (bcrypt_hash, admin_row["id"]))
             
     # Upgrade any other users with legacy SHA-256 password hashes to bcrypt (using 'GuestPassword123')
