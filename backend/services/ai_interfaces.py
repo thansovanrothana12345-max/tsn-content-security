@@ -80,3 +80,9 @@ class ScanOrchestratorInterface(ABC):
     def ingest_fingerprint(self, case_id: int, entity_type: str, entity_id: int, file_path: str) -> int:
         """Processes a media file, generates fingerprints, and persists to registry."""
         pass
+
+class IDetectionService(ABC):
+    @abstractmethod
+    def run_detection_check(self, case_id: int, evidence_id: int, asset_file: str) -> dict:
+        """Executes full detection check pipeline on an asset file against originals."""
+        pass

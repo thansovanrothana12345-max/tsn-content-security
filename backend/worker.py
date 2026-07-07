@@ -446,30 +446,11 @@ def process_single_scan_job(job):
         if asset_file:
             start_time = time.time()
             try:
-                # Ingest fingerprint via orchestrator
-                evidence_fp_id = AIServiceOrchestrator.ingest_fingerprint(target_case_id, "evidence", evidence_id, asset_file)
+                from backend.services.detection_service import DetectionService
+                service = DetectionService()
+                res = service.run_detection_check(target_case_id, evidence_id, asset_file)
+                max_similarity_score = res.get("overall_similarity", 0.0)
                 
-                # Check similarity against all case originals
-                conn_sim = get_db_connection()
-                cursor_sim = conn_sim.cursor()
-                cursor_sim.execute("SELECT id FROM originals WHERE case_id = ?;", (target_case_id,))
-                originals_rows = cursor_sim.fetchall()
-                conn_sim.close()
-                
-                for orig in originals_rows:
-                    orig_id = orig[0] if isinstance(orig, (tuple, list)) else orig["id"]
-                    sim_res = AIServiceOrchestrator.check_similarity(
-                        case_id=target_case_id,
-                        source_id=evidence_id,
-                        source_type="evidence",
-                        target_id=orig_id,
-                        target_type="original",
-                        match_types=["perceptual_hash", "embedding"]
-                    )
-                    score = sim_res.get("overall_score", 0.0)
-                    if score > max_similarity_score:
-                        max_similarity_score = score
-                        
                 # Update evidence score
                 conn_upd = get_db_connection()
                 cursor_upd = conn_upd.cursor()
