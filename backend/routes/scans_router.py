@@ -118,3 +118,120 @@ def list_scan_results(
         return [dict(r) for r in rows]
     finally:
         conn.close()
+
+
+class CreateSessionRequest(BaseModel):
+    case_id: int
+
+@router.post("/sessions", status_code=201)
+def start_scan_session(
+    request: CreateSessionRequest,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Creates a new scan session with a template DAG of tasks."""
+    from backend.services.scan_orchestrator import ScanOrchestrator
+    try:
+        session_data = ScanOrchestrator.create_session(request.case_id, user["id"])
+        return session_data
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.get("/sessions/{session_uuid}/progress")
+def get_session_progress_api(
+    session_uuid: str,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Retrieves real-time progress details of a scan session."""
+    from backend.services.scan_orchestrator import ScanOrchestrator
+    try:
+        progress_data = ScanOrchestrator.get_session_progress(session_uuid)
+        return progress_data
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.post("/sessions/{session_uuid}/pause")
+def pause_session_api(
+    session_uuid: str,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Pauses a running scan session."""
+    from backend.services.scan_orchestrator import ScanOrchestrator
+    try:
+        success = ScanOrchestrator.pause_session(session_uuid)
+        if not success:
+            raise HTTPException(status_code=400, detail="Session cannot be paused (must be in Pending or Running state).")
+        return {"message": "Scan session successfully paused."}
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.post("/sessions/{session_uuid}/resume")
+def resume_session_api(
+    session_uuid: str,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Resumes a paused scan session."""
+    from backend.services.scan_orchestrator import ScanOrchestrator
+    try:
+        success = ScanOrchestrator.resume_session(session_uuid)
+        if not success:
+            raise HTTPException(status_code=400, detail="Session cannot be resumed (must be in Paused state).")
+        return {"message": "Scan session successfully resumed."}
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.post("/sessions/{session_uuid}/cancel")
+def cancel_session_api(
+    session_uuid: str,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Cancels a scan session."""
+    from backend.services.scan_orchestrator import ScanOrchestrator
+    try:
+        success = ScanOrchestrator.cancel_session(session_uuid)
+        if not success:
+            raise HTTPException(status_code=400, detail="Session cannot be cancelled.")
+        return {"message": "Scan session successfully cancelled."}
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.post("/sessions/{session_uuid}/retry")
+def retry_session_api(
+    session_uuid: str,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Retries a failed or cancelled scan session."""
+    from backend.services.scan_orchestrator import ScanOrchestrator
+    try:
+        success = ScanOrchestrator.retry_session(session_uuid)
+        if not success:
+            raise HTTPException(status_code=400, detail="Session cannot be retried.")
+        return {"message": "Scan session successfully reset to Pending for retry."}
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.get("/sessions/{session_uuid}/timeline")
+def get_session_timeline_api(
+    session_uuid: str,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Retrieves chronological timeline logs for a scan session."""
+    from backend.services.scan_orchestrator import ScanOrchestrator
+    try:
+        timeline = ScanOrchestrator.get_session_timeline(session_uuid)
+        return timeline
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))

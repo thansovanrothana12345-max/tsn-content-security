@@ -16,6 +16,12 @@ from backend.worker import update_worker_heartbeat
 class TestUnifiedPollingAndHeartbeats(unittest.TestCase):
     def setUp(self):
         init_db()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM cases;")
+        cursor.execute("INSERT INTO cases (id, title, description, status, priority) VALUES (1, 'Test Case', 'Desc', 'Active', 'Medium');")
+        conn.commit()
+        conn.close()
 
     def test_jobs_queue_priority_order(self):
         # Clear existing jobs in queue

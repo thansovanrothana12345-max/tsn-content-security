@@ -904,6 +904,42 @@ def init_db():
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_worker_heartbeats_time ON worker_heartbeats(heartbeat_at);")
 
+    # 21. Scan Sessions Table for Sprint 7 Workflow
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS scan_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_uuid TEXT NOT NULL UNIQUE,
+        case_id INTEGER NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('Pending', 'Running', 'Paused', 'Cancelled', 'Completed', 'Failed')),
+        progress_percent REAL DEFAULT 0.0,
+        created_by INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    );
+    """)
+    
+    # 22. Scan Session Tasks Table (DAG nodes)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS scan_session_tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id INTEGER NOT NULL,
+        task_uuid TEXT NOT NULL UNIQUE,
+        task_type TEXT NOT NULL CHECK (task_type IN ('upload', 'preprocess', 'fingerprint', 'search', 'ai_detect', 'collect_evidence', 'reporting')),
+        status TEXT NOT NULL CHECK (status IN ('Pending', 'Running', 'Paused', 'Cancelled', 'Completed', 'Failed')),
+        depends_on_task_uuid TEXT,
+        payload_json TEXT,
+        error_message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (session_id) REFERENCES scan_sessions(id) ON DELETE CASCADE
+    );
+    """)
+    
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_sessions_status ON scan_sessions(status);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_session_tasks_status ON scan_session_tasks(session_id, status);")
+
     conn.commit()
     conn.close()
     print("Database schema verified and initialized successfully at", DATABASE_PATH)

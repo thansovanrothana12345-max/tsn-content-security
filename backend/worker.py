@@ -597,16 +597,58 @@ def execute_advanced_queue_job(job_id, job_dict):
     finally:
         conn.close()
 
+def execute_session_task(task_id, session_id, task_type, payload_dict):
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        
+        # Simulating execution of the task steps based on type (Sprint 7)
+        steps = 5
+        for _ in range(steps):
+            time.sleep(0.005) # Simulated latency
+            
+        cursor.execute("UPDATE scan_session_tasks SET status = 'Completed', updated_at = CURRENT_TIMESTAMP WHERE id = ?;", (task_id,))
+        conn.commit()
+        
+        # Update progress
+        cursor.execute("SELECT session_uuid FROM scan_sessions WHERE id = ?;", (session_id,))
+        row = cursor.fetchone()
+        if row:
+            from backend.services.scan_orchestrator import ScanOrchestrator
+            ScanOrchestrator.get_session_progress(row["session_uuid"])
+            
+    except Exception as ex:
+        import traceback
+        tb_str = traceback.format_exc()
+        print(f"[WORKER] Session task {task_id} failed: {ex}\n{tb_str}")
+        cursor.execute("UPDATE scan_session_tasks SET status = 'Failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?;", (str(ex), task_id))
+        conn.commit()
+        
+        cursor.execute("SELECT session_uuid FROM scan_sessions WHERE id = ?;", (session_id,))
+        row = cursor.fetchone()
+        if row:
+            from backend.services.scan_orchestrator import ScanOrchestrator
+            ScanOrchestrator.get_session_progress(row["session_uuid"])
+    finally:
+        conn.close()
+
 def worker_loop():
     """Main worker queue polling cycle with concurrency and priority execution."""
     from backend.services.background_tasks import BackgroundTaskManager
     from backend.services.model_manager import ModelLifecycleManager
+    from backend.services.scan_orchestrator import ScanOrchestrator
     import uuid
     
     worker_id = f"worker_{uuid.uuid4().hex[:8]}"
     print(f"[WORKER] Background queue worker {worker_id} initialized and monitoring jobs database.")
     task_manager = BackgroundTaskManager.get_instance()
     
+    # Startup recovery (Sprint 7)
+    try:
+        ScanOrchestrator.recover_stuck_sessions()
+    except Exception as rec_err:
+        print(f"[WORKER] Startup recovery error: {rec_err}")
+        
     update_worker_heartbeat(worker_id, "Idle")
     
     try:
@@ -740,6 +782,52 @@ def worker_loop():
                                 execute_advanced_queue_job(adv_job_id, adv_job_dict)
                     except Exception as adv_ex:
                         print(f"[WORKER] Advanced queue polling error: {adv_ex}")
+
+                if conn:
+                    # 4. Fetch next schedulable Session Task (Sprint 7)
+                    try:
+                        cursor.execute("""
+                            SELECT t.id, t.session_id, t.task_uuid, t.task_type, t.payload_json, s.case_id, s.session_uuid, s.status as session_status
+                            FROM scan_session_tasks t
+                            JOIN scan_sessions s ON t.session_id = s.id
+                            WHERE t.status = 'Pending'
+                              AND s.status IN ('Pending', 'Running')
+                              AND (
+                                  t.depends_on_task_uuid IS NULL
+                                  OR (
+                                      SELECT status FROM scan_session_tasks WHERE task_uuid = t.depends_on_task_uuid
+                                  ) = 'Completed'
+                              )
+                            ORDER BY s.created_at ASC, t.id ASC
+                            LIMIT 1;
+                        """)
+                        task_row = cursor.fetchone()
+                        if task_row:
+                            task_id = task_row["id"]
+                            sess_id = task_row["session_id"]
+                            task_uuid = task_row["task_uuid"]
+                            task_type = task_row["task_type"]
+                            sess_uuid = task_row["session_uuid"]
+                            payload = json.loads(task_row["payload_json"])
+                            
+                            # Lock the task and set status to Running, and update session to Running
+                            cursor.execute("UPDATE scan_session_tasks SET status = 'Running', updated_at = CURRENT_TIMESTAMP WHERE id = ?;", (task_id,))
+                            if task_row["session_status"] == 'Pending':
+                                cursor.execute("UPDATE scan_sessions SET status = 'Running', updated_at = CURRENT_TIMESTAMP WHERE id = ?;", (sess_id,))
+                            conn.commit()
+                            conn.close()
+                            conn = None
+                            
+                            print(f"[WORKER] Starting session task {task_id} ({task_type}) for Session {sess_uuid}.")
+                            update_worker_heartbeat(worker_id, "Processing", task_id, f"sess_task_{task_type}")
+                            
+                            task_key = f"sess_{task_id}"
+                            if use_concurrent:
+                                task_manager.start_task(task_key, execute_session_task, task_id, sess_id, task_type, payload)
+                            else:
+                                execute_session_task(task_id, sess_id, task_type, payload)
+                    except Exception as sess_ex:
+                        print(f"[WORKER] Session task polling error: {sess_ex}")
 
                 if conn:
                     conn.close()
