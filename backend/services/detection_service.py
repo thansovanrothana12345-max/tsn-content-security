@@ -1,13 +1,47 @@
 import time
 import os
 import json
-from backend.services.ai_interfaces import IDetectionService
+import logging
+from backend.services.ai_interfaces import IDetectionService, DependencyContainer
 from backend.ai.services.orchestrator import AIServiceOrchestrator
 from backend.database import get_db_connection
 from backend.services.logger import log_scan_job
 from backend.config import Config
+from backend.services.cache import DetectionCache
+from backend.services.model_manager import ModelLifecycleManager
+from backend.services.metrics import AIMetricsCollector, log_ai_inference
+
+logger = logging.getLogger("tsn.detection_service")
+
+def compute_file_sha256(filepath: str) -> str:
+    import hashlib
+    try:
+        h = hashlib.sha256()
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except FileNotFoundError:
+        return hashlib.sha256(filepath.encode('utf-8', errors='ignore')).hexdigest()
 
 class DetectionService(IDetectionService):
+    def __init__(self, cache_service=None, model_manager=None):
+        container = DependencyContainer.get_instance()
+        
+        # Initialize defaults in container if not present
+        try:
+            container.resolve(DetectionCache)
+        except KeyError:
+            container.register(DetectionCache, DetectionCache())
+            
+        try:
+            container.resolve(ModelLifecycleManager)
+        except KeyError:
+            container.register(ModelLifecycleManager, ModelLifecycleManager.get_instance())
+            
+        self.cache = cache_service or container.resolve(DetectionCache)
+        self.model_manager = model_manager or container.resolve(ModelLifecycleManager)
+
     def run_detection_check(self, case_id: int, evidence_id: int, asset_file: str) -> dict:
         """Executes full detection check pipeline on an asset file against originals.
         
@@ -18,6 +52,25 @@ class DetectionService(IDetectionService):
             raise FileNotFoundError(f"Asset file not found for detection processing: {asset_file}")
             
         start_time = time.time()
+        
+        # 1. Check cache if enabled
+        cache_enabled = getattr(Config, "DETECTION_CACHE_ENABLED", True)
+        asset_hash = compute_file_sha256(asset_file)
+        cache_key = f"detection:{case_id}:{asset_hash}"
+        
+        metrics = AIMetricsCollector.get_instance()
+
+        if cache_enabled:
+            cached_res = self.cache.get(cache_key)
+            if cached_res:
+                metrics.record_cache_event(hit=True)
+                res = json.loads(cached_res)
+                processing_time = time.time() - start_time
+                log_scan_job("DETECTION_JOB", evidence_id, "Completed", f"model=MultiModalScore score={res['overall_similarity']:.4f} processing_time={processing_time:.2f}s status=Completed (Cache Hit)")
+                return res
+            else:
+                metrics.record_cache_event(hit=False)
+
         max_similarity_score = 0.0
         best_confidence_score = 0.0
         best_confidence_level = "Low"
@@ -31,70 +84,101 @@ class DetectionService(IDetectionService):
         }
         best_agreements = []
 
-        # 1. Ingest fingerprint via orchestrator
-        evidence_fp_id = AIServiceOrchestrator.ingest_fingerprint(case_id, "evidence", evidence_id, asset_file)
+        max_retries = getattr(Config, "AI_MODEL_RETRY_COUNT", 3)
+        backoff_factor = getattr(Config, "AI_MODEL_RETRY_BACKOFF", 2.0)
         
-        # 2. Get originals of the case
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id FROM originals WHERE case_id = ?;", (case_id,))
-        originals = cursor.fetchall()
-        conn.close()
+        attempt = 0
+        success = False
+        last_err = None
 
-        # 3. Check similarity against each original reference asset
-        for orig in originals:
-            orig_id = orig[0] if isinstance(orig, (tuple, list)) else orig["id"]
-            
-            # AIServiceOrchestrator.check_similarity executes similarity comparisons
-            sim_res = AIServiceOrchestrator.check_similarity(
-                case_id=case_id,
-                source_id=evidence_id,
-                source_type="evidence",
-                target_id=orig_id,
-                target_type="original",
-                match_types=["perceptual_hash", "embedding"]
-            )
-            
-            score = sim_res.get("overall_score", 0.0)
-            if score > max_similarity_score:
-                max_similarity_score = score
+        while attempt <= max_retries:
+            try:
+                # Preload models via model lifecycle manager
+                self.model_manager.load_model("clip")
+                self.model_manager.load_model("sentence_transformers")
+                self.model_manager.load_model("whisper")
+
+                # Ingest fingerprint via orchestrator
+                evidence_fp_id = AIServiceOrchestrator.ingest_fingerprint(case_id, "evidence", evidence_id, asset_file)
                 
-                # Fetch detailed report statistics from fingerprint comparison
-                # We can call compare_fingerprints directly or use check_similarity returns
-                conn_fp = get_db_connection()
-                cursor_fp = conn_fp.cursor()
-                cursor_fp.execute("SELECT fingerprint_json FROM originals WHERE id = ?;", (orig_id,))
-                orig_row = cursor_fp.fetchone()
-                
-                cursor_fp.execute("SELECT phash, ahash, dhash, metadata_hash, ocr_fingerprint FROM fingerprints WHERE entity_type = 'evidence' AND entity_id = ? ORDER BY id DESC LIMIT 1;", (evidence_id,))
-                ev_fp_row = cursor_fp.fetchone()
-                conn_fp.close()
-                
-                if orig_row and orig_row[0] and ev_fp_row:
-                    try:
-                        orig_fp = json.loads(orig_row[0])
-                        # Build minimal fp for comparison
-                        ev_fp = {
-                            "fingerprint": [{"hash": ev_fp_row[2], "offset": 0.0}], # dhash
-                            "audio_peaks": [],
-                            "logo_metadata": [],
-                            "ocr_text": ev_fp_row[4] or ""
-                        }
+                # Get originals of the case
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("SELECT id FROM originals WHERE case_id = ?;", (case_id,))
+                originals = cursor.fetchall()
+                conn.close()
+
+                # Check similarity against each original reference asset
+                for orig in originals:
+                    orig_id = orig[0] if isinstance(orig, (tuple, list)) else orig["id"]
+                    
+                    sim_res = AIServiceOrchestrator.check_similarity(
+                        case_id=case_id,
+                        source_id=evidence_id,
+                        source_type="evidence",
+                        target_id=orig_id,
+                        target_type="original",
+                        match_types=["perceptual_hash", "embedding"]
+                    )
+                    
+                    score = sim_res.get("overall_score", 0.0)
+                    if score > max_similarity_score:
+                        max_similarity_score = score
                         
-                        from backend.fingerprint import compare_fingerprints
-                        conf, report = compare_fingerprints(orig_fp, ev_fp)
-                        best_confidence_score = report.get("confidence_score", 0.0)
-                        best_confidence_level = report.get("confidence_level", "Low")
-                        best_explanation = report.get("explanation", "")
-                        best_modality_scores = report.get("weighted_evidence", best_modality_scores)
-                        best_agreements = report.get("agreements", [])
-                    except Exception:
-                        pass
+                        conn_fp = get_db_connection()
+                        cursor_fp = conn_fp.cursor()
+                        cursor_fp.execute("SELECT fingerprint_json FROM originals WHERE id = ?;", (orig_id,))
+                        orig_row = cursor_fp.fetchone()
                         
+                        cursor_fp.execute("SELECT phash, ahash, dhash, metadata_hash, ocr_fingerprint FROM fingerprints WHERE entity_type = 'evidence' AND entity_id = ? ORDER BY id DESC LIMIT 1;", (evidence_id,))
+                        ev_fp_row = cursor_fp.fetchone()
+                        conn_fp.close()
+                        
+                        if orig_row and orig_row[0] and ev_fp_row:
+                            try:
+                                orig_fp = json.loads(orig_row[0])
+                                ev_fp = {
+                                    "fingerprint": [{"hash": ev_fp_row[2], "offset": 0.0}], # dhash
+                                    "audio_peaks": [],
+                                    "logo_metadata": [],
+                                    "ocr_text": ev_fp_row[4] or ""
+                                }
+                                
+                                from backend.fingerprint import compare_fingerprints
+                                conf, report = compare_fingerprints(orig_fp, ev_fp)
+                                best_confidence_score = report.get("confidence_score", 0.0)
+                                best_confidence_level = report.get("confidence_level", "Low")
+                                best_explanation = report.get("explanation", "")
+                                best_modality_scores = report.get("weighted_evidence", best_modality_scores)
+                                best_agreements = report.get("agreements", [])
+                            except Exception:
+                                pass
+                success = True
+                break
+            except Exception as e:
+                last_err = e
+                attempt += 1
+                if attempt <= max_retries:
+                    sleep_time = backoff_factor ** attempt
+                    logger.warning(f"Transient AI failure: {e}. Retrying in {sleep_time}s (Attempt {attempt}/{max_retries})...")
+                    time.sleep(sleep_time)
+                else:
+                    logger.error(f"AI failure retries exhausted: {e}")
+
         processing_time = time.time() - start_time
+        
+        if not success:
+            metrics.record_inference("MultiModalScore", success=False, latency_ms=processing_time * 1000)
+            log_ai_inference("MultiModalScore", "DetectionCheck", "Failed", f"case_id={case_id} evidence_id={evidence_id}", processing_time * 1000, str(last_err))
+            raise last_err if last_err else RuntimeError("Unknown error during detection check execution.")
+
+        # Record metrics & log success
+        metrics.record_inference("MultiModalScore", success=True, latency_ms=processing_time * 1000)
+        log_ai_inference("MultiModalScore", "DetectionCheck", "Success", f"case_id={case_id} score={max_similarity_score:.4f}", processing_time * 1000)
+
         log_scan_job("DETECTION_JOB", evidence_id, "Completed", f"model=MultiModalScore score={max_similarity_score:.4f} processing_time={processing_time:.2f}s status=Completed")
         
-        return {
+        result_payload = {
             "evidence_id": evidence_id,
             "case_id": case_id,
             "overall_similarity": round(max_similarity_score, 4),
@@ -104,3 +188,10 @@ class DetectionService(IDetectionService):
             "modality_scores": best_modality_scores,
             "agreements": best_agreements
         }
+
+        # Cache result
+        if cache_enabled:
+            self.cache.set(cache_key, json.dumps(result_payload))
+            
+        return result_payload
+

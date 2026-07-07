@@ -86,3 +86,57 @@ class IDetectionService(ABC):
     def run_detection_check(self, case_id: int, evidence_id: int, asset_file: str) -> dict:
         """Executes full detection check pipeline on an asset file against originals."""
         pass
+
+
+class IAIModelProvider(ABC):
+    @abstractmethod
+    def load(self) -> None:
+        """Loads the model into system memory or CUDA VRAM."""
+        pass
+
+    @abstractmethod
+    def unload(self) -> None:
+        """Unloads the model to free resources."""
+        pass
+
+    @abstractmethod
+    def is_loaded(self) -> bool:
+        """Returns True if the model is currently loaded in memory."""
+        pass
+
+    @abstractmethod
+    def health_check(self) -> dict:
+        """Checks model provider state and returns status details."""
+        pass
+
+    @abstractmethod
+    def get_model_instance(self):
+        """Returns the raw model object instance (e.g. torch module)."""
+        pass
+
+
+class DependencyContainer:
+    """Lightweight Service Locator for Dependency Injection."""
+    _instance = None
+
+    def __init__(self):
+        self._services = {}
+
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def register(self, service_type, service_instance):
+        self._services[service_type] = service_instance
+
+    def resolve(self, service_type):
+        if service_type not in self._services:
+            raise KeyError(f"Service {service_type.__name__ if hasattr(service_type, '__name__') else service_type} not registered in container.")
+        return self._services[service_type]
+
+    @classmethod
+    def reset(cls):
+        cls._instance = None
+

@@ -30,3 +30,13 @@ class Config:
     QUEUE_POLLING_INTERVAL: float = 2.0
     QUEUE_MAX_RETRIES: int = 3
     SUPPORTED_PLATFORMS: list = ["YouTube", "TikTok", "Instagram", "Facebook Post", "Facebook Ad Library", "Website"]
+
+    # AI and Background Tasks Configurations
+    AI_INFERENCE_TIMEOUT: float = float(os.getenv("AI_INFERENCE_TIMEOUT", "120.0"))
+    AI_MODEL_RETRY_COUNT: int = int(os.getenv("AI_MODEL_RETRY_COUNT", "3"))
+    AI_MODEL_RETRY_BACKOFF: float = float(os.getenv("AI_MODEL_RETRY_BACKOFF", "2.0"))
+    DETECTION_CACHE_ENABLED: bool = os.getenv("DETECTION_CACHE_ENABLED", "True").lower() in ("true", "1", "yes")
+    DETECTION_CACHE_TTL: int = int(os.getenv("DETECTION_CACHE_TTL", str(30 * 24 * 3600))) # 30 days
+    USE_CONCURRENT_WORKER: bool = os.getenv("USE_CONCURRENT_WORKER", "True").lower() in ("true", "1", "yes")
+    MAX_CONCURRENT_JOBS: int = int(os.getenv("MAX_CONCURRENT_JOBS", "4"))
+

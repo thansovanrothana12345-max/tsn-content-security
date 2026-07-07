@@ -30,18 +30,8 @@ def update_job_progress(job_id, progress_percent, current_step, status="Processi
         conn.close()
 
 def is_job_cancelled(job_id):
-    if not job_id:
-        return False
-    conn = get_db_connection()
-    try:
-        cursor = conn.cursor()
-        cursor.execute("SELECT status FROM background_jobs WHERE id = ?", (job_id,))
-        row = cursor.fetchone()
-        if row and row["status"] == "Cancelled":
-            return True
-        return False
-    finally:
-        conn.close()
+    from backend.services.background_tasks import BackgroundTaskManager
+    return BackgroundTaskManager.get_instance().is_cancelled(job_id)
 
 def process_fingerprint_original(case_id, payload, job_id=None):
     if is_job_cancelled(job_id):
@@ -495,21 +485,110 @@ def process_single_scan_job(job):
         log_scan_job("FAIL", job_id, "Failed", f"Error: {error_msg}")
         update_scan_job_progress(job_id, 100.0, status="Failed", error_message=error_msg)
 
+def execute_background_job(job_id, case_id, job_type, payload):
+    started_at = datetime.utcnow().isoformat()
+    error_msg = None
+    try:
+        if job_type == 'fingerprint_original':
+            process_fingerprint_original(case_id, payload, job_id)
+        elif job_type == 'scan_link':
+            process_scan_link(case_id, payload, job_id)
+        elif job_type == 'fingerprint_video':
+            process_fingerprint_video_job(case_id, payload, job_id)
+        elif job_type == 'fingerprint_audio':
+            process_fingerprint_audio_job(case_id, payload, job_id)
+    except Exception as ex:
+        error_msg = str(ex)
+        print(f"[WORKER] Job {job_id} failed with error: {error_msg}")
+        
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT status, started_at FROM background_jobs WHERE id = ?", (job_id,))
+        status_row = cursor.fetchone()
+        current_status = status_row["status"] if status_row else "Processing"
+        start_iso = status_row["started_at"] if status_row else started_at
+        
+        completed_at = datetime.utcnow().isoformat()
+        
+        duration_val = None
+        if start_iso:
+            try:
+                start_dt = datetime.fromisoformat(start_iso)
+                end_dt = datetime.fromisoformat(completed_at)
+                duration_val = (end_dt - start_dt).total_seconds()
+            except Exception:
+                pass
+        
+        if current_status == "Cancelled" or (error_msg and ("cancelled by user" in error_msg.lower() or "interrupted" in error_msg.lower())):
+            cursor.execute("""
+                UPDATE background_jobs 
+                SET status = 'Cancelled', completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Cancelled', updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            """, (completed_at, completed_at, duration_val, job_id))
+        elif error_msg:
+            cursor.execute("""
+                UPDATE background_jobs 
+                SET status = 'Failed', error_message = ?, completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Failed', updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            """, (error_msg, completed_at, completed_at, duration_val, job_id))
+        else:
+            cursor.execute("""
+                UPDATE background_jobs 
+                SET status = 'Completed', completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Completed', updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            """, (completed_at, completed_at, duration_val, job_id))
+        conn.commit()
+    except Exception as e:
+        print(f"[WORKER] Failed to finalize background job {job_id}: {e}")
+    finally:
+        conn.close()
+
+def execute_scan_job(job_id, case_id, url, platform, user_id):
+    job_dict = {
+        "id": job_id,
+        "case_id": case_id,
+        "url": url,
+        "platform": platform,
+        "created_by": user_id
+    }
+    process_single_scan_job(job_dict)
+
 def worker_loop():
-    """Main worker queue polling cycle."""
+    """Main worker queue polling cycle with concurrency and priority execution."""
+    from backend.services.background_tasks import BackgroundTaskManager
     print("[WORKER] Background queue worker initialized and monitoring jobs database.")
+    task_manager = BackgroundTaskManager.get_instance()
+    
     while True:
-        conn = None
         try:
+            use_concurrent = getattr(Config, "USE_CONCURRENT_WORKER", True)
+            max_concurrent = getattr(Config, "MAX_CONCURRENT_JOBS", 4)
+            
+            if use_concurrent:
+                with task_manager.lock:
+                    active_count = len(task_manager.active_jobs)
+                if active_count >= max_concurrent:
+                    time.sleep(Config.QUEUE_POLLING_INTERVAL)
+                    continue
+
             conn = get_db_connection()
             cursor = conn.cursor()
             
-            # 1. Fetch oldest queued legacy job
+            # 1. Fetch oldest queued legacy job using Case Priority mapping
             cursor.execute("""
-                SELECT id, case_id, job_type, payload_json 
-                FROM background_jobs 
-                WHERE status = 'Queued' 
-                ORDER BY created_at ASC 
+                SELECT j.id, j.case_id, j.job_type, j.payload_json,
+                       CASE c.priority 
+                         WHEN 'Critical' THEN 4
+                         WHEN 'High' THEN 3
+                         WHEN 'Medium' THEN 2
+                         WHEN 'Low' THEN 1
+                         ELSE 0 
+                       END as priority_val
+                FROM background_jobs j
+                LEFT JOIN cases c ON j.case_id = c.id
+                WHERE j.status = 'Queued'
+                ORDER BY priority_val DESC, j.created_at ASC
                 LIMIT 1
             """)
             job = cursor.fetchone()
@@ -520,7 +599,6 @@ def worker_loop():
                 job_type = job["job_type"]
                 payload = json.loads(job["payload_json"])
                 
-                # Mark job as Processing
                 started_at = datetime.utcnow().isoformat()
                 cursor.execute("""
                     UPDATE background_jobs 
@@ -528,87 +606,60 @@ def worker_loop():
                     WHERE id = ?
                 """, (started_at, job_id))
                 conn.commit()
+                conn.close()
+                conn = None
                 
                 print(f"[WORKER] Starting job {job_id} ({job_type}) for Case {case_id}.")
                 
-                # Process the job
-                error_msg = None
-                try:
-                    if job_type == 'fingerprint_original':
-                        process_fingerprint_original(case_id, payload, job_id)
-                    elif job_type == 'scan_link':
-                        process_scan_link(case_id, payload, job_id)
-                    elif job_type == 'fingerprint_video':
-                        process_fingerprint_video_job(case_id, payload, job_id)
-                    elif job_type == 'fingerprint_audio':
-                        process_fingerprint_audio_job(case_id, payload, job_id)
-                except Exception as ex:
-                    error_msg = str(ex)
-                    print(f"[WORKER] Job {job_id} failed with error: {error_msg}")
-                    
-                # Mark job as Completed or Failed (if not cancelled)
-                cursor.execute("SELECT status, started_at FROM background_jobs WHERE id = ?", (job_id,))
-                status_row = cursor.fetchone()
-                current_status = status_row["status"] if status_row else "Processing"
-                start_iso = status_row["started_at"] if status_row else started_at
-                
-                completed_at = datetime.utcnow().isoformat()
-                
-                # Compute duration
-                duration_val = None
-                if start_iso:
-                    try:
-                        start_dt = datetime.fromisoformat(start_iso)
-                        end_dt = datetime.fromisoformat(completed_at)
-                        duration_val = (end_dt - start_dt).total_seconds()
-                    except Exception:
-                        pass
-                
-                if current_status == "Cancelled":
-                    # Keep cancelled state but compute duration and timestamps
-                    cursor.execute("""
-                        UPDATE background_jobs 
-                        SET completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Cancelled', updated_at = CURRENT_TIMESTAMP
-                        WHERE id = ?
-                    """, (completed_at, completed_at, duration_val, job_id))
-                elif error_msg:
-                    if "cancelled by user" in error_msg.lower() or "interrupted" in error_msg.lower():
-                        cursor.execute("""
-                            UPDATE background_jobs 
-                            SET status = 'Cancelled', completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Cancelled', updated_at = CURRENT_TIMESTAMP
-                            WHERE id = ?
-                        """, (completed_at, completed_at, duration_val, job_id))
-                    else:
-                        cursor.execute("""
-                            UPDATE background_jobs 
-                            SET status = 'Failed', error_message = ?, completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Failed', updated_at = CURRENT_TIMESTAMP
-                            WHERE id = ?
-                        """, (error_msg, completed_at, completed_at, duration_val, job_id))
+                if use_concurrent:
+                    task_manager.start_task(job_id, execute_background_job, job_id, case_id, job_type, payload)
                 else:
+                    execute_background_job(job_id, case_id, job_type, payload)
+                    
+            if conn:
+                # 2. Fetch oldest queued Scan Center job using Case Priority mapping
+                cursor.execute("""
+                    SELECT s.id, s.case_id, s.url, s.platform, s.created_by,
+                           CASE c.priority 
+                             WHEN 'Critical' THEN 4
+                             WHEN 'High' THEN 3
+                             WHEN 'Medium' THEN 2
+                             WHEN 'Low' THEN 1
+                             ELSE 0 
+                           END as priority_val
+                    FROM scan_jobs s
+                    LEFT JOIN cases c ON s.case_id = c.id
+                    WHERE s.status = 'Pending'
+                    ORDER BY priority_val DESC, s.created_at ASC
+                    LIMIT 1
+                """)
+                scan_job = cursor.fetchone()
+                if scan_job:
+                    scan_job_id = scan_job["id"]
+                    scan_case_id = scan_job["case_id"]
+                    scan_url = scan_job["url"]
+                    scan_platform = scan_job["platform"]
+                    scan_user_id = scan_job["created_by"] or 0
+                    
                     cursor.execute("""
-                        UPDATE background_jobs 
-                        SET status = 'Completed', completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Completed', updated_at = CURRENT_TIMESTAMP
+                        UPDATE scan_jobs
+                        SET status = 'Running', updated_at = CURRENT_TIMESTAMP
                         WHERE id = ?
-                    """, (completed_at, completed_at, duration_val, job_id))
-                conn.commit()
-                
-            # 2. Fetch oldest queued Scan Center job
-            cursor.execute("""
-                SELECT id, case_id, url, platform, created_by
-                FROM scan_jobs
-                WHERE status = 'Pending'
-                ORDER BY created_at ASC
-                LIMIT 1
-            """)
-            scan_job = cursor.fetchone()
-            if scan_job:
-                # Close connection while running the job to release DB locks
-                conn.close()
-                conn = None
-                process_single_scan_job(dict(scan_job))
-                
+                    """, (scan_job_id,))
+                    conn.commit()
+                    conn.close()
+                    conn = None
+                    
+                    print(f"[WORKER] Starting scan job {scan_job_id} for URL {scan_url}.")
+                    
+                    if use_concurrent:
+                        task_manager.start_task(scan_job_id, execute_scan_job, scan_job_id, scan_case_id, scan_url, scan_platform, scan_user_id)
+                    else:
+                        execute_scan_job(scan_job_id, scan_case_id, scan_url, scan_platform, scan_user_id)
+
             if conn:
                 conn.close()
+                
         except Exception as e:
             if conn:
                 try:
