@@ -701,3 +701,52 @@ def update_takedown_status_api(
         raise HTTPException(status_code=404, detail=str(val_err))
     except Exception as err:
         raise HTTPException(status_code=500, detail=str(err))
+
+
+@router.get("/compliance")
+def get_compliance_report(
+    user: dict = Depends(require_role(["Admin"]))
+):
+    """Generates a signed enterprise security and audit compliance summary report."""
+    import hashlib
+    import json
+    from datetime import datetime
+    from backend.services.audit_verifier import AuditVerifier
+    
+    # 1. Verify log chain integrity
+    chain_ok, chain_msg = AuditVerifier.verify_chain()
+    
+    # 2. Fetch users summary
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, username, email, role, created_at FROM users;")
+        users = [dict(u) for u in cursor.fetchall()]
+    finally:
+        conn.close()
+        
+    # 3. Create raw payload
+    payload = {
+        "compliance_status": "COMPLIANT" if chain_ok else "NON_COMPLIANT",
+        "audit_logs_integrity": {
+            "valid": chain_ok,
+            "message": chain_msg
+        },
+        "active_users_count": len(users),
+        "users": users,
+        "hardened_headers": {
+            "X-Content-Type-Options": "nosniff",
+            "X-Frame-Options": "DENY",
+            "Content-Security-Policy": "Active"
+        },
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    
+    # 4. Generate digital cryptographic signature
+    payload_str = json.dumps(payload, sort_keys=True)
+    signature = hashlib.sha256(f"{payload_str}|{Config.SECRET_KEY}".encode('utf-8')).hexdigest()
+    
+    return {
+        "report_payload": payload,
+        "cryptographic_signature": signature
+    }

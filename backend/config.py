@@ -54,4 +54,32 @@ class Config:
         "metadata": 0.10
     }
 
+    @classmethod
+    def validate_config(cls):
+        """Runs security and schema checks on configuration variables."""
+        errors = []
+        
+        # 1. Type validation
+        if not isinstance(cls.SECRET_KEY, str):
+            errors.append("SECRET_KEY must be a string.")
+        if not isinstance(cls.DATABASE_URL, str):
+            errors.append("DATABASE_URL must be a string.")
+            
+        # 2. Security validation
+        if cls.SECRET_KEY == "7a3b4c9e8d1f2a3b4c9e8d1f2a3b4c9e" or len(cls.SECRET_KEY) < 16:
+            print("[SECURITY WARNING] SECRET_KEY is set to default or is too short (< 16 chars). Please override in production!")
+            
+        if cls.DEVELOPMENT_BYPASS_AUTH:
+            print("[SECURITY WARNING] DEVELOPMENT_BYPASS_AUTH is enabled. Do not use in production!")
+            
+        # 3. Model settings validation
+        total_weights = sum(cls.CONFIDENCE_WEIGHTS_CALIBRATED.values())
+        if abs(total_weights - 1.0) > 0.001:
+            errors.append(f"CONFIDENCE_WEIGHTS_CALIBRATED must sum to 1.0, current sum is {total_weights}")
+            
+        if errors:
+            raise ValueError(f"Configuration Validation Failed: {'; '.join(errors)}")
+            
+        print("[CONFIG] System configurations validated successfully.")
+
 

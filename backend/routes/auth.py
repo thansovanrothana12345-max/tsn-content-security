@@ -166,6 +166,27 @@ def require_role(allowed_roles: list[str]):
         return user
     return dependency
 
+# Sprint 9: Role-Permissions Matrix mapping
+PERMISSION_MATRIX = {
+    "read_cases": ["Admin", "Editor", "Reviewer", "Guest"],
+    "write_cases": ["Admin", "Editor"],
+    "run_scans": ["Admin", "Editor", "Reviewer"],
+    "manage_licenses": ["Admin", "Editor"],
+    "delete_cases": ["Admin"],
+    "manage_users": ["Admin"]
+}
+
+def require_permission(permission_name: str):
+    def dependency(user: dict = Depends(get_current_user)):
+        allowed_roles = PERMISSION_MATRIX.get(permission_name, ["Admin"])
+        if user["role"] not in allowed_roles:
+            raise HTTPException(
+                status_code=403, 
+                detail={"error": "FORBIDDEN", "message": f"You do not have permission to execute '{permission_name}'."}
+            )
+        return user
+    return dependency
+
 # 1. Login Endpoint
 def process_login(request: LoginRequest):
     print(f"[AUTH] Login attempt received for email/username: '{request.email}'")

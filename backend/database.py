@@ -23,6 +23,23 @@ def get_db_connection():
     conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
+    
+    # Register compute_audit_hash custom function for audit log chaining (Sprint 9)
+    def sqlite_audit_hash(user_id, action, entity_type, entity_id, details_json, prev_hash, created_at):
+        import hashlib
+        u_id = str(user_id) if user_id is not None else ""
+        act = str(action) if action is not None else ""
+        e_type = str(entity_type) if entity_type is not None else ""
+        e_id = str(entity_id) if entity_id is not None else ""
+        det = str(details_json) if details_json is not None else ""
+        p_hash = str(prev_hash) if prev_hash is not None else "GENESIS"
+        cat = str(created_at) if created_at is not None else ""
+        
+        data = f"{u_id}|{act}|{e_type}|{e_id}|{det}|{p_hash}|{cat}"
+        return hashlib.sha256(data.encode('utf-8')).hexdigest()
+        
+    conn.create_function("compute_audit_hash", 7, sqlite_audit_hash)
+
     # Performance Optimizations: Enable WAL and increase cache sizes
     try:
         conn.execute("PRAGMA journal_mode = WAL;")
@@ -971,6 +988,40 @@ def init_db():
     );
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_takedown_logs_evidence ON takedown_logs(evidence_id);")
+
+    # 25. Immutable Audit logs migration columns (Sprint 9)
+    try:
+        cursor.execute("ALTER TABLE audit_logs ADD COLUMN previous_entry_hash TEXT;")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE audit_logs ADD COLUMN entry_hash TEXT;")
+    except sqlite3.OperationalError:
+        pass
+
+    cursor.execute("""
+    CREATE TRIGGER IF NOT EXISTS trg_audit_logs_chain
+    AFTER INSERT ON audit_logs
+    FOR EACH ROW
+    WHEN NEW.entry_hash IS NULL
+    BEGIN
+        UPDATE audit_logs
+        SET previous_entry_hash = COALESCE(
+            (SELECT entry_hash FROM audit_logs WHERE id < NEW.id ORDER BY id DESC LIMIT 1),
+            'GENESIS'
+        ),
+        entry_hash = compute_audit_hash(
+            NEW.user_id, 
+            NEW.action, 
+            NEW.entity_type, 
+            NEW.entity_id, 
+            NEW.details_json,
+            COALESCE((SELECT entry_hash FROM audit_logs WHERE id < NEW.id ORDER BY id DESC LIMIT 1), 'GENESIS'),
+            COALESCE(NEW.created_at, CURRENT_TIMESTAMP)
+        )
+        WHERE id = NEW.id;
+    END;
+    """)
 
     conn.commit()
     conn.close()

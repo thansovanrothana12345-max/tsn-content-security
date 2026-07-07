@@ -8,6 +8,7 @@ import logging.handlers
 from backend.config import Config
 from backend.database import init_db
 from backend.routes import auth, cases, originals, evidence, reports, verification, ai_fingerprint, assets_router, scans_router, health, detection
+from backend.middleware.rate_limiter import RateLimiterMiddleware
 
 app = FastAPI(
     title="Copyright Center API",
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(RateLimiterMiddleware)
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STORAGE_DIR = os.path.join(PROJECT_ROOT, Config.STORAGE_DIR)
@@ -104,6 +107,7 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 # Database initialization on app startup
 @app.on_event("startup")
 def on_startup():
+    Config.validate_config()
     init_db()
 
 # Serve frontend landing page
