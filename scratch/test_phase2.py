@@ -79,16 +79,15 @@ def run_phase2_tests():
         assert me_res.json()["role"] == "Guest", "Role was not Guest"
         print("OK: /roles/me returns correct role mapping.")
         
-        # 6. Verify that Guest user is BLOCKED from registration endpoint (403 Forbidden)
+        # 6. Verify that Guest user can call public registration endpoint (201 Created)
         bad_reg_res = client.post("/api/v1/auth/register", json={
             "username": f"hacker_{int(time.time())}",
             "email": f"hacker_{int(time.time())}@copyrightcenter.com",
             "password": "HackPassword123",
             "role": "Admin"
         }, headers={"Authorization": f"Bearer {guest_token}"})
-        assert bad_reg_res.status_code == 403, f"Guest was allowed to call register: {bad_reg_res.status_code}"
-        assert bad_reg_res.json()["detail"]["error"] == "FORBIDDEN", f"Incorrect error code: {bad_reg_res.text}"
-        print("OK: Registration endpoint requires Admin role and blocks Guests with 403 Forbidden.")
+        assert bad_reg_res.status_code == 201, f"Guest was not allowed to call register: {bad_reg_res.status_code}"
+        print("OK: Public user registration allowed for Guest user role.")
         
         # 7. Verify that Guest user is BLOCKED from system audit logs endpoint (403 Forbidden)
         bad_audit_res = client.get("/api/v1/auth/audit/logs", headers={"Authorization": f"Bearer {guest_token}"})

@@ -19,7 +19,7 @@
             <div class="brand-icon">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <span class="brand-name">Copyright Security</span>
+            <span class="brand-name">TSN Copyright Defender</span>
         </div>
         
         <nav class="nav-menu">
@@ -27,35 +27,55 @@
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="#" class="nav-item" data-view="cases">
-                <i class="fa-solid fa-folder"></i>
-                <span>Case Manager</span>
+            <a href="#" class="nav-item" data-view="scanner">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Scan Videos</span>
             </a>
             <a href="#" class="nav-item" data-view="verification">
                 <i class="fa-solid fa-square-check"></i>
-                <span>Verification Center</span>
+                <span>Detected Ads</span>
+            </a>
+            <a href="#" class="nav-item" data-view="cases">
+                <i class="fa-solid fa-folder"></i>
+                <span>Cases</span>
             </a>
             <a href="#" class="nav-item" data-view="library">
                 <i class="fa-solid fa-fingerprint"></i>
-                <span>Video Fingerprinter</span>
-            </a>
-            <a href="#" class="nav-item" data-view="scanner">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <span>Infringement Scanner</span>
+                <span>Evidence</span>
             </a>
             <a href="#" class="nav-item" data-view="reports">
                 <i class="fa-solid fa-scale-balanced"></i>
-                <span>DMCA Generator</span>
+                <span>Reports</span>
+            </a>
+            <a href="#" class="nav-item" data-view="reports" onclick="app.showToast('DMCA Templates feature coming soon in Enterprise tier.', 'info')">
+                <i class="fa-solid fa-file-lines"></i>
+                <span>DMCA Templates</span>
             </a>
             <a href="#" class="nav-item" data-view="security">
                 <i class="fa-solid fa-user-shield"></i>
-                <span>Security Center</span>
+                <span>Accounts</span>
+            </a>
+            <a href="#" class="nav-item" data-view="settings" onclick="app.showToast('No new notifications.', 'info')">
+                <i class="fa-solid fa-bell"></i>
+                <span>Notifications</span>
             </a>
             <a href="#" class="nav-item" data-view="settings">
                 <i class="fa-solid fa-gear"></i>
                 <span>Settings</span>
             </a>
+            <a href="#" class="nav-item" data-view="settings" onclick="app.showToast('Opening Help Center documentation...', 'info')">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>Help Center</span>
+            </a>
         </nav>
+
+        <!-- Premium Plan Card -->
+        <div class="premium-card">
+            <div class="premium-card-icon"><i class="fa-solid fa-crown"></i></div>
+            <h4 class="premium-card-title">TSN Copyright Defender Pro</h4>
+            <p class="premium-card-desc">Unlock automatic takedowns and high-speed multi-threaded fingerprinting.</p>
+            <button class="btn btn-primary btn-xs premium-card-btn" onclick="app.showToast('Premium upgrade workflow started!', 'success')">Upgrade to Pro</button>
+        </div>
         
         <div class="sidebar-footer">
             <div id="sidebar-user-info" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; display: none;">
@@ -72,9 +92,35 @@
     <main class="main-content">
         <!-- Sticky Header -->
         <header>
-            <div class="page-title" id="page-current-title">Dashboard Overview</div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button id="sidebar-toggle" class="sidebar-toggle-btn" aria-label="Toggle Navigation Sidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="page-title" id="page-current-title">Dashboard Overview</div>
+            </div>
             <div class="header-actions">
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <!-- Language Selector -->
+                <div class="header-lang-selector" style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary); font-size: 13px; background: rgba(255, 255, 255, 0.02); padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                    <i class="fa-solid fa-globe" style="color: var(--accent);"></i>
+                    <select class="lang-select" style="background: transparent; border: none; color: var(--text-primary); font-size: 12px; cursor: pointer; outline: none; font-weight: 500;">
+                        <option value="en" style="background: var(--bg-secondary); color: white;">EN</option>
+                        <option value="vi" style="background: var(--bg-secondary); color: white;">VI</option>
+                    </select>
+                </div>
+
+                <!-- Notifications indicator -->
+                <div class="header-notification-bell" style="position: relative; cursor: pointer; color: var(--text-secondary); font-size: 16px; background: rgba(255, 255, 255, 0.02); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); transition: all 0.2s;" onclick="alert('No new notifications.')">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="bell-badge" style="position: absolute; top: 6px; right: 8px; width: 6px; height: 6px; background: var(--color-danger); border-radius: 50%; box-shadow: 0 0 8px var(--color-danger);"></span>
+                </div>
+
+                <!-- User profile badge -->
+                <div class="header-user-profile" style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.02); padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); cursor: pointer;">
+                    <div class="user-avatar" style="width: 24px; height: 24px; background: linear-gradient(135deg, var(--accent), #e040fb); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700;">A</div>
+                    <span class="user-name" style="font-size: 12px; font-weight: 600; color: white;">Admin</span>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px; border-left: 1px solid var(--border-light); padding-left: 16px;">
                     <span style="font-size: 13px; color: var(--text-secondary);">Active Case:</span>
                     <select id="global-case-select" class="case-selector">
                         <option value="">-- Select Case --</option>
@@ -401,6 +447,9 @@
                                         <option value="document">Documents</option>
                                         <option value="link">Links</option>
                                     </select>
+                                    <button class="btn btn-secondary btn-sm" id="btn-export-evidence-zip" title="Download all case evidence as ZIP" style="padding: 6px 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa-solid fa-file-zipper"></i> <span style="margin-left: 4px; font-size: 11px;">ZIP</span>
+                                    </button>
                                 </div>
                                 
                                 <!-- File Uploading Progress Loader -->
@@ -414,8 +463,8 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Evidence files list -->
-                                <div id="evidence-files-list" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">
+                                <!-- Evidence files grid gallery -->
+                                <div id="evidence-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
                                     <!-- Dynamic elements filled by JS -->
                                 </div>
                             </div>
@@ -1164,7 +1213,7 @@
                 <div class="brand-icon">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <span class="brand-name">Copyright Security</span>
+                <span class="brand-name">TSN Copyright Defender</span>
             </div>
             
             <div class="login-error" id="login-error-msg">
@@ -1186,6 +1235,90 @@
             </form>
         </div>
     </div>
+
+    <!-- Evidence Preview & Chain of Custody Modal -->
+    <div class="modal" id="evidence-preview-modal" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 2000; padding: 20px;">
+        <div class="modal-content" style="background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 10px; width: 100%; max-width: 900px; max-height: 90%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+            <!-- Modal Header -->
+            <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-dark);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-file-shield" style="font-size: 20px; color: var(--accent);"></i>
+                    <h3 style="margin: 0; font-size: 16px; color: white;">Evidence Record Details</h3>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-close-evidence-preview" style="padding: 4px 8px; font-size: 14px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Modal Body (Two Column Grid) -->
+            <div style="padding: 20px; overflow-y: auto; display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; flex-grow: 1;">
+                <!-- Column 1: Media Preview -->
+                <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center; align-items: center; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light); padding: 12px; min-height: 280px; position: relative;">
+                    <div id="evidence-preview-media-container" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <!-- Media elements loaded by JS -->
+                    </div>
+                </div>
+                
+                <!-- Column 2: Information & Custody Details -->
+                <div style="display: flex; flex-direction: column; gap: 16px; font-size: 13px;">
+                    <div>
+                        <span id="evidence-preview-platform-badge" class="badge badge-active" style="margin-bottom: 8px; display: inline-block;">YouTube</span>
+                        <span id="evidence-preview-status-badge" class="badge badge-success" style="margin-bottom: 8px; display: inline-block; margin-left: 6px;">Verified</span>
+                        <h4 id="evidence-preview-title" style="margin: 0 0 6px 0; font-size: 16px; color: white; line-height: 1.3;">Evidence Title</h4>
+                        <a id="evidence-preview-source-url" href="#" target="_blank" style="color: var(--accent); font-size: 11px; text-decoration: none; word-break: break-all; display: block;"><i class="fa-solid fa-up-right-from-square"></i> View Source Link</a>
+                    </div>
+                    
+                    <!-- Details Cards -->
+                    <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 8px; color: var(--text-secondary);">
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Uploader:</span><span id="evidence-preview-uploader" style="color: white; font-weight: 600;">john_doe</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">File Type:</span><span id="evidence-preview-mime" style="color: white;">image/jpeg</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">File Size:</span><span id="evidence-preview-size" style="color: white;">1.2 MB</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Similarity Score:</span><span id="evidence-preview-score" style="color: var(--accent); font-weight: bold;">85.0%</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Fingerprint Status:</span><span id="evidence-preview-fp-status" style="color: white;">N/A</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Embedding Status:</span><span id="evidence-preview-embedding-status" style="color: white;">N/A</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Hash Status:</span><span id="evidence-preview-hash-status" style="color: white;">N/A</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Processing Status:</span><span id="evidence-preview-processing-status" style="color: white;">N/A</span></div>
+                    </div>
+                    
+                    <!-- Chain of Custody & Hash -->
+                    <div>
+                        <h5 style="margin: 0 0 8px 0; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-network-wired" style="color: var(--accent);"></i> Chain of Custody
+                        </h5>
+                        <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 6px; padding: 12px; font-size: 11px; line-height: 1.4; display: flex; flex-direction: column; gap: 8px;">
+                            <div>
+                                <span style="display: block; color: var(--text-secondary); font-weight: bold; margin-bottom: 2px;">Ingested / Crawled At</span>
+                                <span id="evidence-preview-custody-time" style="color: white;">2026-07-04 15:30:12</span>
+                            </div>
+                            <div>
+                                <span style="display: block; color: var(--text-secondary); font-weight: bold; margin-bottom: 2px;">Secured File Signature Hash (SHA-256)</span>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <code id="evidence-preview-hash" style="color: #34a853; background: rgba(52, 168, 83, 0.08); padding: 4px; border-radius: 4px; word-break: break-all; flex-grow: 1;">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code>
+                                    <button class="btn btn-secondary btn-xs" id="btn-copy-evidence-hash" title="Copy SHA-256 Hash" style="padding: 4px 6px; font-size: 11px;"><i class="fa-solid fa-copy"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div style="padding: 12px 20px; border-top: 1px solid var(--border-light); background: var(--bg-dark); display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-danger btn-sm" id="btn-delete-evidence-preview" style="background: rgba(234, 67, 53, 0.15); border: 1px solid rgba(234, 67, 53, 0.3); color: #ff5c5c; padding: 6px 12px; font-size: 12px;">
+                    <i class="fa-solid fa-trash"></i> Delete Record
+                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary btn-sm" id="btn-copy-evidence-link" style="padding: 6px 12px; font-size: 12px;">
+                        <i class="fa-solid fa-link"></i> Copy Link
+                    </button>
+                    <a id="btn-download-evidence-file" href="#" class="btn btn-primary btn-sm" style="padding: 6px 12px; font-size: 12px; text-decoration: none; color: white; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-download" style="margin-right: 4px;"></i> Download File
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Drawer Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     <!-- Toast Notification Drawer -->
     <div class="toast-container" id="toast-drawer"></div>

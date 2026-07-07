@@ -43,8 +43,12 @@ def list_evidence(
             file_type_lower = file_type.lower()
             if file_type_lower == "image":
                 results = [r for r in results if (r.get("file_type") or "").startswith("image/")]
+            elif file_type_lower == "video":
+                results = [r for r in results if (r.get("file_type") or "").startswith("video/")]
             elif file_type_lower == "document":
                 results = [r for r in results if (r.get("file_type") or "").startswith("application/") or (r.get("file_type") or "").startswith("text/") or r.get("file_type") == "document"]
+            elif file_type_lower == "link":
+                results = [r for r in results if not r.get("file_type") or r.get("file_type") == "link" or r.get("file_type") == ""]
                 
         return results
     finally:
@@ -68,9 +72,9 @@ def scan_evidence(request: ScanRequest, user: dict = Depends(require_role(["Admi
     # Queue background scan job
     job_payload = json.dumps({"url": request.url, "user_id": user["id"]})
     cursor.execute("""
-        INSERT INTO background_jobs (case_id, job_type, status, payload_json)
-        VALUES (?, 'scan_link', 'Queued', ?)
-    """, (request.case_id, job_payload))
+        INSERT INTO background_jobs (case_id, job_type, status, payload_json, url)
+        VALUES (?, 'scan_link', 'Queued', ?, ?)
+    """, (request.case_id, job_payload, request.url))
     job_id = cursor.lastrowid
     
     # Log audit entry
@@ -800,6 +804,8 @@ def upload_evidence_file(
         # Save file contents
         content = file.file.read()
         file_size = len(content)
+        import hashlib
+        sha256_hash = hashlib.sha256(content).hexdigest()
         with open(target_path, "wb") as f:
             f.write(content)
             
@@ -811,9 +817,9 @@ def upload_evidence_file(
         import datetime
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute("""
-            INSERT INTO evidence (case_id, platform, url, title, uploader, upload_date, status, screenshot_path, file_type, file_size)
-            VALUES (?, ?, ?, ?, ?, ?, 'Detected', ?, ?, ?)
-        """, (case_id, platform, f"/api/v1/evidence/file/{unique_filename}", filename, user["username"], now_str, f"/storage/evidence/{unique_filename}", file_type, file_size))
+            INSERT INTO evidence (case_id, platform, url, title, uploader, upload_date, status, screenshot_path, file_type, file_size, sha256_hash)
+            VALUES (?, ?, ?, ?, ?, ?, 'Detected', ?, ?, ?, ?)
+        """, (case_id, platform, f"/api/v1/evidence/file/{unique_filename}", filename, user["username"], now_str, f"/storage/evidence/{unique_filename}", file_type, file_size, sha256_hash))
         evidence_id = cursor.lastrowid
         conn.commit()
         
@@ -850,4 +856,359 @@ def retrieve_evidence_file(
         
     return FileResponse(filepath)
 
+@router.get("/scan/jobs/{job_id}")
+def get_scan_job_status(
+    job_id: int,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Retrieves progress, status, and details of a background scan link job."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, case_id, job_type, status, error_message, progress_percent, current_step, created_at, started_at, completed_at, updated_at
+            FROM background_jobs
+            WHERE id = ?;
+        """, (job_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Background job not found.")
+        return dict(row)
+    finally:
+        conn.close()
+
+router_jobs = APIRouter(prefix="/api/v1/scan/jobs", tags=["Scan Jobs"])
+
+@router_jobs.get("")
+def get_all_scan_jobs(
+    case_id: int | None = None,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Retrieves all scan link background jobs, optionally filtered by case_id."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        if case_id:
+            cursor.execute("""
+                SELECT id, case_id, job_type, status, error_message, progress_percent, current_step, created_at, started_at, completed_at, finished_at, duration, url, updated_at
+                FROM background_jobs
+                WHERE job_type = 'scan_link' AND case_id = ?
+                ORDER BY created_at DESC;
+            """, (case_id,))
+        else:
+            cursor.execute("""
+                SELECT id, case_id, job_type, status, error_message, progress_percent, current_step, created_at, started_at, completed_at, finished_at, duration, url, updated_at
+                FROM background_jobs
+                WHERE job_type = 'scan_link'
+                ORDER BY created_at DESC;
+            """)
+        rows = cursor.fetchall()
+        results = []
+        for r in rows:
+            d = dict(r)
+            if not d["url"]:
+                # Attempt to extract url from payload_json if column is empty
+                cursor.execute("SELECT payload_json FROM background_jobs WHERE id = ?", (d["id"],))
+                pj = cursor.fetchone()
+                if pj:
+                    try:
+                        payload = json.loads(pj["payload_json"])
+                        d["url"] = payload.get("url", "")
+                    except Exception:
+                        pass
+            results.append(d)
+        return results
+    finally:
+        conn.close()
+
+@router_jobs.get("/{job_id}")
+def get_scan_job(
+    job_id: int,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Retrieves detailed status of a specific scan background job."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, case_id, job_type, status, error_message, progress_percent, current_step, created_at, started_at, completed_at, finished_at, duration, url, updated_at, payload_json
+            FROM background_jobs
+            WHERE id = ?;
+        """, (job_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Background job not found.")
+        d = dict(row)
+        if not d["url"]:
+            try:
+                payload = json.loads(d["payload_json"])
+                d["url"] = payload.get("url", "")
+            except Exception:
+                pass
+        return d
+    finally:
+        conn.close()
+
+@router_jobs.post("/{job_id}/retry")
+def retry_scan_job(
+    job_id: int,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Reschedules a Failed or Cancelled background job back to Queued status."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT status FROM background_jobs WHERE id = ?", (job_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Job not found.")
+        if row["status"] not in ("Failed", "Cancelled"):
+            raise HTTPException(status_code=400, detail=f"Cannot retry a job in status '{row['status']}'. Only Failed or Cancelled jobs can be retried.")
+        
+        cursor.execute("""
+            UPDATE background_jobs
+            SET status = 'Queued',
+                error_message = NULL,
+                progress_percent = 0.0,
+                current_step = 'Queued',
+                started_at = NULL,
+                completed_at = NULL,
+                finished_at = NULL,
+                duration = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?;
+        """, (job_id,))
+        conn.commit()
+        return {"status": "success", "message": "Job resubmitted successfully."}
+    finally:
+        conn.close()
+
+@router_jobs.post("/{job_id}/cancel")
+def cancel_scan_job(
+    job_id: int,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer"]))
+):
+    """Cancels a currently Queued or Processing background scan job."""
+    import datetime
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT status, started_at FROM background_jobs WHERE id = ?", (job_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Job not found.")
+        
+        status = row["status"]
+        if status in ("Completed", "Failed", "Cancelled"):
+            raise HTTPException(status_code=400, detail=f"Cannot cancel a job in status '{status}'.")
+        
+        finished_at = datetime.datetime.utcnow().isoformat()
+        cursor.execute("""
+            UPDATE background_jobs
+            SET status = 'Cancelled',
+                current_step = 'Cancelled',
+                completed_at = ?,
+                finished_at = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?;
+        """, (finished_at, finished_at, job_id))
+        
+        # Calculate duration if it had started
+        if row["started_at"]:
+            try:
+                start = datetime.datetime.fromisoformat(row["started_at"])
+                end = datetime.datetime.fromisoformat(finished_at)
+                dur = (end - start).total_seconds()
+                cursor.execute("UPDATE background_jobs SET duration = ? WHERE id = ?;", (dur, job_id))
+            except Exception:
+                pass
+                
+        conn.commit()
+        return {"status": "success", "message": "Job cancellation request sent."}
+    finally:
+        conn.close()
+
+# 15. Create Evidence from Scan Result
+class CreateEvidenceRequest(BaseModel):
+    scan_result_id: int
+    case_id: int | None = None
+    
+@router.post("/create", status_code=201)
+def create_evidence_from_scan(
+    request: CreateEvidenceRequest,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Promotes a scan result to a formal, immutable Evidence record."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        
+        # Check if already promoted
+        cursor.execute("SELECT * FROM scan_results WHERE id = ?;", (request.scan_result_id,))
+        res = cursor.fetchone()
+        if not res:
+            raise HTTPException(status_code=404, detail="Scan result not found.")
+            
+        import hashlib
+        import datetime
+        sha256_hash = hashlib.sha256(res["url"].encode('utf-8', errors='ignore')).hexdigest()
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Determine target case ID
+        target_case_id = request.case_id
+        if not target_case_id:
+            title = f"{res['platform']} - {res['uploader'] or 'Auto Case'}"
+            cursor.execute("SELECT id FROM cases WHERE title = ? AND is_deleted = 0;", (title,))
+            case_row = cursor.fetchone()
+            if case_row:
+                target_case_id = case_row["id"]
+            else:
+                cursor.execute("""
+                    INSERT INTO cases (title, description, status, priority)
+                    VALUES (?, ?, 'Investigating', 'Medium');
+                """, (title, f"Auto-created case for scans from uploader {res['uploader']} on {res['platform']}"))
+                target_case_id = cursor.lastrowid
+        else:
+            cursor.execute("SELECT id FROM cases WHERE id = ? AND is_deleted = 0;", (target_case_id,))
+            if not cursor.fetchone():
+                raise HTTPException(status_code=404, detail="Target case folder not found.")
+                
+        # Create immutable Evidence record
+        cursor.execute("""
+            INSERT INTO evidence (case_id, platform, url, title, uploader, upload_date, status, screenshot_path, sha256_hash)
+            VALUES (?, ?, ?, ?, ?, ?, 'Detected', ?, ?);
+        """, (target_case_id, res["platform"], res["url"], res["title"], res["uploader"], now_str, res["screenshot_path"], sha256_hash))
+        evidence_id = cursor.lastrowid
+        
+        # Map in case_evidence
+        cursor.execute("""
+            INSERT INTO case_evidence (case_id, evidence_id)
+            VALUES (?, ?);
+        """, (target_case_id, evidence_id))
+        
+        # Log audit entry
+        cursor.execute("""
+            INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
+            VALUES (?, 'CREATE_EVIDENCE', 'evidence', ?, ?);
+        """, (user["id"], evidence_id, json.dumps({"url": res["url"], "case_id": target_case_id})))
+        
+        conn.commit()
+        return {
+            "id": evidence_id,
+            "case_id": target_case_id,
+            "platform": res["platform"],
+            "url": res["url"],
+            "title": res["title"],
+            "uploader": res["uploader"],
+            "status": "Detected",
+            "screenshot_path": res["screenshot_path"],
+            "sha256_hash": sha256_hash
+        }
+    finally:
+        conn.close()
+
+# 16. Attach Evidence to Case
+class AttachEvidenceRequest(BaseModel):
+    evidence_id: int
+    case_id: int | None = None
+    
+@router.post("/attach", status_code=201)
+def attach_evidence_to_case(
+    request: AttachEvidenceRequest,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Links an Evidence record to a case."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        
+        # Verify evidence exists
+        cursor.execute("SELECT * FROM evidence WHERE id = ?;", (request.evidence_id,))
+        ev = cursor.fetchone()
+        if not ev:
+            raise HTTPException(status_code=404, detail="Evidence record not found.")
+            
+        target_case_id = request.case_id
+        if not target_case_id:
+            title = f"{ev['platform']} - {ev['uploader'] or 'Auto Case'}"
+            cursor.execute("""
+                INSERT INTO cases (title, description, status, priority)
+                VALUES (?, ?, 'Investigating', 'Medium');
+            """, (title, f"Auto-created case for evidence ID {ev['id']}"))
+            target_case_id = cursor.lastrowid
+        else:
+            cursor.execute("SELECT id FROM cases WHERE id = ? AND is_deleted = 0;", (target_case_id,))
+            if not cursor.fetchone():
+                raise HTTPException(status_code=404, detail="Target case folder not found.")
+                
+        # Insert check to avoid duplicate mapping
+        cursor.execute("SELECT 1 FROM case_evidence WHERE case_id = ? AND evidence_id = ?;", (target_case_id, request.evidence_id))
+        if cursor.fetchone():
+            return {"message": "Evidence is already attached to this case.", "case_id": target_case_id, "evidence_id": request.evidence_id}
+            
+        cursor.execute("""
+            INSERT INTO case_evidence (case_id, evidence_id)
+            VALUES (?, ?);
+        """, (target_case_id, request.evidence_id))
+        
+        # Log audit entry
+        cursor.execute("""
+            INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
+            VALUES (?, 'ATTACH_EVIDENCE', 'evidence', ?, ?);
+        """, (user["id"], request.evidence_id, json.dumps({"case_id": target_case_id})))
+        
+        conn.commit()
+        return {
+            "message": "Evidence successfully attached to case.",
+            "case_id": target_case_id,
+            "evidence_id": request.evidence_id
+        }
+    finally:
+        conn.close()
+
+# 17. Evidence Detailed Viewer with Chain of Custody
+@router.get("/view/{evidence_id}")
+def view_evidence_item(
+    evidence_id: int,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Retrieves full details of a specific evidence item for the viewer."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM evidence WHERE id = ?", (evidence_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Evidence not found.")
+            
+        evidence_data = dict(row)
+        
+        # Fetch related attachments
+        cursor.execute("SELECT id, filename, filesize, filepath, created_at FROM evidence_attachments WHERE evidence_id = ?", (evidence_id,))
+        attachments = [dict(r) for r in cursor.fetchall()]
+        evidence_data["attachments"] = attachments
+        
+        # Fetch mapped cases from case_evidence
+        cursor.execute("""
+            SELECT c.id, c.title, c.priority, c.status
+            FROM cases c
+            JOIN case_evidence ce ON c.id = ce.case_id
+            WHERE ce.evidence_id = ?;
+        """, (evidence_id,))
+        evidence_data["attached_cases"] = [dict(r) for r in cursor.fetchall()]
+        
+        # Fetch audit logs (Audit History / Chain of Custody)
+        cursor.execute("""
+            SELECT a.id, a.action, a.created_at, u.username
+            FROM audit_logs a
+            LEFT JOIN users u ON a.user_id = u.id
+            WHERE (a.entity_type = 'evidence' AND a.entity_id = ?)
+               OR (a.entity_type = 'attachment' AND a.entity_id IN (SELECT id FROM evidence_attachments WHERE evidence_id = ?))
+            ORDER BY a.created_at DESC;
+        """, (evidence_id, evidence_id))
+        evidence_data["audit_history"] = [dict(r) for r in cursor.fetchall()]
+        
+        return evidence_data
+    finally:
+        conn.close()
 

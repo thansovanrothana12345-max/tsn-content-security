@@ -512,6 +512,11 @@ def export_case_package(
         attachments_rows = cursor.fetchall()
         attachments_list = [dict(a) for a in attachments_rows]
         
+        cursor.execute("SELECT id, title, screenshot_path FROM evidence WHERE case_id = ?;", (case_id,))
+        evidence_rows = cursor.fetchall()
+        evidence_list = [dict(ev) for ev in evidence_rows]
+        
+        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
              zip_file.writestr("case_metadata.json", json.dumps(case_dict, default=str, indent=4))
@@ -521,8 +526,16 @@ def export_case_package(
              for attach in attachments_list:
                   filepath = attach["filepath"]
                   if os.path.exists(filepath):
-                       if os.path.abspath(filepath).startswith(os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "storage"))):
+                       if os.path.abspath(filepath).startswith(os.path.abspath(os.path.join(root_dir, "storage"))):
                             zip_file.write(filepath, arcname=f"attachments/{attach['filename']}")
+                            
+             for ev in evidence_list:
+                  sp = ev["screenshot_path"]
+                  if sp:
+                       fn = os.path.basename(sp)
+                       filepath = os.path.join(root_dir, "storage", "evidence", fn)
+                       if os.path.exists(filepath):
+                            zip_file.write(filepath, arcname=f"evidence/{fn}")
                             
         zip_data = zip_buffer.getvalue()
     finally:

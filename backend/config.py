@@ -16,3 +16,17 @@ class Config:
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
     AWS_BUCKET_NAME: str = os.getenv("AWS_BUCKET_NAME", "")
     R2_ENDPOINT_URL: str = os.getenv("R2_ENDPOINT_URL", "")
+
+    # Similarity Thresholds & Settings
+    SIMILARITY_VIDEO_THRESHOLD: float = 0.80
+    SIMILARITY_IMAGE_THRESHOLD: float = 0.85
+    SIMILARITY_AUDIO_THRESHOLD: float = 0.80
+
+    # File Upload Limits
+    MAX_ASSET_UPLOAD_SIZE: int = 50 * 1024 * 1024       # 50MB
+    MAX_ATTACHMENT_UPLOAD_SIZE: int = 20 * 1024 * 1024  # 20MB
+
+    # Background Job Queue Configs
+    QUEUE_POLLING_INTERVAL: float = 2.0
+    QUEUE_MAX_RETRIES: int = 3
+    SUPPORTED_PLATFORMS: list = ["YouTube", "TikTok", "Instagram", "Facebook Post", "Facebook Ad Library", "Website"]

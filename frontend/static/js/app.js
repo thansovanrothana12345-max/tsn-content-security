@@ -39,6 +39,10 @@ class CopyrightDefenderApp {
     }
 
     initElements() {
+        this.sidebarToggle = document.getElementById("sidebar-toggle");
+        this.sidebar = document.querySelector(".sidebar");
+        this.sidebarOverlay = document.getElementById("sidebar-overlay");
+
         this.viewPanes = document.querySelectorAll(".view-pane");
         this.navItems = document.querySelectorAll(".nav-item");
         this.pageTitle = document.getElementById("page-current-title");
@@ -98,7 +102,26 @@ class CopyrightDefenderApp {
         this.evidenceUploadProgress = document.getElementById("evidence-upload-progress");
         this.evidenceUploadPercent = document.getElementById("evidence-upload-percent");
         this.evidenceUploadFill = document.getElementById("evidence-upload-fill");
-        this.evidenceFilesList = document.getElementById("evidence-files-list");
+        this.evidenceGalleryGrid = document.getElementById("evidence-gallery-grid");
+        
+        // Evidence Preview Modal Bindings
+        this.evidencePreviewModal = document.getElementById("evidence-preview-modal");
+        this.btnCloseEvidencePreview = document.getElementById("btn-close-evidence-preview");
+        this.evidencePreviewMediaContainer = document.getElementById("evidence-preview-media-container");
+        this.evidencePreviewPlatformBadge = document.getElementById("evidence-preview-platform-badge");
+        this.evidencePreviewStatusBadge = document.getElementById("evidence-preview-status-badge");
+        this.evidencePreviewTitle = document.getElementById("evidence-preview-title");
+        this.evidencePreviewSourceUrl = document.getElementById("evidence-preview-source-url");
+        this.evidencePreviewUploader = document.getElementById("evidence-preview-uploader");
+        this.evidencePreviewMime = document.getElementById("evidence-preview-mime");
+        this.evidencePreviewSize = document.getElementById("evidence-preview-size");
+        this.evidencePreviewScore = document.getElementById("evidence-preview-score");
+        this.evidencePreviewCustodyTime = document.getElementById("evidence-preview-custody-time");
+        this.evidencePreviewHash = document.getElementById("evidence-preview-hash");
+        this.btnCopyEvidenceHash = document.getElementById("btn-copy-evidence-hash");
+        this.btnDeleteEvidencePreview = document.getElementById("btn-delete-evidence-preview");
+        this.btnCopyEvidenceLink = document.getElementById("btn-copy-evidence-link");
+        this.btnDownloadEvidenceFile = document.getElementById("btn-download-evidence-file");
         
         // Evidence Viewer Modal
         this.evidenceViewerOverlay = document.getElementById("modal-evidence-viewer-overlay");
@@ -206,15 +229,40 @@ class CopyrightDefenderApp {
         this.verifyApproveForm = document.getElementById("verify-approve-form");
         this.verifyRejectForm = document.getElementById("verify-reject-form");
         this.verifyNoteForm = document.getElementById("verify-note-form");
+        this.previousJobStatuses = {};
+        this.scanQueueTimer = null;
     }
 
     initEvents() {
+        // Sidebar drawer and collapse toggling handlers
+        if (this.sidebarToggle) {
+            this.sidebarToggle.addEventListener("click", () => {
+                if (window.innerWidth <= 768) {
+                    this.sidebar.classList.toggle("open");
+                    if (this.sidebarOverlay) this.sidebarOverlay.classList.toggle("active");
+                } else {
+                    this.sidebar.classList.toggle("expanded");
+                }
+            });
+        }
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.addEventListener("click", () => {
+                this.sidebar.classList.remove("open");
+                this.sidebar.classList.remove("expanded");
+                this.sidebarOverlay.classList.remove("active");
+            });
+        }
+
         // Nav menu click
         this.navItems.forEach(item => {
             item.addEventListener("click", (e) => {
                 e.preventDefault();
                 const view = item.getAttribute("data-view");
                 this.switchView(view);
+                if (window.innerWidth <= 768) {
+                    this.sidebar.classList.remove("open");
+                    if (this.sidebarOverlay) this.sidebarOverlay.classList.remove("active");
+                }
             });
         });
         
@@ -350,6 +398,62 @@ class CopyrightDefenderApp {
             this.viewerVideo.pause();
             this.viewerVideo.src = "";
         });
+
+        // New Evidence Preview Modal Event Listeners
+        if (this.btnCloseEvidencePreview) {
+            this.btnCloseEvidencePreview.addEventListener("click", () => {
+                this.evidencePreviewModal.style.display = "none";
+                const videoEl = this.evidencePreviewMediaContainer.querySelector("video");
+                if (videoEl) videoEl.pause();
+            });
+        }
+        
+        if (this.btnCopyEvidenceHash) {
+            this.btnCopyEvidenceHash.addEventListener("click", () => {
+                const hashVal = this.evidencePreviewHash.textContent;
+                navigator.clipboard.writeText(hashVal).then(() => {
+                    this.showToast("SHA-256 Hash signature copied to clipboard.", "success");
+                }).catch(() => {
+                    this.showToast("Failed to copy hash.", "danger");
+                });
+            });
+        }
+        
+        if (this.btnCopyEvidenceLink) {
+            this.btnCopyEvidenceLink.addEventListener("click", () => {
+                if (this.activeEvidenceItem) {
+                    let directUrl = this.activeEvidenceItem.url;
+                    if (directUrl && !directUrl.startsWith("http")) {
+                        directUrl = window.location.origin + directUrl;
+                    }
+                    navigator.clipboard.writeText(directUrl).then(() => {
+                        this.showToast("Evidence secure link copied to clipboard.", "success");
+                    }).catch(() => {
+                        this.showToast("Failed to copy link.", "danger");
+                    });
+                }
+            });
+        }
+        
+        if (this.btnDeleteEvidencePreview) {
+            this.btnDeleteEvidencePreview.addEventListener("click", () => {
+                if (this.activeEvidenceItem) {
+                    this.evidencePreviewModal.style.display = "none";
+                    this.deleteEvidenceFile(this.activeEvidenceItem.id);
+                }
+            });
+        }
+
+        const btnExportZip = document.getElementById("btn-export-evidence-zip");
+        if (btnExportZip) {
+            btnExportZip.addEventListener("click", () => {
+                if (this.activeCaseId) {
+                    window.location.href = `/api/v1/cases/${this.activeCaseId}/export`;
+                } else {
+                    this.showToast("No active case selected for ZIP export.", "warning");
+                }
+            });
+        }
         this.btnZoomIn.addEventListener("click", () => {
             this.viewerZoomLevel = Math.min(4.0, this.viewerZoomLevel + 0.25);
             this.viewerImg.style.transform = `scale(${this.viewerZoomLevel})`;
@@ -780,6 +884,20 @@ class CopyrightDefenderApp {
         
         // Trigger view-specific loaders
         this.loadViewData(viewName);
+
+        if (viewName === "scanner") {
+            if (!this.scanQueueTimer) {
+                this.loadScanQueueHistory();
+                this.scanQueueTimer = setInterval(() => {
+                    this.loadScanQueueHistory();
+                }, 1000);
+            }
+        } else {
+            if (this.scanQueueTimer) {
+                clearInterval(this.scanQueueTimer);
+                this.scanQueueTimer = null;
+            }
+        }
     }
 
     // Load dynamic data based on active view
@@ -1185,24 +1303,36 @@ class CopyrightDefenderApp {
                 this.evidenceUploadPercent.textContent = `${percent}%`;
                 this.evidenceUploadFill.style.width = `${percent}%`;
                 
-                const token = localStorage.getItem("token");
-                const res = await fetch(`/api/v1/evidence/upload/${this.activeCaseId}`, {
+                const res = await this.authFetch(`/api/v1/evidence/upload/${this.activeCaseId}`, {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    },
                     body: formData
                 });
                 
                 if (!res.ok) {
-                    const errData = await res.json();
-                    throw new Error(errData.detail || "Upload failed");
+                    let errMsg = "Upload failed";
+                    try {
+                        const errData = await res.json();
+                        if (errData && errData.detail) {
+                            if (typeof errData.detail === 'string') {
+                                errMsg = errData.detail;
+                            } else if (errData.detail.message) {
+                                errMsg = errData.detail.message;
+                            } else if (errData.detail.error) {
+                                errMsg = errData.detail.error;
+                            } else {
+                                errMsg = JSON.stringify(errData.detail);
+                            }
+                        }
+                    } catch (e) {
+                        errMsg = `Upload failed with status code ${res.status}`;
+                    }
+                    throw new Error(errMsg);
                 }
                 
                 successCount++;
             } catch (err) {
                 console.error(err);
-                this.showToast(`Failed to upload file "${file.name}".`, "danger");
+                this.showToast(`Failed to upload file "${file.name}": ${err.message}`, "danger");
                 failCount++;
             }
         }
@@ -1223,7 +1353,7 @@ class CopyrightDefenderApp {
 
     async loadEvidenceFiles() {
         if (!this.activeCaseId) {
-            this.evidenceFilesList.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 10px;">No case folder selected.</p>`;
+            this.evidenceGalleryGrid.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 10px; grid-column: span 12;">No case folder selected.</p>`;
             return;
         }
         
@@ -1239,48 +1369,94 @@ class CopyrightDefenderApp {
             if (!res.ok) throw new Error();
             const list = await res.json();
             
-            this.evidenceFilesList.innerHTML = "";
+            this.evidenceGalleryGrid.innerHTML = "";
             if (list.length === 0) {
-                this.evidenceFilesList.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 20px;">No evidence files found.</p>`;
+                this.evidenceGalleryGrid.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 20px; grid-column: span 12;">No evidence files found.</p>`;
                 return;
             }
             
             list.forEach(item => {
-                const el = document.createElement("div");
-                el.className = "evidence-file-item";
-                el.style.display = "flex";
-                el.style.justifyContent = "space-between";
-                el.style.alignItems = "center";
-                el.style.background = "var(--bg-dark)";
-                el.style.border = "1px solid var(--border-light)";
-                el.style.borderRadius = "6px";
-                el.style.padding = "10px 12px";
-                el.style.marginBottom = "8px";
-                el.style.cursor = "pointer";
-                el.style.transition = "background-color 0.2s, border-color 0.2s";
+                const card = document.createElement("div");
+                card.className = "evidence-gallery-card";
+                card.style.background = "var(--bg-dark)";
+                card.style.border = "1px solid var(--border-light)";
+                card.style.borderRadius = "8px";
+                card.style.overflow = "hidden";
+                card.style.cursor = "pointer";
+                card.style.display = "flex";
+                card.style.flexDirection = "column";
+                card.style.position = "relative";
+                card.style.height = "165px";
+                card.style.transition = "transform 0.2s, border-color 0.2s, box-shadow 0.2s";
                 
-                el.addEventListener("mouseenter", () => {
-                    el.style.borderColor = "var(--accent)";
-                    el.style.backgroundColor = "rgba(130, 84, 255, 0.02)";
-                });
-                el.addEventListener("mouseleave", () => {
-                    el.style.borderColor = "var(--border-light)";
-                    el.style.backgroundColor = "var(--bg-dark)";
+                card.addEventListener("mouseenter", () => {
+                    card.style.transform = "translateY(-3px)";
+                    card.style.borderColor = "var(--accent)";
+                    card.style.boxShadow = "0 4px 12px rgba(130, 84, 255, 0.15)";
                 });
                 
-                el.addEventListener("click", (e) => {
-                    if (e.target.closest("button") || e.target.closest("a")) return;
+                card.addEventListener("mouseleave", () => {
+                    card.style.transform = "none";
+                    card.style.borderColor = "var(--border-light)";
+                    card.style.boxShadow = "none";
+                });
+                
+                card.addEventListener("click", () => {
                     this.openEvidenceViewer(item);
                 });
                 
-                let iconClass = "fa-solid fa-file";
                 const ft = item.file_type || "";
-                if (ft.startsWith("image/")) iconClass = "fa-solid fa-file-image";
-                else if (ft.startsWith("video/")) iconClass = "fa-solid fa-file-video";
-                else if (ft.startsWith("application/pdf")) iconClass = "fa-solid fa-file-pdf";
-                else if (ft.startsWith("application/vnd") || ft.includes("word") || ft.includes("document")) iconClass = "fa-solid fa-file-word";
-                else if (ft.startsWith("text/")) iconClass = "fa-solid fa-file-lines";
-                else if (!item.file_type || ft === "link" || ft === "") iconClass = "fa-solid fa-link";
+                const sp = item.screenshot_path || "";
+                let previewHtml = "";
+                
+                // Determine platform icon
+                let platformIcon = '<i class="fa-solid fa-link" style="color: var(--accent);"></i>';
+                if (item.platform === "YouTube") platformIcon = '<i class="fa-brands fa-youtube" style="color: #ff0000;"></i>';
+                else if (item.platform === "TikTok") platformIcon = '<i class="fa-brands fa-tiktok" style="color: #00f2fe;"></i>';
+                else if (item.platform === "Facebook") platformIcon = '<i class="fa-brands fa-facebook" style="color: #1877f2;"></i>';
+                else if (item.platform === "Instagram") platformIcon = '<i class="fa-brands fa-instagram" style="color: #e1306c;"></i>';
+                
+                // Status badge
+                let statusBadgeClass = "badge-secondary";
+                if (item.status === "Verified" || item.status === "Resolved") statusBadgeClass = "badge-success";
+                else if (item.status === "DMCA Drafted" || item.status === "DMCA Filed") statusBadgeClass = "badge-warning";
+                
+                if (ft.startsWith("image/") || sp.endsWith(".jpg") || sp.endsWith(".png") || sp.endsWith(".jpeg") || sp.endsWith(".webp")) {
+                    const imgUrl = sp ? sp : item.url;
+                    previewHtml = `
+                        <div style="width: 100%; height: 100px; background: #0c0d12; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                            <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="preview">
+                            <span class="badge ${statusBadgeClass}" style="position: absolute; top: 8px; right: 8px; font-size: 9px; padding: 2px 4px; border-radius: 4px;">${item.status || 'Detected'}</span>
+                        </div>
+                    `;
+                } else if (ft.startsWith("video/")) {
+                    previewHtml = `
+                        <div style="width: 100%; height: 100px; background: #0c0d12; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                            <i class="fa-solid fa-circle-play" style="font-size: 32px; color: white; opacity: 0.8; z-index: 2;"></i>
+                            ${sp ? `<img src="${sp}" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; filter: brightness(0.6);" alt="video preview">` : ''}
+                            <span class="badge ${statusBadgeClass}" style="position: absolute; top: 8px; right: 8px; font-size: 9px; padding: 2px 4px; border-radius: 4px; z-index: 3;">${item.status || 'Detected'}</span>
+                        </div>
+                    `;
+                } else if (ft.startsWith("application/") || ft.startsWith("text/") || ft === "document") {
+                    let docIcon = "fa-file-pdf";
+                    let docColor = "#ea4335";
+                    if (ft.includes("word") || ft.includes("doc")) { docIcon = "fa-file-word"; docColor = "#4285f4"; }
+                    else if (ft.includes("text") || ft.includes("txt")) { docIcon = "fa-file-lines"; docColor = "#fbbc05"; }
+                    
+                    previewHtml = `
+                        <div style="width: 100%; height: 100px; background: rgba(130, 84, 255, 0.03); display: flex; align-items: center; justify-content: center; position: relative;">
+                            <i class="fa-solid ${docIcon}" style="font-size: 36px; color: ${docColor};"></i>
+                            <span class="badge ${statusBadgeClass}" style="position: absolute; top: 8px; right: 8px; font-size: 9px; padding: 2px 4px; border-radius: 4px;">${item.status || 'Detected'}</span>
+                        </div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <div style="width: 100%; height: 100px; background: rgba(130, 84, 255, 0.03); display: flex; align-items: center; justify-content: center; position: relative;">
+                            <i class="fa-solid fa-link" style="font-size: 36px; color: var(--accent);"></i>
+                            <span class="badge ${statusBadgeClass}" style="position: absolute; top: 8px; right: 8px; font-size: 9px; padding: 2px 4px; border-radius: 4px;">${item.status || 'Detected'}</span>
+                        </div>
+                    `;
+                }
                 
                 let sizeStr = "";
                 if (item.file_size) {
@@ -1290,26 +1466,24 @@ class CopyrightDefenderApp {
                     else sizeStr = `${(sz / (1024 * 1024)).toFixed(1)} MB`;
                 }
                 
-                const timeStr = new Date(item.created_at || item.upload_date).toLocaleString();
-                
-                el.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 12px; overflow: hidden; flex: 1;">
-                        <i class="${iconClass}" style="font-size: 20px; color: var(--accent); flex-shrink: 0;"></i>
-                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            <span style="font-size: 13px; font-weight: 600; color: var(--text-primary); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.title}</span>
-                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">${sizeStr ? sizeStr + ' • ' : ''}${timeStr}</span>
+                card.innerHTML = `
+                    ${previewHtml}
+                    <div style="padding: 8px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; min-height: 65px; border-top: 1px solid var(--border-light);">
+                        <div style="font-size: 11px; font-weight: 600; color: white; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; word-break: break-all;">
+                            ${item.title || 'Untitled'}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 9px; color: var(--text-secondary);">
+                            <span style="display: flex; align-items: center; gap: 4px;">
+                                ${platformIcon} ${item.platform || 'Other'}
+                            </span>
+                            <span>${sizeStr}</span>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px;">
-                        <button class="btn btn-danger btn-sm" style="padding: 4px 8px; font-size: 11px; background: rgba(234, 67, 53, 0.15); border: 1px solid rgba(234, 67, 53, 0.3); color: #ff5c5c;" onclick="event.stopPropagation(); app.deleteEvidenceFile(${item.id})">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
                 `;
-                this.evidenceFilesList.appendChild(el);
+                this.evidenceGalleryGrid.appendChild(card);
             });
         } catch (e) {
-            this.evidenceFilesList.innerHTML = `<p style="font-size: 12px; color: var(--accent); text-align: center; margin-top: 10px;">Failed to query evidence files.</p>`;
+            this.evidenceGalleryGrid.innerHTML = `<p style="font-size: 12px; color: var(--accent); text-align: center; margin-top: 10px; grid-column: span 12;">Failed to query evidence files.</p>`;
         }
     }
 
@@ -1328,60 +1502,129 @@ class CopyrightDefenderApp {
     }
 
     openEvidenceViewer(item) {
-        this.evidenceViewerTitle.textContent = item.title;
-        this.viewerUploader.textContent = item.uploader || "System";
-        this.viewerTimestamp.textContent = new Date(item.created_at || item.upload_date).toLocaleString();
+        this.activeEvidenceItem = item;
         
-        this.viewerZoomLevel = 1.0;
-        this.viewerImg.style.transform = "scale(1)";
+        this.evidencePreviewTitle.textContent = item.title || "Untitled Evidence";
+        this.evidencePreviewPlatformBadge.textContent = item.platform || "Other";
+        this.evidencePreviewPlatformBadge.className = "badge badge-active";
         
-        this.viewerImgContainer.style.display = "none";
-        this.viewerVideoContainer.style.display = "none";
-        this.viewerDocContainer.style.display = "none";
-        this.viewerLinkContainer.style.display = "none";
-        
-        this.viewerVideo.pause();
-        this.viewerVideo.src = "";
-        
-        const ft = item.file_type || "";
-        
-        if (ft.startsWith("image/")) {
-            this.viewerImg.src = item.url;
-            this.viewerImgContainer.style.display = "block";
-        } else if (ft.startsWith("video/")) {
-            this.viewerVideo.src = item.url;
-            this.viewerVideoContainer.style.display = "block";
-            this.viewerVideo.load();
-        } else if (!item.file_type || ft === "link" || ft === "") {
-            this.viewerLinkTitle.textContent = item.title;
-            this.viewerLinkUrl.textContent = item.url;
-            this.btnOpenEvidenceLink.href = item.url;
-            this.viewerLinkContainer.style.display = "block";
+        const status = item.status || "Detected";
+        this.evidencePreviewStatusBadge.textContent = status;
+        this.evidencePreviewStatusBadge.style.background = "";
+        this.evidencePreviewStatusBadge.style.color = "";
+        if (status === "Verified" || status === "Resolved") {
+            this.evidencePreviewStatusBadge.className = "badge badge-success";
+        } else if (status === "Detected") {
+            this.evidencePreviewStatusBadge.className = "badge badge-secondary";
         } else {
-            this.viewerDocName.textContent = item.title;
-            
-            let sizeStr = "Unknown Size";
-            if (item.file_size) {
-                const sz = item.file_size;
-                if (sz < 1024) sizeStr = `${sz} B`;
-                else if (sz < 1024 * 1024) sizeStr = `${(sz / 1024).toFixed(1)} KB`;
-                else sizeStr = `${(sz / (1024 * 1024)).toFixed(1)} MB`;
-            }
-            this.viewerDocSize.textContent = sizeStr;
-            this.btnDownloadEvidenceDoc.href = item.url;
-            
-            let iconClass = "fa-solid fa-file-pdf";
-            if (ft.includes("pdf")) iconClass = "fa-solid fa-file-pdf";
-            else if (ft.includes("word") || ft.includes("doc")) iconClass = "fa-solid fa-file-word";
-            else if (ft.includes("text") || ft.includes("txt")) iconClass = "fa-solid fa-file-lines";
-            
-            const iconEl = document.getElementById("evidence-viewer-doc-icon");
-            iconEl.className = `${iconClass}`;
-            
-            this.viewerDocContainer.style.display = "block";
+            this.evidencePreviewStatusBadge.className = "badge badge-warning";
         }
         
-        this.evidenceViewerOverlay.style.display = "flex";
+        this.evidencePreviewSourceUrl.href = item.url || "#";
+        this.evidencePreviewSourceUrl.textContent = item.url ? `${item.url}` : "No source URL";
+        
+        this.evidencePreviewUploader.textContent = item.uploader || "System";
+        this.evidencePreviewMime.textContent = item.file_type || "link";
+        
+        let sizeStr = "N/A";
+        if (item.file_size) {
+            const sz = item.file_size;
+            if (sz < 1024) sizeStr = `${sz} B`;
+            else if (sz < 1024 * 1024) sizeStr = `${(sz / 1024).toFixed(1)} KB`;
+            else sizeStr = `${(sz / (1024 * 1024)).toFixed(1)} MB`;
+        }
+        this.evidencePreviewSize.textContent = sizeStr;
+        this.evidencePreviewScore.textContent = item.similarity_score ? `${(item.similarity_score * 100).toFixed(1)}%` : "0.0%";
+        
+        const fpStatusEl = document.getElementById("evidence-preview-fp-status");
+        const embStatusEl = document.getElementById("evidence-preview-embedding-status");
+        const hashStatusEl = document.getElementById("evidence-preview-hash-status");
+        const procStatusEl = document.getElementById("evidence-preview-processing-status");
+        
+        if (fpStatusEl) fpStatusEl.textContent = "Loading...";
+        if (embStatusEl) embStatusEl.textContent = "Loading...";
+        if (hashStatusEl) hashStatusEl.textContent = "Loading...";
+        if (procStatusEl) procStatusEl.textContent = "Loading...";
+        
+        this.authFetch(`/api/v2/fingerprint/entity/evidence/${item.id}`)
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                if (fpStatusEl) fpStatusEl.textContent = data.id ? `Registered (ID: ${data.id})` : "Not Registered";
+                if (embStatusEl) {
+                    const embCount = (data.embeddings || []).length;
+                    embStatusEl.textContent = embCount > 0 ? `Active (${embCount} models)` : "No Embeddings";
+                }
+                if (hashStatusEl) {
+                    const hasHash = data.hashes && (data.hashes.phash || data.hashes.ahash || data.hashes.dhash);
+                    hashStatusEl.textContent = hasHash ? "Computed (pHash/aHash/dHash)" : "None";
+                }
+                if (procStatusEl) procStatusEl.textContent = "Completed";
+            })
+            .catch(() => {
+                if (fpStatusEl) fpStatusEl.textContent = "Not Registered";
+                if (embStatusEl) embStatusEl.textContent = "None";
+                if (hashStatusEl) hashStatusEl.textContent = "None";
+                if (procStatusEl) procStatusEl.textContent = "Pending Ingestion";
+            });
+        
+        this.evidencePreviewCustodyTime.textContent = new Date(item.created_at || item.upload_date).toLocaleString();
+        
+        const hashVal = item.sha256_hash || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+        this.evidencePreviewHash.textContent = hashVal;
+        
+        this.evidencePreviewMediaContainer.innerHTML = "";
+        const ft = item.file_type || "";
+        const sp = item.screenshot_path || "";
+        
+        if (ft.startsWith("image/") || sp.endsWith(".jpg") || sp.endsWith(".png") || sp.endsWith(".jpeg") || sp.endsWith(".webp")) {
+            const imgPath = sp ? sp : item.url;
+            this.evidencePreviewMediaContainer.innerHTML = `<img src="${imgPath}" style="max-width: 100%; max-height: 380px; object-fit: contain; border-radius: 6px;" alt="Evidence screenshot">`;
+        } else if (ft.startsWith("video/")) {
+            this.evidencePreviewMediaContainer.innerHTML = `
+                <video controls src="${item.url}" style="max-width: 100%; max-height: 380px; border-radius: 6px; background: black; width: 100%;">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+        } else if (ft.startsWith("application/") || ft.startsWith("text/") || ft === "document") {
+            let icon = "fa-file-pdf";
+            if (ft.includes("word") || ft.includes("doc")) icon = "fa-file-word";
+            else if (ft.includes("text") || ft.includes("txt")) icon = "fa-file-lines";
+            
+            this.evidencePreviewMediaContainer.innerHTML = `
+                <div style="text-align: center; color: var(--text-secondary);">
+                    <i class="fa-solid ${icon}" style="font-size: 64px; color: var(--accent); margin-bottom: 12px; display: block;"></i>
+                    <span style="font-size: 14px; font-weight: bold; color: white; display: block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.title}</span>
+                    <span style="font-size: 11px; display: block; margin-top: 4px;">PDF/Document Format</span>
+                </div>
+            `;
+        } else {
+            let platformIcon = "fa-link";
+            if (item.platform === "YouTube") platformIcon = "fa-brands fa-youtube";
+            else if (item.platform === "TikTok") platformIcon = "fa-brands fa-tiktok";
+            else if (item.platform === "Facebook") platformIcon = "fa-brands fa-facebook";
+            else if (item.platform === "Instagram") platformIcon = "fa-brands fa-instagram";
+            
+            this.evidencePreviewMediaContainer.innerHTML = `
+                <div style="text-align: center; color: var(--text-secondary); width: 100%;">
+                    <i class="${platformIcon}" style="font-size: 64px; color: var(--accent); margin-bottom: 12px; display: block;"></i>
+                    <span style="font-size: 14px; font-weight: bold; color: white; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px; margin: 0 auto;">${item.title || "No Title"}</span>
+                    <span style="font-size: 11px; display: block; margin-top: 4px; word-break: break-all; max-width: 300px; margin: 4px auto 0 auto;">${item.url}</span>
+                </div>
+            `;
+        }
+        
+        this.btnDownloadEvidenceFile.href = item.url || "#";
+        this.btnDownloadEvidenceFile.setAttribute("download", item.title || "evidence");
+        if (!item.url || item.url.startsWith("http")) {
+            this.btnDownloadEvidenceFile.style.display = "none";
+        } else {
+            this.btnDownloadEvidenceFile.style.display = "inline-flex";
+        }
+        
+        this.evidencePreviewModal.style.display = "flex";
     }
 
     async showCaseDetails(caseId) {
@@ -1623,18 +1866,18 @@ class CopyrightDefenderApp {
             const updatedDate = c.updated_at ? new Date(c.updated_at).toLocaleDateString() : "N/A";
             
             row.innerHTML = `
-                <td style="padding: 10px 4px; font-weight: bold; color: var(--accent);">#${c.id}</td>
-                <td style="padding: 10px 4px; font-weight: 500; color: var(--text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${c.title}</td>
-                <td style="padding: 10px 4px;">${c.owner_username || 'System'}</td>
-                <td style="padding: 10px 4px;"><span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">${c.platform || 'Other'}</span></td>
-                <td style="padding: 10px 4px;"><span class="badge" style="${priorityBadgeColor}">${c.priority}</span></td>
-                <td style="padding: 10px 4px;"><span class="badge" style="${statusBadgeColor}">${c.status}</span></td>
-                <td style="padding: 10px 4px; color: var(--text-secondary);">${createdDate}</td>
-                <td style="padding: 10px 4px; color: var(--text-secondary);">${updatedDate}</td>
-                <td style="padding: 10px 4px; text-align: center;">${c.evidence_count || 0}</td>
-                <td style="padding: 10px 4px; text-align: center; font-weight: bold; color: ${c.matches_count > 0 ? '#ea4335' : 'var(--text-secondary)'};">${c.matches_count || 0}</td>
-                <td style="padding: 10px 4px;"><span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">${c.verification_status || 'Pending'}</span></td>
-                <td style="padding: 10px 4px; text-align: center;">
+                <td style="padding: 10px 4px; font-weight: bold; color: var(--accent);" data-label="ID">#${c.id}</td>
+                <td style="padding: 10px 4px; font-weight: 500; color: var(--text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" data-label="Case Name">${c.title}</td>
+                <td style="padding: 10px 4px;" data-label="Owner">${c.owner_username || 'System'}</td>
+                <td style="padding: 10px 4px;" data-label="Platform"><span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">${c.platform || 'Other'}</span></td>
+                <td style="padding: 10px 4px;" data-label="Priority"><span class="badge" style="${priorityBadgeColor}">${c.priority}</span></td>
+                <td style="padding: 10px 4px;" data-label="Status"><span class="badge" style="${statusBadgeColor}">${c.status}</span></td>
+                <td style="padding: 10px 4px; color: var(--text-secondary);" data-label="Created">${createdDate}</td>
+                <td style="padding: 10px 4px; color: var(--text-secondary);" data-label="Updated">${updatedDate}</td>
+                <td style="padding: 10px 4px; text-align: center;" data-label="Evidence">${c.evidence_count || 0}</td>
+                <td style="padding: 10px 4px; text-align: center; font-weight: bold; color: ${c.matches_count > 0 ? '#ea4335' : 'var(--text-secondary)'};" data-label="Leaks">${c.matches_count || 0}</td>
+                <td style="padding: 10px 4px;" data-label="Verification"><span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">${c.verification_status || 'Pending'}</span></td>
+                <td style="padding: 10px 4px; text-align: center;" data-label="Actions">
                     <div style="display: flex; gap: 4px; justify-content: center;">
                         <button class="btn btn-secondary btn-xs btn-action-edit" style="padding: 3px 6px; font-size: 10px;" title="Edit Case"><i class="fa-solid fa-pen"></i></button>
                         <button class="btn btn-secondary btn-xs btn-action-duplicate" style="padding: 3px 6px; font-size: 10px; background: rgba(130, 84, 255, 0.1); color: var(--accent); border-color: rgba(130, 84, 255, 0.2);" title="Duplicate Case"><i class="fa-solid fa-clone"></i></button>
@@ -1953,16 +2196,7 @@ class CopyrightDefenderApp {
             return;
         }
         
-        // Show spinner state
-        this.scanResultsPanel.style.display = "block";
-        this.scanResultsContent.innerHTML = `
-            <div class="spinner-container">
-                <div class="spinner"></div>
-                <p>Fetching platform metadata and resolving download stream...</p>
-                <span style="font-size:12px; color:var(--text-muted); margin-top:8px;">(This downloads a worst-quality media buffer and computes frame hashes)</span>
-            </div>
-        `;
-        
+        this.scanResultsPanel.style.display = "none";
         this.btnRunScan.disabled = true;
         this.btnRunScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Scanning...`;
         
@@ -1978,53 +2212,291 @@ class CopyrightDefenderApp {
                 throw new Error(errDetail.detail || "Scan request failed.");
             }
             
-            const result = await res.json();
-            
-            // Format match text
-            const matchPercent = (result.similarity_score * 100).toFixed(1);
-            let scoreClass = "low-match";
-            let alertMsg = "Visual match checks finished. No substantial copies detected.";
-            
-            if (result.similarity_score >= 0.8) {
-                scoreClass = "high-match";
-                alertMsg = `Visual match detected! Found a visual overlap of ${matchPercent}% with original work: "${result.matched_original_name || 'Original Video'}".`;
-                this.showToast("Visual duplicate verified!", "warning");
-            } else if (result.similarity_score >= 0.4) {
-                scoreClass = "mid-match";
-                alertMsg = `Possible clip reuse detected (${matchPercent}% match score). Check details.`;
-            }
-            
-            this.scanResultsContent.innerHTML = `
-                <div style="display: flex; gap: 24px; align-items: center;">
-                    ${result.screenshot_path ? `<img src="${result.screenshot_path}" class="evidence-thumbnail" style="width: 200px; height: 120px; border-radius: var(--radius-md); border: 1px solid var(--border-light);">` : `<div class="evidence-placeholder" style="width: 200px; height: 120px; border-radius: var(--radius-md);"><i class="fa-solid fa-image"></i></div>`}
-                    <div style="flex-grow: 1;">
-                        <h3 style="color: white; font-size: 16px; margin-bottom: 6px;">${result.title}</h3>
-                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">Uploader: <strong>${result.uploader}</strong> | Platform: <strong>${result.platform}</strong></p>
-                        <div class="badge ${result.similarity_score >= 0.8 ? 'badge-danger' : 'badge-info'}" style="margin-bottom: 8px;">
-                            ${result.status}
-                        </div>
-                        <p style="font-size: 13px; color: var(--text-primary); font-weight: 500;">${alertMsg}</p>
-                    </div>
-                    <div class="evidence-similarity" style="border: none; padding: 0 16px;">
-                        <span class="similarity-value ${scoreClass}">${matchPercent}%</span>
-                        <span class="similarity-label">Visual Match</span>
-                    </div>
-                </div>
-            `;
-            
-            // Clear input
+            this.showToast("Scan job successfully enqueued.", "info");
             this.scannerUrlInput.value = "";
-            
-            // Refresh counts and lists
-            this.loadScannedEvidence();
-            this.loadCases();
+            await this.loadScanQueueHistory();
             
         } catch (e) {
             this.showToast(e.message || "An error occurred during scanning.", "danger");
-            this.scanResultsPanel.style.display = "none";
-        } finally {
             this.btnRunScan.disabled = false;
             this.btnRunScan.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Scan URL`;
+        }
+    }
+
+    async loadScanQueueHistory() {
+        if (!this.activeCaseId) {
+            return;
+        }
+
+        // Setup the scan queue panel below the input box if not exists
+        let queuePanel = document.getElementById("scan-queue-panel");
+        if (!queuePanel) {
+            queuePanel = document.createElement("div");
+            queuePanel.className = "panel";
+            queuePanel.id = "scan-queue-panel";
+            queuePanel.style.marginTop = "16px";
+            queuePanel.style.marginBottom = "16px";
+            queuePanel.innerHTML = `
+                <div class="panel-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 class="panel-title" style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0; color: white;">
+                        <i class="fa-solid fa-list-check" style="color: var(--accent); margin-right: 8px;"></i> Scan Job Queue & History
+                    </h2>
+                </div>
+                <div class="table-responsive" style="overflow-x: auto; max-height: 250px;">
+                    <table class="enterprise-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-light); background: var(--bg-dark); color: var(--text-secondary);">
+                                <th style="padding: 10px 8px; font-weight: 600;">Job ID</th>
+                                <th style="padding: 10px 8px; font-weight: 600;">URL</th>
+                                <th style="padding: 10px 8px; font-weight: 600;">Status</th>
+                                <th style="padding: 10px 8px; font-weight: 600;">Current Step</th>
+                                <th style="padding: 10px 8px; font-weight: 600; width: 120px;">Progress</th>
+                                <th style="padding: 10px 8px; font-weight: 600;">Started Time</th>
+                                <th style="padding: 10px 8px; font-weight: 600;">Duration</th>
+                                <th style="padding: 10px 8px; font-weight: 600; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scan-queue-tbody">
+                            <tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--text-secondary);">No scan jobs in queue.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            // Insert it after the scanner input container
+            const inputContainer = this.btnRunScan.parentNode;
+            inputContainer.after(queuePanel);
+
+            // Connect event listeners for cancel/retry buttons in the table body
+            const tbody = document.getElementById("scan-queue-tbody");
+            tbody.addEventListener("click", async (e) => {
+                const btnCancel = e.target.closest(".btn-cancel-job");
+                const btnRetry = e.target.closest(".btn-retry-job");
+                if (btnCancel) {
+                    const jobId = btnCancel.getAttribute("data-id");
+                    await this.cancelScanJob(jobId);
+                } else if (btnRetry) {
+                    const jobId = btnRetry.getAttribute("data-id");
+                    await this.retryScanJob(jobId);
+                }
+            });
+        }
+
+        try {
+            const res = await this.authFetch(`/api/v1/scan/jobs?case_id=${this.activeCaseId}`);
+            if (!res.ok) return;
+            const jobs = await res.json();
+            const tbody = document.getElementById("scan-queue-tbody");
+
+            if (jobs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--text-secondary);">No scan jobs in queue.</td></tr>`;
+                this.previousJobStatuses = {};
+                this.btnRunScan.disabled = false;
+                this.btnRunScan.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Scan URL`;
+                return;
+            }
+
+            // Determine if this is first load of previous statuses map
+            const isFirstLoad = Object.keys(this.previousJobStatuses).length === 0;
+
+            // Check if there are active running or queued jobs
+            const activeJobs = jobs.some(j => j.status === "Queued" || j.status === "Processing");
+            if (activeJobs) {
+                this.btnRunScan.disabled = true;
+                this.btnRunScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Scanning...`;
+            } else {
+                this.btnRunScan.disabled = false;
+                this.btnRunScan.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Scan URL`;
+            }
+
+            let html = "";
+            jobs.forEach(job => {
+                // Check status transition to trigger toast alerts
+                const prevStatus = this.previousJobStatuses[job.id];
+                if (!isFirstLoad && prevStatus && prevStatus !== job.status) {
+                    if (job.status === "Completed") {
+                        this.showToast(`Scan job #${job.id} completed successfully!`, "success");
+                        // Refresh evidence lists to display new visual match
+                        this.loadScannedEvidence();
+                        this.loadCases();
+                        this.showScanSuccessDetails(job.url);
+                    } else if (job.status === "Failed") {
+                        this.showToast(`Scan job #${job.id} failed: ${job.error_message || 'Unknown error'}`, "danger");
+                    } else if (job.status === "Cancelled") {
+                        this.showToast(`Scan job #${job.id} was cancelled.`, "info");
+                    }
+                }
+                this.previousJobStatuses[job.id] = job.status;
+
+                // Color badge styling
+                let badgeClass = "badge-warning";
+                let badgeStyle = "background: rgba(251, 188, 5, 0.15); color: #fbbc05;";
+                if (job.status === "Completed") {
+                    badgeClass = "badge-success";
+                    badgeStyle = "background: rgba(52, 168, 83, 0.15); color: #34a853;";
+                } else if (job.status === "Failed") {
+                    badgeClass = "badge-danger";
+                    badgeStyle = "background: rgba(234, 67, 53, 0.15); color: #ea4335;";
+                } else if (job.status === "Cancelled") {
+                    badgeClass = "badge-secondary";
+                    badgeStyle = "background: rgba(255, 255, 255, 0.1); color: var(--text-secondary);";
+                } else if (job.status === "Queued") {
+                    badgeClass = "badge-info";
+                    badgeStyle = "background: rgba(0, 191, 255, 0.15); color: #00bfff;";
+                }
+
+                // Format started time
+                let startTime = "N/A";
+                if (job.started_at) {
+                    try {
+                        const date = new Date(job.started_at);
+                        startTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    } catch (e) {}
+                } else if (job.created_at) {
+                    try {
+                        const date = new Date(job.created_at);
+                        startTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " (queued)";
+                    } catch (e) {}
+                }
+
+                // Format duration
+                const duration = job.duration ? `${job.duration.toFixed(1)}s` : "N/A";
+
+                // Format actions
+                let actionHtml = "";
+                if (job.status === "Queued" || job.status === "Processing") {
+                    actionHtml = `
+                        <button class="btn btn-secondary btn-xs btn-cancel-job" data-id="${job.id}" style="padding: 3px 6px; font-size: 11px; background: rgba(234,67,53,0.1); color: #ea4335; border: 1px solid rgba(234,67,53,0.2);">
+                            <i class="fa-solid fa-ban"></i> Cancel
+                        </button>
+                    `;
+                } else if (job.status === "Failed" || job.status === "Cancelled") {
+                    actionHtml = `
+                        <button class="btn btn-secondary btn-xs btn-retry-job" data-id="${job.id}" style="padding: 3px 6px; font-size: 11px; background: rgba(52,168,83,0.1); color: #34a853; border: 1px solid rgba(52,168,83,0.2);">
+                            <i class="fa-solid fa-rotate-right"></i> Retry
+                        </button>
+                    `;
+                }
+
+                html += `
+                    <tr style="border-bottom: 1px solid var(--border-light);">
+                        <td style="padding: 8px; color: white; font-weight: bold;" data-label="Job ID">#${job.id}</td>
+                        <td style="padding: 8px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" data-label="URL">
+                            <a href="${job.url}" target="_blank" style="color: var(--accent); text-decoration: none;">${job.url}</a>
+                        </td>
+                        <td style="padding: 8px;" data-label="Status">
+                            <span class="badge ${badgeClass}" style="${badgeStyle}">${job.status}</span>
+                        </td>
+                        <td style="padding: 8px; color: var(--text-primary); font-weight: 500;" data-label="Current Step">
+                            ${job.current_step || "Queued"}
+                        </td>
+                        <td style="padding: 8px;" data-label="Progress">
+                            <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                                <div style="width: 80px; height: 6px; background: var(--bg-primary); border-radius: 3px; overflow: hidden; border: 1px solid var(--border-light);">
+                                    <div style="width: ${job.progress_percent}%; height: 100%; background: linear-gradient(90deg, var(--accent) 0%, #00f2fe 100%); transition: width 0.3s ease;"></div>
+                                </div>
+                                <span style="font-weight: bold; color: white;">${Math.round(job.progress_percent)}%</span>
+                            </div>
+                        </td>
+                        <td style="padding: 8px; color: var(--text-secondary);" data-label="Started Time">${startTime}</td>
+                        <td style="padding: 8px; color: var(--text-secondary);" data-label="Duration">${duration}</td>
+                        <td style="padding: 8px; text-align: right;" data-label="Actions">${actionHtml}</td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        } catch (e) {
+            console.error("Failed to load scan queue details", e);
+        }
+    }
+
+    async cancelScanJob(jobId) {
+        try {
+            const res = await this.authFetch(`/api/v1/scan/jobs/${jobId}/cancel`, { method: "POST" });
+            if (res.ok) {
+                this.showToast(`Job #${jobId} cancellation requested.`, "info");
+                this.loadScanQueueHistory();
+            } else {
+                const err = await res.json();
+                this.showToast(err.detail || "Failed to cancel scan job.", "danger");
+            }
+        } catch (e) {
+            this.showToast("Connection error while cancelling job.", "danger");
+        }
+    }
+
+    async retryScanJob(jobId) {
+        try {
+            const res = await this.authFetch(`/api/v1/scan/jobs/${jobId}/retry`, { method: "POST" });
+            if (res.ok) {
+                this.showToast(`Job #${jobId} successfully resubmitted to queue.`, "success");
+                this.loadScanQueueHistory();
+            } else {
+                const err = await res.json();
+                this.showToast(err.detail || "Failed to resubmit scan job.", "danger");
+            }
+        } catch (e) {
+            this.showToast("Connection error while retrying job.", "danger");
+        }
+    }
+
+    async showScanSuccessDetails(url) {
+        try {
+            const pollRes = await this.authFetch(`/api/v1/evidence/${this.activeCaseId}`);
+            if (pollRes.ok) {
+                const pollList = await pollRes.json();
+                // Find the latest evidence record with matching url
+                const matched = pollList.filter(e => e.url === url);
+                if (matched.length > 0) {
+                    matched.sort((a, b) => b.id - a.id);
+                    const result = matched[0];
+                    
+                    const similarityVal = typeof result.similarity_score === 'number' ? result.similarity_score : 0.0;
+                    const matchPercent = (similarityVal * 100).toFixed(1);
+                    let scoreClass = "low-match";
+                    let alertMsg = "Visual match checks finished. No substantial copies detected.";
+                    
+                    if (similarityVal >= 0.8) {
+                        scoreClass = "high-match";
+                        alertMsg = `Visual match detected! Found a visual overlap of ${matchPercent}% with original work: "${result.matched_original_name || 'Original Video'}".`;
+                        this.showToast("Visual duplicate verified!", "warning");
+                    } else if (similarityVal >= 0.4) {
+                        scoreClass = "mid-match";
+                        alertMsg = `Possible clip reuse detected (${matchPercent}% match score). Check details.`;
+                    }
+
+                    const titleToShow = result.title || url;
+                    const uploaderToShow = result.uploader || "Unknown";
+                    const platformToShow = result.platform || "Other";
+                    const statusToShow = result.status || "Detected";
+                    const screenshotHtml = result.screenshot_path
+                        ? `<img src="${result.screenshot_path}" class="evidence-thumbnail" style="width: 200px; height: 120px; border-radius: var(--radius-md); border: 1px solid var(--border-light); object-fit: cover;">`
+                        : `<div class="evidence-placeholder" style="width: 200px; height: 120px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: var(--bg-dark); border: 1px solid var(--border-light);"><i class="fa-solid fa-image" style="font-size: 24px; color: var(--text-secondary);"></i></div>`;
+                    
+                    this.scanResultsPanel.style.display = "block";
+                    this.scanResultsContent.innerHTML = `
+                        <div style="display: flex; gap: 24px; align-items: center;">
+                            ${screenshotHtml}
+                            <div style="flex-grow: 1;">
+                                <h3 style="color: white; font-size: 16px; margin-bottom: 6px;">${titleToShow}</h3>
+                                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">Uploader: <strong>${uploaderToShow}</strong> | Platform: <strong>${platformToShow}</strong></p>
+                                <div class="badge ${similarityVal >= 0.8 ? 'badge-danger' : 'badge-info'}" style="margin-bottom: 8px;">
+                                    ${statusToShow}
+                                </div>
+                                <p style="font-size: 13px; color: var(--text-primary); font-weight: 500;">${alertMsg}</p>
+                            </div>
+                            <div class="evidence-similarity" style="border: none; padding: 0 16px;">
+                                <span class="similarity-value ${scoreClass}">${matchPercent}%</span>
+                                <span class="similarity-label">Visual Match</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            this.loadScannedEvidence();
+            this.loadCases();
+        } catch (e) {
+            console.error("Failed to show scan success details", e);
         }
     }
 
@@ -2603,10 +3075,10 @@ class CopyrightDefenderApp {
                 } catch (e) {}
                 
                 tr.innerHTML = `
-                    <td style="color: var(--text-secondary); white-space: nowrap;">${time}</td>
-                    <td><span class="audit-badge ${badgeClass}">${log.action}</span></td>
-                    <td style="color: white; font-weight: 500;">${targetText}</td>
-                    <td style="color: var(--text-secondary); max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${detailsText.replace(/"/g, '&quot;')}">${detailsText}</td>
+                    <td style="color: var(--text-secondary); white-space: nowrap;" data-label="Timestamp">${time}</td>
+                    <td data-label="Action"><span class="audit-badge ${badgeClass}">${log.action}</span></td>
+                    <td style="color: white; font-weight: 500;" data-label="Target">${targetText}</td>
+                    <td style="color: var(--text-secondary); max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${detailsText.replace(/"/g, '&quot;')}" data-label="Details">${detailsText}</td>
                 `;
                 this.securityAuditTbody.appendChild(tr);
             });
@@ -2726,22 +3198,24 @@ class CopyrightDefenderApp {
             }
             
             tr.innerHTML = `
-                <td style="font-weight: 600; color: var(--accent);">#${rec.id}</td>
-                <td style="color: white; font-weight: 500;">${rec.case_name}</td>
-                <td>${rec.owner_username || 'Unassigned'}</td>
-                <td style="text-align: center;">${rec.evidence_count}</td>
-                <td class="${scoreClass}" style="font-weight: 700; text-align: center;">${scorePercent}%</td>
-                <td><span class="badge ${badgeClass}">${rec.status}</span></td>
-                <td>${rec.reviewer_username || 'System Admin'}</td>
-                <td style="color: var(--text-secondary); font-size: 12px;">${lastUpdated}</td>
-                <td style="text-align: right; white-space: nowrap;" class="table-actions">
-                    <button class="btn btn-secondary btn-xs btn-table-view" style="margin-right: 4px;">
-                        <i class="fa-solid fa-eye"></i> Details
-                    </button>
-                    <button class="btn btn-primary btn-xs btn-table-verify">
-                        <i class="fa-solid fa-signature"></i> Verify
-                    </button>
-                    ${deleteBtnHtml}
+                <td style="font-weight: 600; color: var(--accent);" data-label="Verification ID">#${rec.id}</td>
+                <td style="color: white; font-weight: 500;" data-label="Case Name">${rec.case_name}</td>
+                <td data-label="Owner">${rec.owner_username || 'Unassigned'}</td>
+                <td style="text-align: center;" data-label="Evidence Count">${rec.evidence_count}</td>
+                <td class="${scoreClass}" style="font-weight: 700; text-align: center;" data-label="AI Score">${scorePercent}%</td>
+                <td data-label="Status"><span class="badge ${badgeClass}">${rec.status}</span></td>
+                <td data-label="Reviewer">${rec.reviewer_username || 'System Admin'}</td>
+                <td style="color: var(--text-secondary); font-size: 12px;" data-label="Last Updated">${lastUpdated}</td>
+                <td style="text-align: right; white-space: nowrap;" class="table-actions" data-label="Actions">
+                    <div style="display: flex; gap: 4px; justify-content: flex-end; width: 100%;">
+                        <button class="btn btn-secondary btn-xs btn-table-view" style="padding: 3px 6px;">
+                            <i class="fa-solid fa-eye"></i> Details
+                        </button>
+                        <button class="btn btn-primary btn-xs btn-table-verify" style="padding: 3px 6px;">
+                            <i class="fa-solid fa-signature"></i> Verify
+                        </button>
+                        ${deleteBtnHtml}
+                    </div>
                 </td>
             `;
             

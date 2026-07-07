@@ -1,38 +1,68 @@
-# Deployment & Build Guide
+# Deployment Manual - TSN Copyright Defender
 
-This document describes how to compile the native desktop wrapper, configure production directories, and run database backups.
-
----
-
-## 1. PyInstaller Build Steps
-To package the PySide6 app and FastAPI backend as a single standalone executable on Windows:
-
-1.  Install PyInstaller:
-    ```bash
-    pip install pyinstaller
-    ```
-2.  Build the executable using the spec configuration or CLI flags (bundle static frontend assets and binary templates):
-    ```bash
-    pyinstaller --noconsole --name="CopyrightCenter" \
-      --add-data "frontend/static;frontend/static" \
-      --add-data "storage/templates;storage/templates" \
-      main.py
-    ```
-3.  The compiled executable will be located in the `dist/CopyrightCenter/` directory.
+This document lists requirements, environment configurations, folder permissions, and service launches for production environments.
 
 ---
 
-## 2. Directory Configurations
-Ensure the environment directories have correct user access privileges in production:
-*   `storage/originals/`: Read/Write access (restricted to application process user).
-*   `storage/evidence/`: Read/Write access (restricted to application process user).
-*   `storage/database.db`: Enforce write permissions.
+## 1. Runtime Pre-requisites
+- **Python**: Python 3.10+
+- **Database Engine**: Local SQLite (SQLite3 included in Python binary distribution)
+- **External Binaries**: `ffmpeg` (for frame seeks and metadata audio parsing)
 
 ---
 
-## 3. Database Backups
-*   **Method**: Utilize SQLite's Online Backup API or copy the file directly:
-    ```powershell
-    Copy-Item -Path "storage/database.db" -Destination "backup/database_$(Get-Date -Format 'yyyyMMdd_HHmmss').db"
-    ```
-*   **Frequency**: Recommended daily rotation.
+## 2. Directory Layout & Permissions
+Ensure these directories are present at the application root:
+- `storage/` (main storage mount)
+- `storage/originals/` (uploaded reference files)
+- `storage/evidence/` (downloaded screenshots/thumbnails)
+- `storage/temp/` (multipart uploads chunks buffer)
+- `storage/logs/` (rotating logs destination)
+
+Linux permission setups:
+```bash
+mkdir -p storage/{originals,evidence,temp,logs}
+chmod -R 775 storage
+```
+
+---
+
+## 3. Environment Environment Configurations (`.env`)
+Create a `.env` file at the root folder:
+```bash
+APP_ENV=production
+APP_PORT=8000
+DATABASE_URL=storage/database.db
+STORAGE_DIR=storage
+SECRET_KEY=use_your_32_byte_secure_hex_token
+DEVELOPMENT_BYPASS_AUTH=False
+```
+
+---
+
+## 4. Run Process Services
+
+### A. API Server Daemon
+Start Uvicorn server processes inside a background manager (e.g. systemd, PM2, or supervisor):
+```bash
+uvicorn backend.app:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
+### B. Background Task Worker
+Execute the background task manager script in a loop service:
+```bash
+python -m backend.worker
+```
+
+---
+
+## 5. Log Troubleshooting
+- Access the rotating logs for system alerts and failures:
+  ```bash
+  tail -f storage/logs/app.log
+  ```
+- Liveness monitoring:
+  ```bash
+  curl http://localhost:8000/health
+  curl http://localhost:8000/metrics
+  ```

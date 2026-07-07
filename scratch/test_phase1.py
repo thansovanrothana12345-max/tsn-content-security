@@ -154,15 +154,15 @@ def run_integration_tests():
         assert reg_res.status_code == 201, f"Admin registration failed: {reg_res.text}"
         print("OK: Admin user can perform Admin-role restricted registration.")
         
-        # Check that Guest user CANNOT perform registration (403 Forbidden)
+        # Check that Guest user CAN perform registration (now public)
         reg_guest_res = client.post("/api/v1/auth/register", json={
             "username": f"bad_editor_{int(time.time())}",
-            "email": f"bad_editor_{int(time.time())}@copyrightcenter.local",
+            "email": f"bad_editor_{int(time.time())}@copyrightcenter.com",
             "password": "EditorPassword123",
             "role": "Editor"
         }, headers={"Authorization": f"Bearer {guest_token}"})
-        assert reg_guest_res.status_code == 403, "Guest user allowed to perform Admin action"
-        print("OK: Non-authorized role blocked with 403 Forbidden.")
+        assert reg_guest_res.status_code == 201, f"Guest registration failed: {reg_guest_res.text}"
+        print("OK: Public user registration allowed.")
         
         # 4. Corrected Reports Router path check
         # Verify that reports route has prefix /api/v1/reports

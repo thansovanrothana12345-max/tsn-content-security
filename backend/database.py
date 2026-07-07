@@ -185,6 +185,7 @@ def init_db():
         confidence_report_json TEXT,
         file_type TEXT,
         file_size INTEGER,
+        sha256_hash TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
     );
@@ -248,6 +249,28 @@ def init_db():
         cursor.execute("ALTER TABLE evidence ADD COLUMN file_size INTEGER;")
     except sqlite3.OperationalError:
         pass
+    try:
+        cursor.execute("ALTER TABLE evidence ADD COLUMN sha256_hash TEXT;")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE scan_jobs ADD COLUMN case_id INTEGER;")
+    except sqlite3.OperationalError:
+        pass
+        
+    # Performance Tuning Indexes
+    try:
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_assets_hash ON assets(sha256_hash);")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_hash ON evidence(sha256_hash);")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_case_evidence_junction ON case_evidence(case_id, evidence_id);")
+    except sqlite3.OperationalError:
+        pass
         
     try:
         cursor.execute("ALTER TABLE cases ADD COLUMN owner_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL;")
@@ -299,21 +322,102 @@ def init_db():
     except sqlite3.OperationalError:
         pass
     
-    # 9. Background Jobs Table
+    # 9. Background Jobs Table Migration & Schema definition
+    import json
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='background_jobs';")
+    if cursor.fetchone():
+        cursor.execute("PRAGMA table_info(background_jobs);")
+        bg_cols = [row["name"] for row in cursor.fetchall()]
+        if bg_cols and "duration" not in bg_cols:
+            try:
+                cursor.execute("ALTER TABLE background_jobs RENAME TO background_jobs_old;")
+                cursor.execute("""
+                CREATE TABLE background_jobs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    case_id INTEGER NOT NULL,
+                    job_type TEXT NOT NULL CHECK (job_type IN ('fingerprint_original', 'scan_link')),
+                    status TEXT NOT NULL DEFAULT 'Queued' CHECK (status IN ('Queued', 'Processing', 'Completed', 'Failed', 'Cancelled')),
+                    payload_json TEXT NOT NULL,
+                    error_message TEXT,
+                    progress_percent REAL DEFAULT 0.0,
+                    current_step TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    started_at TIMESTAMP,
+                    completed_at TIMESTAMP,
+                    finished_at TIMESTAMP,
+                    duration REAL,
+                    url TEXT,
+                    updated_at TIMESTAMP,
+                    FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
+                );
+                """)
+                cursor.execute("""
+                INSERT INTO background_jobs (id, case_id, job_type, status, payload_json, error_message, progress_percent, current_step, created_at, started_at, completed_at, finished_at, updated_at)
+                SELECT id, case_id, job_type, status, payload_json, error_message, progress_percent, current_step, created_at, started_at, completed_at, completed_at, updated_at
+                FROM background_jobs_old;
+                """)
+                cursor.execute("DROP TABLE background_jobs_old;")
+                
+                # Update url values from payload
+                cursor.execute("SELECT id, payload_json FROM background_jobs WHERE job_type = 'scan_link';")
+                for job in cursor.fetchall():
+                    try:
+                        p = json.loads(job["payload_json"])
+                        u = p.get("url")
+                        if u:
+                            cursor.execute("UPDATE background_jobs SET url = ? WHERE id = ?;", (u, job["id"]))
+                    except Exception:
+                        pass
+                
+            except Exception as e:
+                print("[MIGRATION_ERROR]", e)
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS background_jobs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         case_id INTEGER NOT NULL,
         job_type TEXT NOT NULL CHECK (job_type IN ('fingerprint_original', 'scan_link')),
-        status TEXT NOT NULL DEFAULT 'Queued' CHECK (status IN ('Queued', 'Processing', 'Completed', 'Failed')),
+        status TEXT NOT NULL DEFAULT 'Queued' CHECK (status IN ('Queued', 'Processing', 'Completed', 'Failed', 'Cancelled')),
         payload_json TEXT NOT NULL,
         error_message TEXT,
+        progress_percent REAL DEFAULT 0.0,
+        current_step TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         started_at TIMESTAMP,
         completed_at TIMESTAMP,
+        finished_at TIMESTAMP,
+        duration REAL,
+        url TEXT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
     );
     """)
+    
+    try:
+        cursor.execute("ALTER TABLE background_jobs ADD COLUMN progress_percent REAL DEFAULT 0.0;")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE background_jobs ADD COLUMN current_step TEXT;")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE background_jobs ADD COLUMN updated_at TIMESTAMP;")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE background_jobs ADD COLUMN finished_at TIMESTAMP;")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE background_jobs ADD COLUMN duration REAL;")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        cursor.execute("ALTER TABLE background_jobs ADD COLUMN url TEXT;")
+    except sqlite3.OperationalError:
+        pass
+    
     
     # 10. Duplicate Groups Tables
     cursor.execute("""
@@ -382,6 +486,123 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_evidence_packages_case ON evidence_packages(case_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_timeline_case_time ON timeline_events(case_id, timestamp);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_timeline_evidence ON timeline_events(evidence_id);")
+    
+    # --- ENTERPRISE AI FINGERPRINT ENGINE SCHEMAS ---
+    # 13. General Fingerprints Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS fingerprints (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        case_id INTEGER NOT NULL,
+        entity_type TEXT NOT NULL CHECK (entity_type IN ('original', 'evidence')),
+        entity_id INTEGER NOT NULL,
+        phash TEXT,
+        ahash TEXT,
+        dhash TEXT,
+        whash TEXT,
+        metadata_hash TEXT,
+        ocr_fingerprint TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
+    );
+    """)
+    
+    # 14. Image Embeddings Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS image_embeddings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fingerprint_id INTEGER NOT NULL,
+        model_name TEXT NOT NULL,
+        embedding BLOB NOT NULL,
+        dimensions INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (fingerprint_id) REFERENCES fingerprints(id) ON DELETE CASCADE
+    );
+    """)
+    
+    # 15. Video Embeddings Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS video_embeddings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fingerprint_id INTEGER NOT NULL,
+        model_name TEXT NOT NULL,
+        frame_index INTEGER NOT NULL,
+        timestamp_sec REAL NOT NULL,
+        embedding BLOB NOT NULL,
+        dimensions INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (fingerprint_id) REFERENCES fingerprints(id) ON DELETE CASCADE
+    );
+    """)
+    
+    # 16. Audio Embeddings Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS audio_embeddings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fingerprint_id INTEGER NOT NULL,
+        model_name TEXT NOT NULL,
+        timestamp_start REAL NOT NULL,
+        timestamp_end REAL NOT NULL,
+        embedding BLOB NOT NULL,
+        dimensions INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (fingerprint_id) REFERENCES fingerprints(id) ON DELETE CASCADE
+    );
+    """)
+    
+    # 17. Scan History Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS scan_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        case_id INTEGER NOT NULL,
+        scan_type TEXT NOT NULL CHECK (scan_type IN ('image', 'video', 'audio', 'ocr', 'metadata', 'all')),
+        status TEXT NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'processing', 'completed', 'failed')),
+        error_message TEXT,
+        progress_percent REAL DEFAULT 0.0,
+        started_at TIMESTAMP,
+        completed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
+    );
+    """)
+    
+    # 18. Similarity Results Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS similarity_results (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        scan_id INTEGER NOT NULL,
+        source_entity_type TEXT NOT NULL CHECK (source_entity_type IN ('original', 'evidence')),
+        source_entity_id INTEGER NOT NULL,
+        target_entity_type TEXT NOT NULL CHECK (target_entity_type IN ('original', 'evidence')),
+        target_entity_id INTEGER NOT NULL,
+        match_type TEXT NOT NULL CHECK (match_type IN ('perceptual_hash', 'embedding', 'ocr', 'metadata', 'hybrid')),
+        similarity_score REAL NOT NULL CHECK (similarity_score BETWEEN 0.0 AND 1.0),
+        match_details_json TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (scan_id) REFERENCES scan_history(id) ON DELETE CASCADE
+    );
+    """)
+    
+    # 19. Feature Vectors Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS feature_vectors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fingerprint_id INTEGER NOT NULL,
+        feature_type TEXT NOT NULL CHECK (feature_type IN ('ORB', 'SIFT', 'SURF', 'keypoints')),
+        keypoints_json TEXT,
+        descriptors_binary BLOB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (fingerprint_id) REFERENCES fingerprints(id) ON DELETE CASCADE
+    );
+    """)
+    
+    # AI Index Optimizations
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_fingerprints_case ON fingerprints(case_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_fingerprints_entity ON fingerprints(entity_type, entity_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_image_embeddings_fp ON image_embeddings(fingerprint_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_video_embeddings_fp ON video_embeddings(fingerprint_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_audio_embeddings_fp ON audio_embeddings(fingerprint_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_history_case ON scan_history(case_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_similarity_results_scan ON similarity_results(scan_id);")
     
     # 13. Jobs Queue Table
     cursor.execute("""
@@ -456,6 +677,16 @@ def init_db():
     except Exception as e:
         print("Warning: Could not auto-populate verification_records:", str(e))
     
+    # Seed default System User with ID 0 for system-level actions/audit log foreign keys
+    cursor.execute("SELECT id FROM users WHERE id = 0;")
+    if not cursor.fetchone():
+        system_pass_hash = hash_password("SystemAccountNoLoginPassword123")
+        cursor.execute("""
+        INSERT INTO users (id, username, email, password_hash, role)
+        VALUES (0, 'system', 'system@local', ?, 'Admin');
+        """, (system_pass_hash,))
+        print("Default system user seeded successfully with ID 0.")
+
     # Seed default Admin User if missing or upgrade legacy SHA-256 hash
     cursor.execute("SELECT id, password_hash FROM users WHERE username = 'admin' OR email = 'admin@example.com';")
     admin_row = cursor.fetchone()
@@ -529,6 +760,134 @@ def init_db():
         """)
         print("Cases table migration completed successfully.")
         
+    # Seed Migration Version 6: Expand background_jobs job_type check constraint
+    cursor.execute("SELECT COUNT(*) FROM schema_migrations WHERE version = 6;")
+    if cursor.fetchone()[0] == 0:
+        print("Migrating background_jobs table to allow new AI fingerprinting job types...")
+        cursor.execute("PRAGMA foreign_keys = OFF;")
+        cursor.execute("""
+        CREATE TABLE background_jobs_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            case_id INTEGER NOT NULL,
+            job_type TEXT NOT NULL CHECK (job_type IN ('fingerprint_original', 'scan_link', 'fingerprint_video', 'fingerprint_audio')),
+            status TEXT NOT NULL DEFAULT 'Queued' CHECK (status IN ('Queued', 'Processing', 'Completed', 'Failed', 'Cancelled')),
+            payload_json TEXT NOT NULL,
+            error_message TEXT,
+            progress_percent REAL DEFAULT 0.0,
+            current_step TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            started_at TIMESTAMP,
+            completed_at TIMESTAMP,
+            finished_at TIMESTAMP,
+            duration REAL,
+            url TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE
+        );
+        """)
+        
+        cursor.execute("""
+        INSERT INTO background_jobs_new (id, case_id, job_type, status, payload_json, error_message, progress_percent, current_step, created_at, started_at, completed_at, finished_at, duration, url, updated_at)
+        SELECT id, case_id, job_type, status, payload_json, error_message, progress_percent, current_step, created_at, started_at, completed_at, finished_at, duration, url, updated_at
+        FROM background_jobs;
+        """)
+        
+        cursor.execute("DROP TABLE background_jobs;")
+        cursor.execute("ALTER TABLE background_jobs_new RENAME TO background_jobs;")
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+        INSERT INTO schema_migrations (version, migration_name)
+        VALUES (6, 'AI Fingerprint Engine background jobs extension');
+        """)
+        print("Background jobs migration completed successfully.")
+        
+    # Seed Migration Version 11: Scan Center & Evidence Management tables
+    cursor.execute("SELECT COUNT(*) FROM schema_migrations WHERE version = 11;")
+    if cursor.fetchone()[0] == 0:
+        print("Migrating schema to add Scan Center & Evidence Management tables (assets, scan_jobs, scan_results, case_evidence)...")
+        
+        # 1. assets Table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS assets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            case_id INTEGER,
+            asset_type TEXT NOT NULL CHECK (asset_type IN ('Video', 'Image', 'Audio', 'Document', 'Logo', 'Trademark')),
+            filename TEXT NOT NULL,
+            file_uuid TEXT NOT NULL UNIQUE,
+            sha256_hash TEXT NOT NULL UNIQUE,
+            owner_user_id INTEGER,
+            upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status TEXT NOT NULL DEFAULT 'Active' CHECK (status IN ('Active', 'Archived', 'Deleted')),
+            fingerprint_status TEXT NOT NULL DEFAULT 'Pending' CHECK (fingerprint_status IN ('Pending', 'Processing', 'Completed', 'Failed', 'N/A')),
+            fingerprint_json TEXT,
+            metadata_json TEXT,
+            FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
+            FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE SET NULL
+        );
+        """)
+        
+        # 2. scan_jobs Table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scan_jobs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            case_id INTEGER,
+            url TEXT NOT NULL,
+            platform TEXT NOT NULL CHECK (platform IN ('YouTube', 'TikTok', 'Instagram', 'Facebook Post', 'Facebook Ad Library', 'Website', 'Other')),
+            status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Running', 'Completed', 'Failed', 'Cancelled')),
+            progress_percent REAL DEFAULT 0.0,
+            error_message TEXT,
+            created_by INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE SET NULL,
+            FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+        );
+        """)
+        try:
+            cursor.execute("ALTER TABLE scan_jobs ADD COLUMN case_id INTEGER;")
+        except sqlite3.OperationalError:
+            pass
+        
+        # 3. scan_results Table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scan_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_id INTEGER NOT NULL,
+            url TEXT NOT NULL,
+            platform TEXT NOT NULL,
+            title TEXT,
+            uploader TEXT,
+            upload_date TEXT,
+            metadata_json TEXT,
+            screenshot_path TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (job_id) REFERENCES scan_jobs(id) ON DELETE CASCADE
+        );
+        """)
+        
+        # 4. case_evidence Table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS case_evidence (
+            case_id INTEGER NOT NULL,
+            evidence_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (case_id, evidence_id),
+            FOREIGN KEY (case_id) REFERENCES cases(id) ON DELETE CASCADE,
+            FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE CASCADE
+        );
+        """)
+        
+        # Add indexers
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_assets_case ON assets(case_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_jobs_status ON scan_jobs(status);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_results_job ON scan_results(job_id);")
+        
+        cursor.execute("""
+        INSERT INTO schema_migrations (version, migration_name)
+        VALUES (11, 'Scan Center and Asset Library tables');
+        """)
+        print("Scan Center and Asset Library schema migration completed successfully.")
+
     conn.commit()
     conn.close()
     print("Database schema verified and initialized successfully at", DATABASE_PATH)

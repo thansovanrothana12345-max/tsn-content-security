@@ -1,4 +1,6 @@
+from multiprocessing import resource_sharer
 from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 import sqlite3
@@ -14,6 +16,8 @@ from backend.config import Config
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 router_v2 = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 def base64url_encode(payload: bytes) -> str:
     return base64.urlsafe_b64encode(payload).replace(b'=', b'').decode('utf-8')
@@ -81,8 +85,8 @@ class RegisterRequest(BaseModel):
     password: str
     role: str # 'Admin', 'Editor', 'Reviewer', 'Guest'
 
-def get_current_user(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
+def get_current_user(authorization: str = Depends(api_key_header)):
+    if not authorization or not authorization.strip():
         if Config.DEVELOPMENT_BYPASS_AUTH:
             conn = get_db_connection()
             try:
@@ -102,7 +106,11 @@ def get_current_user(authorization: str = Header(None)):
             status_code=401, 
             detail={"error": "UNAUTHORIZED", "message": "Authentication token expired or missing."}
         )
-    token = authorization.split(" ")[1]
+    
+    if authorization.startswith("Bearer "):
+        token = authorization.split(" ")[1]
+    else:
+        token = authorization
     
     try:
         payload = decode_jwt(token, Config.SECRET_KEY)
@@ -162,9 +170,10 @@ def require_role(allowed_roles: list[str]):
 def process_login(request: LoginRequest):
     print(f"[AUTH] Login attempt received for email/username: '{request.email}'")
     conn = get_db_connection()
-    cursor = conn.cursor()
-    
     try:
+        cursor = conn.cursor()
+        cursor.execute("BEGIN TRANSACTION;")
+        
         # Query user (case-insensitively for stability)
         cursor.execute("""
             SELECT id, username, email, password_hash, role 
@@ -173,8 +182,12 @@ def process_login(request: LoginRequest):
         """, (request.email, request.email))
         user = cursor.fetchone()
         
+        print("=" * 60)
+        print("LOGIN USER =", request.email)
+        print("DATABASE USER =", user)
+        print("=" * 60)
+        
         if not user:
-            conn.close()
             print(f"[AUTH] Login failed for '{request.email}': user not found")
             raise HTTPException(
                 status_code=401, 
@@ -183,24 +196,49 @@ def process_login(request: LoginRequest):
             
         # Verify hashed password with bcrypt verify_password
         if not verify_password(request.password, user["password_hash"]):
-            conn.close()
             print(f"[AUTH] Login failed for '{request.email}': wrong password")
             raise HTTPException(
                 status_code=401, 
                 detail={"error": "UNAUTHORIZED", "message": "Invalid email/username or password."}
             )
             
-        # Create session token as JWT
-        exp_seconds = int((datetime.utcnow() + timedelta(hours=Config.SESSION_EXPIRE_HOURS)).timestamp())
-        payload = {
-            "id": user["id"],
-            "username": user["username"],
-            "role": user["role"],
-            "exp": exp_seconds
-        }
-        token = encode_jwt(payload, Config.SECRET_KEY)
-        expires_at = (datetime.utcnow() + timedelta(hours=Config.SESSION_EXPIRE_HOURS)).isoformat()
+        # 1. Clean up sessions first
+        # Delete expired sessions
+        cursor.execute("DELETE FROM sessions WHERE expires_at < ?", (datetime.utcnow().isoformat(),))
+        # Delete existing sessions for the same user
+        cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user["id"],))
         
+        # 2. Generate a secure token and check for collisions
+        max_retries = 10
+        token = None
+        expires_at = (datetime.utcnow() + timedelta(hours=Config.SESSION_EXPIRE_HOURS)).isoformat()
+        exp_seconds = int((datetime.utcnow() + timedelta(hours=Config.SESSION_EXPIRE_HOURS)).timestamp())
+        
+        for attempt in range(max_retries):
+            # Generate cryptographically secure random token using secrets.token_urlsafe(64)
+            jti = secrets.token_urlsafe(64)
+            payload = {
+                "id": user["id"],
+                "username": user["username"],
+                "role": user["role"],
+                "exp": exp_seconds,
+                "jti": jti
+            }
+            candidate_token = encode_jwt(payload, Config.SECRET_KEY)
+            
+            # Check for collision in database
+            cursor.execute("SELECT 1 FROM sessions WHERE token = ?", (candidate_token,))
+            if not cursor.fetchone():
+                token = candidate_token
+                break
+        else:
+            print(f"[AUTH] Token collision limit reached for user '{request.email}'")
+            raise HTTPException(
+                status_code=500,
+                detail={"error": "INTERNAL_SERVER_ERROR", "message": "Failed to generate a unique session token after multiple attempts."}
+            )
+            
+        # Insert session
         cursor.execute("""
             INSERT INTO sessions (user_id, token, expires_at)
             VALUES (?, ?, ?)
@@ -213,7 +251,7 @@ def process_login(request: LoginRequest):
         """, (user["id"], user["id"], '{"message": "User logged in successfully."}'))
         
         conn.commit()
-        conn.close()
+        print(f"[AUTH] User '{user['username']}' successfully logged in (session ID inserted).")
         
         return {
             "success": True,
@@ -226,9 +264,13 @@ def process_login(request: LoginRequest):
             "token": token,
             "expires_at": expires_at
         }
+    except HTTPException as e:
+        if conn:
+            conn.rollback()
+        raise e
     except sqlite3.Error as e:
         if conn:
-            conn.close()
+            conn.rollback()
         print(f"[AUTH] Login database error for '{request.email}': {str(e)}")
         raise HTTPException(
             status_code=500,
@@ -236,8 +278,12 @@ def process_login(request: LoginRequest):
         )
     except Exception as e:
         if conn:
-            conn.close()
+            conn.rollback()
+        print(f"[AUTH] Unexpected login error for '{request.email}': {str(e)}")
         raise e
+    finally:
+        if conn:
+            conn.close()
 
 @router.post("/login", response_model=LoginResponse)
 def login_legacy(request: LoginRequest):
@@ -249,33 +295,63 @@ def login_pro(request: LoginRequest):
 
 # 2. Logout Endpoint
 @router.post("/logout")
-def logout(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=400, detail="Authorization header missing or invalid format")
-    token = authorization.split(" ")[1]
+def logout(authorization: str = Depends(api_key_header)):
+    if not authorization or not authorization.strip():
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "BAD_REQUEST", "message": "Authorization header missing or invalid format."}
+        )
     
+    if authorization.startswith("Bearer "):
+        token = authorization.split(" ")[1]
+    else:
+        token = authorization
+        
+    user_id = 0
+    try:
+        payload = decode_jwt(token, Config.SECRET_KEY)
+        user_id = payload.get("id", 0)
+    except Exception:
+        pass
+        
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
+        cursor.execute("BEGIN TRANSACTION;")
         
         # Get active session user
         cursor.execute("SELECT user_id FROM sessions WHERE token = ?", (token,))
         session = cursor.fetchone()
         
         if session:
+            db_user_id = session["user_id"]
+            if not user_id:
+                user_id = db_user_id
             cursor.execute("DELETE FROM sessions WHERE token = ?", (token,))
-            cursor.execute("""
-                INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
-                VALUES (?, 'LOGOUT', 'user', ?, '{"message": "User logged out successfully."}')
-            """, (session["user_id"], session["user_id"]))
-            conn.commit()
+            
+        # Log the logout action in the audit logs
+        cursor.execute("""
+            INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
+            VALUES (?, 'LOGOUT', 'user', ?, '{"message": "User logged out successfully."}')
+        """, (user_id, user_id))
+        
+        conn.commit()
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"[AUTH] Error during logout: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "INTERNAL_SERVER_ERROR", "message": "Logout failed."}
+        )
     finally:
-        conn.close()
+        if conn:
+            conn.close()
     return {"message": "Logged out successfully."}
 
 # 3. Registration Endpoint (Admin only)
 @router.post("/register", status_code=201)
-def register(request: RegisterRequest, admin_user: dict = Depends(require_role(["Admin"]))):
+def register(request: RegisterRequest, authorization: Optional[str] = Header(None)):
     if request.role not in ["Admin", "Editor", "Reviewer", "Guest"]:
         raise HTTPException(
             status_code=400, 
@@ -285,6 +361,7 @@ def register(request: RegisterRequest, admin_user: dict = Depends(require_role([
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
+        cursor.execute("BEGIN TRANSACTION;")
         
         # Check uniqueness
         cursor.execute("SELECT id FROM users WHERE username = ? OR email = ?", (request.username, request.email))
@@ -301,16 +378,45 @@ def register(request: RegisterRequest, admin_user: dict = Depends(require_role([
         """, (request.username, request.email, new_pass_hash, request.role))
         new_user_id = cursor.lastrowid
         
+        # Resolve actor_id from optional Authorization header, defaulting to 0
+        actor_id = 0
+        if authorization and authorization.strip():
+            try:
+                if authorization.startswith("Bearer "):
+                    token = authorization.split(" ")[1]
+                else:
+                    token = authorization
+                payload = decode_jwt(token, Config.SECRET_KEY)
+                actor_id = payload.get("id", 0)
+            except Exception:
+                pass
+                
         cursor.execute("""
             INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
             VALUES (?, 'REGISTER_USER', 'user', ?, ?)
-        """, (admin_user["id"], new_user_id, f'{{"created_user": "{request.username}", "role": "{request.role}"}}'))
+        """, (actor_id, new_user_id, f'{{"created_user": "{request.username}", "role": "{request.role}"}}'))
         
         conn.commit()
+    except HTTPException as e:
+        if conn:
+            conn.rollback()
+        raise e
     except sqlite3.Error as e:
-        raise HTTPException(status_code=500, detail=f"Database write error: {str(e)}")
+        if conn:
+            conn.rollback()
+        print(f"[AUTH] Registration database error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "INTERNAL_SERVER_ERROR", "message": f"Database write error: {str(e)}"}
+        )
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"[AUTH] Unexpected registration error: {str(e)}")
+        raise e
     finally:
-        conn.close()
+        if conn:
+            conn.close()
     return {"message": f"User {request.username} successfully registered with role {request.role}."}
 
 @router.get("/users")

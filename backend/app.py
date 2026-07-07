@@ -7,7 +7,7 @@ import logging
 import logging.handlers
 from backend.config import Config
 from backend.database import init_db
-from backend.routes import auth, cases, originals, evidence, reports, verification
+from backend.routes import auth, cases, originals, evidence, reports, verification, ai_fingerprint, assets_router, scans_router, health
 
 app = FastAPI(
     title="Copyright Center API",
@@ -75,6 +75,8 @@ async def add_security_headers(request: Request, call_next):
 # Global Exception Handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    from backend.services.logger import log_api_error
+    log_api_error(request.url.path, str(exc), 500)
     logger.exception(f"Unhandled exception during request to {request.url.path}: {str(exc)}")
     return JSONResponse(
         status_code=500,
@@ -87,8 +89,13 @@ app.include_router(auth.router_v2)
 app.include_router(cases.router)
 app.include_router(originals.router)
 app.include_router(evidence.router)
+app.include_router(evidence.router_jobs)
 app.include_router(reports.router)
 app.include_router(verification.router)
+app.include_router(ai_fingerprint.router)
+app.include_router(assets_router.router)
+app.include_router(scans_router.router)
+app.include_router(health.router)
 
 # Mount Static Folders
 app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")
