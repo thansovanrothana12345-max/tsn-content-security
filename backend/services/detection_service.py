@@ -91,7 +91,11 @@ class DetectionService(IDetectionService):
             cursor_meta = conn_meta.cursor()
             cursor_meta.execute("SELECT id, filesize, file_uuid FROM originals WHERE case_id = ?;", (case_id,))
             originals_meta = cursor_meta.fetchall()
+            
+            cursor_meta.execute("SELECT platform FROM evidence WHERE id = ?;", (evidence_id,))
+            ev_meta_row = cursor_meta.fetchone()
             conn_meta.close()
+            ev_meta_platform = ev_meta_row["platform"] if ev_meta_row else "Other"
 
             asset_size = os.path.getsize(asset_file)
             for orig in originals_meta:
@@ -112,6 +116,13 @@ class DetectionService(IDetectionService):
                     if original_filepath and os.path.exists(original_filepath):
                         orig_hash = compute_file_sha256(original_filepath)
                         if asset_hash == orig_hash:
+                            # Asset Intelligence: License & Platform Check (Sprint 8)
+                            from backend.services.asset_intelligence import AssetIntelligenceService
+                            is_infringement = AssetIntelligenceService.check_infringement_validity(orig_id, ev_meta_platform)
+                            if not is_infringement:
+                                logger.info(f"Authorized fast-path match detected for Original {orig_id} on Platform {ev_meta_platform}. Bypassing match.")
+                                continue
+                                
                             max_similarity_score = 1.0
                             best_confidence_score = 1.0
                             best_confidence_level = "High"
@@ -154,11 +165,22 @@ class DetectionService(IDetectionService):
                     cursor = conn.cursor()
                     cursor.execute("SELECT id FROM originals WHERE case_id = ?;", (case_id,))
                     originals = cursor.fetchall()
+                    
+                    cursor.execute("SELECT platform FROM evidence WHERE id = ?;", (evidence_id,))
+                    ev_row = cursor.fetchone()
                     conn.close()
+                    ev_platform = ev_row["platform"] if ev_row else "Other"
 
                     # Check similarity against each original reference asset
                     for orig in originals:
                         orig_id = orig[0] if isinstance(orig, (tuple, list)) else orig["id"]
+                        
+                        # Asset Intelligence Check (Sprint 8)
+                        from backend.services.asset_intelligence import AssetIntelligenceService
+                        is_infringement = AssetIntelligenceService.check_infringement_validity(orig_id, ev_platform)
+                        if not is_infringement:
+                            logger.info(f"Authorized match detected for Original {orig_id} on Platform {ev_platform}. Skipping.")
+                            continue
                         
                         sim_res = AIServiceOrchestrator.check_similarity(
                             case_id=case_id,

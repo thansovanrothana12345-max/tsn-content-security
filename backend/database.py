@@ -940,6 +940,38 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_sessions_status ON scan_sessions(status);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_session_tasks_status ON scan_session_tasks(session_id, status);")
 
+    # 23. Asset Licenses Table for Sprint 8 Asset Intelligence
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS asset_licenses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        original_id INTEGER NOT NULL,
+        license_type TEXT NOT NULL CHECK(license_type IN ('Exclusive', 'Non-Exclusive', 'Creative Commons', 'Public Domain')),
+        licensee_name TEXT,
+        allowed_platforms TEXT,
+        geo_exclusions TEXT,
+        expires_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (original_id) REFERENCES originals(id) ON DELETE CASCADE
+    );
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_asset_licenses_original ON asset_licenses(original_id);")
+
+    # 24. Copyright Enforcement Takedown Logs
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS takedown_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        evidence_id INTEGER NOT NULL,
+        recipient_platform TEXT NOT NULL,
+        action_taken TEXT NOT NULL CHECK(action_taken IN ('DMCA Notice', 'Content Block', 'Ad Claim', 'Monetize')),
+        status TEXT NOT NULL CHECK(status IN ('Draft', 'Sent', 'Acknowledged', 'Rejected', 'Resolved')),
+        legal_signee TEXT,
+        sent_at TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (evidence_id) REFERENCES evidence(id) ON DELETE CASCADE
+    );
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_takedown_logs_evidence ON takedown_logs(evidence_id);")
+
     conn.commit()
     conn.close()
     print("Database schema verified and initialized successfully at", DATABASE_PATH)

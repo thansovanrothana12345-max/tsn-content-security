@@ -414,3 +414,51 @@ async def upload_original_single(
         "duration": duration,
         "message": "Original video successfully uploaded."
     }
+
+
+class RegisterLicenseRequest(BaseModel):
+    license_type: str
+    licensee_name: Optional[str] = None
+    allowed_platforms: Optional[list] = None
+    geo_exclusions: Optional[list] = None
+    expires_at: Optional[str] = None
+
+@router.post("/{original_id}/license", status_code=201)
+def set_original_license(
+    original_id: int,
+    request: RegisterLicenseRequest,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Sets or registers the license configuration for an original reference file."""
+    from backend.services.asset_intelligence import AssetIntelligenceService
+    try:
+        license_id = AssetIntelligenceService.register_license(
+            original_id=original_id,
+            license_type=request.license_type,
+            licensee_name=request.licensee_name,
+            allowed_platforms=request.allowed_platforms,
+            geo_exclusions=request.geo_exclusions,
+            expires_at=request.expires_at
+        )
+        return {"license_id": license_id, "message": "Asset license successfully registered."}
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.get("/{original_id}/license")
+def get_original_license(
+    original_id: int,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Fetches the licensing details registered for an original reference file."""
+    from backend.services.asset_intelligence import AssetIntelligenceService
+    try:
+        license_info = AssetIntelligenceService.get_license(original_id)
+        if not license_info:
+            raise HTTPException(status_code=404, detail="No license registered for this original reference asset.")
+        return license_info
+    except HTTPException:
+        raise
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))

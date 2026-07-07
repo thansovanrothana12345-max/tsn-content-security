@@ -638,3 +638,66 @@ def delete_report(report_id: int, user: dict = Depends(require_role(["Admin"])))
     finally:
         conn.close()
     return {"message": f"Report {report_id} deleted successfully."}
+
+
+class LogTakedownRequest(BaseModel):
+    evidence_id: int
+    recipient_platform: str
+    action_taken: str
+    status: Optional[str] = "Draft"
+    legal_signee: Optional[str] = None
+
+class UpdateTakedownStatusRequest(BaseModel):
+    status: str
+
+@router.post("/takedown/logs", status_code=201)
+def log_takedown_action_api(
+    request: LogTakedownRequest,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Logs an enforcement takedown notice audit log entry."""
+    from backend.services.copyright_enforcement import CopyrightEnforcementService
+    try:
+        log_id = CopyrightEnforcementService.log_takedown(
+            evidence_id=request.evidence_id,
+            recipient_platform=request.recipient_platform,
+            action_taken=request.action_taken,
+            status=request.status,
+            legal_signee=request.legal_signee
+        )
+        return {"log_id": log_id, "message": "Copyright takedown enforcement action successfully logged."}
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.get("/takedown/logs/{evidence_id}")
+def get_takedown_logs_api(
+    evidence_id: int,
+    user: dict = Depends(require_role(["Admin", "Editor", "Reviewer", "Guest"]))
+):
+    """Fetches the complete enforcement history logs for a specific evidence file."""
+    from backend.services.copyright_enforcement import CopyrightEnforcementService
+    try:
+        history = CopyrightEnforcementService.get_takedown_history(evidence_id)
+        return history
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
+
+@router.post("/takedown/logs/{log_id}/status")
+def update_takedown_status_api(
+    log_id: int,
+    request: UpdateTakedownStatusRequest,
+    user: dict = Depends(require_role(["Admin", "Editor"]))
+):
+    """Transitions the status of a logged copyright takedown notice."""
+    from backend.services.copyright_enforcement import CopyrightEnforcementService
+    try:
+        success = CopyrightEnforcementService.update_takedown_status(log_id, request.status)
+        if not success:
+            raise HTTPException(status_code=400, detail="Failed to update takedown log status.")
+        return {"message": "Takedown status updated successfully."}
+    except ValueError as val_err:
+        raise HTTPException(status_code=404, detail=str(val_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
