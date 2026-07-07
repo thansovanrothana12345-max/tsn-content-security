@@ -42,7 +42,7 @@ def readiness_check():
 
 @router.get("/metrics")
 def metrics():
-    """Retrieves operational metrics and disk storage footprints."""
+    """Retrieves operational metrics, worker heartbeats, AI models latencies and disk storage footprints."""
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
@@ -67,12 +67,26 @@ def metrics():
         storage_path = os.path.join(project_root, Config.STORAGE_DIR)
         size_mb = get_dir_size_mb(storage_path)
         
+        # 5. Worker heartbeat telemetry (Sprint 6)
+        cursor.execute("""
+            SELECT worker_id, status, cpu_load, memory_mb, active_job_id, active_job_type, heartbeat_at 
+            FROM worker_heartbeats 
+            WHERE heartbeat_at > datetime('now', '-10 minutes');
+        """)
+        workers = [dict(w) for w in cursor.fetchall()]
+        
+        # 6. AI Performance metrics (Sprint 6)
+        from backend.services.metrics import AIMetricsCollector
+        ai_metrics = AIMetricsCollector.get_instance().get_metrics()
+        
         return {
             "status": "online",
             "scan_jobs": scan_jobs_metrics,
             "total_assets": total_assets,
             "total_evidence": total_evidence,
-            "storage_size_mb": size_mb
+            "storage_size_mb": size_mb,
+            "active_workers": workers,
+            "ai_performance": ai_metrics
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch metrics: {str(e)}")

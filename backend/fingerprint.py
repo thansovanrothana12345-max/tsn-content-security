@@ -786,7 +786,7 @@ def compare_file_metadata(meta_orig: dict, meta_leak: dict) -> dict:
 class ConfidenceScoringService:
     def __init__(self, weights=None):
          # Configurable weights. Default values defined.
-         self.weights = weights or getattr(Config, "CONFIDENCE_WEIGHTS", {
+         self.weights = weights or getattr(Config, "CONFIDENCE_WEIGHTS_CALIBRATED", None) or getattr(Config, "CONFIDENCE_WEIGHTS", {
               "video": 0.35,
               "audio": 0.25,
               "ocr": 0.15,
@@ -832,6 +832,15 @@ class ConfidenceScoringService:
               
          if "temporal_alignment_skew_penalty" in agreements:
               confidence = max(0.0, confidence * 0.85)
+
+         # Platt scaling calibration (Sprint 6)
+         try:
+              import math
+              sigmoid_a = getattr(Config, "CALIBRATION_SIGMOID_A", -12.0)
+              sigmoid_b = getattr(Config, "CALIBRATION_SIGMOID_B", 9.6)
+              confidence = 1.0 / (1.0 + math.exp(sigmoid_a * confidence + sigmoid_b))
+         except Exception:
+              pass
               
          if confidence >= 0.75:
               level = "High"

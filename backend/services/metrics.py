@@ -35,6 +35,8 @@ class AIMetricsCollector:
         return cls._instance
 
     def record_inference(self, model_name: str, success: bool, latency_ms: float):
+        if not getattr(Config, "METRICS_ENABLED", True):
+            return
         with self.lock:
             self.metrics["inferences_total"] += 1
             if success:
@@ -50,6 +52,8 @@ class AIMetricsCollector:
                 self.metrics["latencies_ms"][model_name].pop(0)
 
     def record_cache_event(self, hit: bool):
+        if not getattr(Config, "METRICS_ENABLED", True):
+            return
         with self.lock:
             if hit:
                 self.metrics["cache_hits"] += 1
@@ -57,6 +61,16 @@ class AIMetricsCollector:
                 self.metrics["cache_misses"] += 1
 
     def get_metrics(self) -> dict:
+        if not getattr(Config, "METRICS_ENABLED", True):
+            return {
+                "inferences_total": 0,
+                "inferences_success": 0,
+                "inferences_failed": 0,
+                "cache_hits": 0,
+                "cache_misses": 0,
+                "model_stats": {},
+                "message": "Metrics collection is disabled in configuration."
+            }
         with self.lock:
             summary = {
                 "inferences_total": self.metrics["inferences_total"],
@@ -88,7 +102,9 @@ class AIMetricsCollector:
 
 
 def log_ai_inference(model_name: str, action: str, status: str, input_details: str = "", elapsed_ms: float = 0.0, error: str = None):
-    """Logs structured JSON AI execution entry to ai_execution.log."""
+    """Logs structured JSON AI execution entry to ai_execution.log if telemetry is enabled."""
+    if not getattr(Config, "TELEMETRY_ENABLED", True):
+        return
     log_entry = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "model_name": model_name,

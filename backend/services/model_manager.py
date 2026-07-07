@@ -348,3 +348,13 @@ class ModelLifecycleManager:
     def unload_all(self) -> None:
         for name in self.providers:
             self.unload_model(name)
+
+    def unload_idle_models(self) -> None:
+        from backend.config import Config
+        idle_timeout = getattr(Config, "AI_MODEL_IDLE_TIMEOUT", 600.0)
+        now = time.time()
+        for name, provider in self.providers.items():
+            if provider.is_loaded() and hasattr(provider, "last_used"):
+                if provider.last_used > 0.0 and (now - provider.last_used) > idle_timeout:
+                    logger.info(f"Auto-unloading idle model: {name} (Idle for {now - provider.last_used:.2f}s)")
+                    provider.unload()

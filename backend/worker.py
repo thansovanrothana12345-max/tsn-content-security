@@ -554,72 +554,87 @@ def execute_scan_job(job_id, case_id, url, platform, user_id):
     }
     process_single_scan_job(job_dict)
 
+def update_worker_heartbeat(worker_id, status="Idle", active_job_id=None, active_job_type=None):
+    try:
+        import psutil
+        cpu_load = psutil.cpu_percent()
+        memory_mb = psutil.Process().memory_info().rss / (1024 * 1024)
+    except Exception:
+        cpu_load = 0.0
+        memory_mb = 0.0
+
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO worker_heartbeats (worker_id, status, active_job_id, active_job_type, cpu_load, memory_mb, heartbeat_at)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(worker_id) DO UPDATE SET
+                status = excluded.status,
+                active_job_id = excluded.active_job_id,
+                active_job_type = excluded.active_job_type,
+                cpu_load = excluded.cpu_load,
+                memory_mb = excluded.memory_mb,
+                heartbeat_at = CURRENT_TIMESTAMP;
+        """, (worker_id, status, active_job_id, active_job_type, cpu_load, memory_mb))
+        conn.commit()
+    except Exception as e:
+        print(f"[WORKER] Failed to write worker heartbeat: {e}")
+    finally:
+        conn.close()
+
+def execute_advanced_queue_job(job_id, job_dict):
+    from backend.fingerprint import JobsQueueService
+    conn = get_db_connection()
+    try:
+        service = JobsQueueService()
+        service.process_job(conn, job_dict)
+    except Exception as ex:
+        import traceback
+        tb_str = traceback.format_exc()
+        print(f"[WORKER] Advanced queue job {job_id} failed: {ex}\n{tb_str}")
+        service.mark_job_failed(conn, job_id, ex)
+    finally:
+        conn.close()
+
 def worker_loop():
     """Main worker queue polling cycle with concurrency and priority execution."""
     from backend.services.background_tasks import BackgroundTaskManager
-    print("[WORKER] Background queue worker initialized and monitoring jobs database.")
+    from backend.services.model_manager import ModelLifecycleManager
+    import uuid
+    
+    worker_id = f"worker_{uuid.uuid4().hex[:8]}"
+    print(f"[WORKER] Background queue worker {worker_id} initialized and monitoring jobs database.")
     task_manager = BackgroundTaskManager.get_instance()
     
-    while True:
-        try:
-            use_concurrent = getattr(Config, "USE_CONCURRENT_WORKER", True)
-            max_concurrent = getattr(Config, "MAX_CONCURRENT_JOBS", 4)
-            
-            if use_concurrent:
-                with task_manager.lock:
-                    active_count = len(task_manager.active_jobs)
-                if active_count >= max_concurrent:
-                    time.sleep(Config.QUEUE_POLLING_INTERVAL)
-                    continue
+    update_worker_heartbeat(worker_id, "Idle")
+    
+    try:
+        while True:
+            try:
+                use_concurrent = getattr(Config, "USE_CONCURRENT_WORKER", True)
+                max_concurrent = getattr(Config, "MAX_CONCURRENT_JOBS", 4)
+                
+                # Periodically auto-unload idle models (Sprint 6)
+                try:
+                    ModelLifecycleManager.get_instance().unload_idle_models()
+                except Exception as ml_err:
+                    print(f"[WORKER] Error unloading idle models: {ml_err}")
 
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            
-            # 1. Fetch oldest queued legacy job using Case Priority mapping
-            cursor.execute("""
-                SELECT j.id, j.case_id, j.job_type, j.payload_json,
-                       CASE c.priority 
-                         WHEN 'Critical' THEN 4
-                         WHEN 'High' THEN 3
-                         WHEN 'Medium' THEN 2
-                         WHEN 'Low' THEN 1
-                         ELSE 0 
-                       END as priority_val
-                FROM background_jobs j
-                LEFT JOIN cases c ON j.case_id = c.id
-                WHERE j.status = 'Queued'
-                ORDER BY priority_val DESC, j.created_at ASC
-                LIMIT 1
-            """)
-            job = cursor.fetchone()
-            
-            if job:
-                job_id = job["id"]
-                case_id = job["case_id"]
-                job_type = job["job_type"]
-                payload = json.loads(job["payload_json"])
-                
-                started_at = datetime.utcnow().isoformat()
-                cursor.execute("""
-                    UPDATE background_jobs 
-                    SET status = 'Processing', started_at = ?, progress_percent = 5.0, current_step = 'Queued', updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                """, (started_at, job_id))
-                conn.commit()
-                conn.close()
-                conn = None
-                
-                print(f"[WORKER] Starting job {job_id} ({job_type}) for Case {case_id}.")
-                
                 if use_concurrent:
-                    task_manager.start_task(job_id, execute_background_job, job_id, case_id, job_type, payload)
-                else:
-                    execute_background_job(job_id, case_id, job_type, payload)
-                    
-            if conn:
-                # 2. Fetch oldest queued Scan Center job using Case Priority mapping
+                    with task_manager.lock:
+                        active_count = len(task_manager.active_jobs)
+                    if active_count >= max_concurrent:
+                        update_worker_heartbeat(worker_id, "Idle")
+                        time.sleep(Config.QUEUE_POLLING_INTERVAL)
+                        continue
+
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                
+                # 1. Fetch oldest queued legacy job using Case Priority mapping
                 cursor.execute("""
-                    SELECT s.id, s.case_id, s.url, s.platform, s.created_by,
+                    SELECT j.id, j.case_id, j.job_type, j.payload_json,
                            CASE c.priority 
                              WHEN 'Critical' THEN 4
                              WHEN 'High' THEN 3
@@ -627,48 +642,123 @@ def worker_loop():
                              WHEN 'Low' THEN 1
                              ELSE 0 
                            END as priority_val
-                    FROM scan_jobs s
-                    LEFT JOIN cases c ON s.case_id = c.id
-                    WHERE s.status = 'Pending'
-                    ORDER BY priority_val DESC, s.created_at ASC
+                    FROM background_jobs j
+                    LEFT JOIN cases c ON j.case_id = c.id
+                    WHERE j.status = 'Queued'
+                    ORDER BY priority_val DESC, j.created_at ASC
                     LIMIT 1
                 """)
-                scan_job = cursor.fetchone()
-                if scan_job:
-                    scan_job_id = scan_job["id"]
-                    scan_case_id = scan_job["case_id"]
-                    scan_url = scan_job["url"]
-                    scan_platform = scan_job["platform"]
-                    scan_user_id = scan_job["created_by"] or 0
+                job = cursor.fetchone()
+                
+                if job:
+                    job_id = job["id"]
+                    case_id = job["case_id"]
+                    job_type = job["job_type"]
+                    payload = json.loads(job["payload_json"])
                     
+                    started_at = datetime.utcnow().isoformat()
                     cursor.execute("""
-                        UPDATE scan_jobs
-                        SET status = 'Running', updated_at = CURRENT_TIMESTAMP
+                        UPDATE background_jobs 
+                        SET status = 'Processing', started_at = ?, progress_percent = 5.0, current_step = 'Queued', updated_at = CURRENT_TIMESTAMP
                         WHERE id = ?
-                    """, (scan_job_id,))
+                    """, (started_at, job_id))
                     conn.commit()
                     conn.close()
                     conn = None
                     
-                    print(f"[WORKER] Starting scan job {scan_job_id} for URL {scan_url}.")
+                    print(f"[WORKER] Starting job {job_id} ({job_type}) for Case {case_id}.")
+                    update_worker_heartbeat(worker_id, "Processing", job_id, job_type)
                     
                     if use_concurrent:
-                        task_manager.start_task(scan_job_id, execute_scan_job, scan_job_id, scan_case_id, scan_url, scan_platform, scan_user_id)
+                        task_manager.start_task(job_id, execute_background_job, job_id, case_id, job_type, payload)
                     else:
-                        execute_scan_job(scan_job_id, scan_case_id, scan_url, scan_platform, scan_user_id)
+                        execute_background_job(job_id, case_id, job_type, payload)
+                        
+                if conn:
+                    # 2. Fetch oldest queued Scan Center job using Case Priority mapping
+                    cursor.execute("""
+                        SELECT s.id, s.case_id, s.url, s.platform, s.created_by,
+                               CASE c.priority 
+                                 WHEN 'Critical' THEN 4
+                                 WHEN 'High' THEN 3
+                                 WHEN 'Medium' THEN 2
+                                 WHEN 'Low' THEN 1
+                                 ELSE 0 
+                               END as priority_val
+                        FROM scan_jobs s
+                        LEFT JOIN cases c ON s.case_id = c.id
+                        WHERE s.status = 'Pending'
+                        ORDER BY priority_val DESC, s.created_at ASC
+                        LIMIT 1
+                    """)
+                    scan_job = cursor.fetchone()
+                    if scan_job:
+                        scan_job_id = scan_job["id"]
+                        scan_case_id = scan_job["case_id"]
+                        scan_url = scan_job["url"]
+                        scan_platform = scan_job["platform"]
+                        scan_user_id = scan_job["created_by"] or 0
+                        
+                        cursor.execute("""
+                            UPDATE scan_jobs
+                            SET status = 'Running', updated_at = CURRENT_TIMESTAMP
+                            WHERE id = ?
+                        """, (scan_job_id,))
+                        conn.commit()
+                        conn.close()
+                        conn = None
+                        
+                        print(f"[WORKER] Starting scan job {scan_job_id} for URL {scan_url}.")
+                        update_worker_heartbeat(worker_id, "Processing", scan_job_id, "scan_link")
+                        
+                        if use_concurrent:
+                            task_manager.start_task(scan_job_id, execute_scan_job, scan_job_id, scan_case_id, scan_url, scan_platform, scan_user_id)
+                        else:
+                            execute_scan_job(scan_job_id, scan_case_id, scan_url, scan_platform, scan_user_id)
 
-            if conn:
-                conn.close()
-                
-        except Exception as e:
-            if conn:
-                try:
+                if conn:
+                    # 3. Fetch oldest queued Advanced queue job (Sprint 6)
+                    try:
+                        from backend.fingerprint import JobsQueueService
+                        queue_service = JobsQueueService()
+                        adv_job = queue_service.fetch_next_job(conn)
+                        if adv_job:
+                            # fetch_next_job handles its own transaction locking and sets status to Processing
+                            adv_job_dict = dict(adv_job)
+                            adv_job_id = adv_job_dict["id"]
+                            conn.close()
+                            conn = None
+                            
+                            print(f"[WORKER] Starting advanced queue job {adv_job_id} ({adv_job_dict['job_type']}).")
+                            update_worker_heartbeat(worker_id, "Processing", adv_job_id, adv_job_dict["job_type"])
+                            
+                            # Using a composite key in ThreadPoolExecutor to prevent ID collision
+                            task_key = f"adv_{adv_job_id}"
+                            if use_concurrent:
+                                task_manager.start_task(task_key, execute_advanced_queue_job, adv_job_id, adv_job_dict)
+                            else:
+                                execute_advanced_queue_job(adv_job_id, adv_job_dict)
+                    except Exception as adv_ex:
+                        print(f"[WORKER] Advanced queue polling error: {adv_ex}")
+
+                if conn:
                     conn.close()
-                except Exception:
-                    pass
-            print(f"[WORKER] Loop encountered database error: {e}")
-            
-        time.sleep(Config.QUEUE_POLLING_INTERVAL)
+                    
+            except Exception as e:
+                if conn:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
+                print(f"[WORKER] Loop encountered database error: {e}")
+                
+            update_worker_heartbeat(worker_id, "Idle")
+            time.sleep(Config.QUEUE_POLLING_INTERVAL)
+    finally:
+        try:
+            update_worker_heartbeat(worker_id, "Terminated")
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     worker_loop()

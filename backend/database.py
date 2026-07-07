@@ -281,7 +281,7 @@ def init_db():
     except sqlite3.OperationalError:
         pass
     try:
-        cursor.execute("ALTER TABLE cases ADD COLUMN priority TEXT NOT NULL DEFAULT 'Medium' CHECK (priority IN ('Low', 'Medium', 'High'));")
+        cursor.execute("ALTER TABLE cases ADD COLUMN priority TEXT NOT NULL DEFAULT 'Medium' CHECK (priority IN ('Critical', 'High', 'Medium', 'Low'));")
     except sqlite3.OperationalError:
         pass
     try:
@@ -887,6 +887,22 @@ def init_db():
         VALUES (11, 'Scan Center and Asset Library tables');
         """)
         print("Scan Center and Asset Library schema migration completed successfully.")
+
+    # 20. Worker Heartbeats Table for Sprint 6 Monitoring
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS worker_heartbeats (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        worker_id TEXT NOT NULL UNIQUE,
+        status TEXT NOT NULL CHECK (status IN ('Idle', 'Processing', 'Terminated')),
+        active_job_id INTEGER,
+        active_job_type TEXT,
+        cpu_load REAL DEFAULT 0.0,
+        memory_mb REAL DEFAULT 0.0,
+        heartbeat_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_worker_heartbeats_time ON worker_heartbeats(heartbeat_at);")
 
     conn.commit()
     conn.close()

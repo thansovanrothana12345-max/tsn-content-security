@@ -40,3 +40,18 @@ class Config:
     USE_CONCURRENT_WORKER: bool = os.getenv("USE_CONCURRENT_WORKER", "True").lower() in ("true", "1", "yes")
     MAX_CONCURRENT_JOBS: int = int(os.getenv("MAX_CONCURRENT_JOBS", "4"))
 
+    # Sprint 6 Additions
+    METRICS_ENABLED: bool = os.getenv("METRICS_ENABLED", "True").lower() in ("true", "1", "yes")
+    TELEMETRY_ENABLED: bool = os.getenv("TELEMETRY_ENABLED", "True").lower() in ("true", "1", "yes")
+    AI_MODEL_IDLE_TIMEOUT: float = float(os.getenv("AI_MODEL_IDLE_TIMEOUT", "600.0")) # 10 minutes default
+    CALIBRATION_SIGMOID_A: float = float(os.getenv("CALIBRATION_SIGMOID_A", "-12.0")) # Platt scaling slope
+    CALIBRATION_SIGMOID_B: float = float(os.getenv("CALIBRATION_SIGMOID_B", "9.6"))   # Platt scaling intercept
+    CONFIDENCE_WEIGHTS_CALIBRATED: dict = {
+        "video": 0.35,
+        "audio": 0.25,
+        "ocr": 0.15,
+        "logo": 0.15,
+        "metadata": 0.10
+    }
+
+

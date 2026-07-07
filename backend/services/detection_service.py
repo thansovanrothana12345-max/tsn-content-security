@@ -84,6 +84,51 @@ class DetectionService(IDetectionService):
         }
         best_agreements = []
 
+        # Fast-path SHA-256 duplicate check
+        fast_path_matched = False
+        try:
+            conn_meta = get_db_connection()
+            cursor_meta = conn_meta.cursor()
+            cursor_meta.execute("SELECT id, filesize, file_uuid FROM originals WHERE case_id = ?;", (case_id,))
+            originals_meta = cursor_meta.fetchall()
+            conn_meta.close()
+
+            asset_size = os.path.getsize(asset_file)
+            for orig in originals_meta:
+                orig_id = orig["id"]
+                orig_size = orig["filesize"]
+                orig_uuid = orig["file_uuid"]
+                
+                # Compare file sizes as pre-filter
+                if asset_size == orig_size:
+                    original_dir = os.path.join(Config.PROJECT_ROOT, Config.STORAGE_DIR, "originals")
+                    original_filepath = None
+                    if os.path.exists(original_dir):
+                        for fn in os.listdir(original_dir):
+                            if fn.startswith(orig_uuid):
+                                original_filepath = os.path.join(original_dir, fn)
+                                break
+                                
+                    if original_filepath and os.path.exists(original_filepath):
+                        orig_hash = compute_file_sha256(original_filepath)
+                        if asset_hash == orig_hash:
+                            max_similarity_score = 1.0
+                            best_confidence_score = 1.0
+                            best_confidence_level = "High"
+                            best_explanation = "Exact duplicate detected via fast-path SHA-256 hash validation."
+                            best_modality_scores = {
+                                "visual": 1.0,
+                                "acoustic": 1.0,
+                                "ocr": 1.0,
+                                "logo": 1.0,
+                                "metadata": 1.0
+                            }
+                            best_agreements = ["exact_checksum_match"]
+                            fast_path_matched = True
+                            break
+        except Exception as fast_path_err:
+            logger.warning(f"Fast-path duplicate check bypassed: {fast_path_err}")
+
         max_retries = getattr(Config, "AI_MODEL_RETRY_COUNT", 3)
         backoff_factor = getattr(Config, "AI_MODEL_RETRY_BACKOFF", 2.0)
         
@@ -91,79 +136,82 @@ class DetectionService(IDetectionService):
         success = False
         last_err = None
 
-        while attempt <= max_retries:
-            try:
-                # Preload models via model lifecycle manager
-                self.model_manager.load_model("clip")
-                self.model_manager.load_model("sentence_transformers")
-                self.model_manager.load_model("whisper")
+        if fast_path_matched:
+            success = True
+        else:
+            while attempt <= max_retries:
+                try:
+                    # Preload models via model lifecycle manager
+                    self.model_manager.load_model("clip")
+                    self.model_manager.load_model("sentence_transformers")
+                    self.model_manager.load_model("whisper")
 
-                # Ingest fingerprint via orchestrator
-                evidence_fp_id = AIServiceOrchestrator.ingest_fingerprint(case_id, "evidence", evidence_id, asset_file)
-                
-                # Get originals of the case
-                conn = get_db_connection()
-                cursor = conn.cursor()
-                cursor.execute("SELECT id FROM originals WHERE case_id = ?;", (case_id,))
-                originals = cursor.fetchall()
-                conn.close()
+                    # Ingest fingerprint via orchestrator
+                    evidence_fp_id = AIServiceOrchestrator.ingest_fingerprint(case_id, "evidence", evidence_id, asset_file)
+                    
+                    # Get originals of the case
+                    conn = get_db_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT id FROM originals WHERE case_id = ?;", (case_id,))
+                    originals = cursor.fetchall()
+                    conn.close()
 
-                # Check similarity against each original reference asset
-                for orig in originals:
-                    orig_id = orig[0] if isinstance(orig, (tuple, list)) else orig["id"]
-                    
-                    sim_res = AIServiceOrchestrator.check_similarity(
-                        case_id=case_id,
-                        source_id=evidence_id,
-                        source_type="evidence",
-                        target_id=orig_id,
-                        target_type="original",
-                        match_types=["perceptual_hash", "embedding"]
-                    )
-                    
-                    score = sim_res.get("overall_score", 0.0)
-                    if score > max_similarity_score:
-                        max_similarity_score = score
+                    # Check similarity against each original reference asset
+                    for orig in originals:
+                        orig_id = orig[0] if isinstance(orig, (tuple, list)) else orig["id"]
                         
-                        conn_fp = get_db_connection()
-                        cursor_fp = conn_fp.cursor()
-                        cursor_fp.execute("SELECT fingerprint_json FROM originals WHERE id = ?;", (orig_id,))
-                        orig_row = cursor_fp.fetchone()
+                        sim_res = AIServiceOrchestrator.check_similarity(
+                            case_id=case_id,
+                            source_id=evidence_id,
+                            source_type="evidence",
+                            target_id=orig_id,
+                            target_type="original",
+                            match_types=["perceptual_hash", "embedding"]
+                        )
                         
-                        cursor_fp.execute("SELECT phash, ahash, dhash, metadata_hash, ocr_fingerprint FROM fingerprints WHERE entity_type = 'evidence' AND entity_id = ? ORDER BY id DESC LIMIT 1;", (evidence_id,))
-                        ev_fp_row = cursor_fp.fetchone()
-                        conn_fp.close()
-                        
-                        if orig_row and orig_row[0] and ev_fp_row:
-                            try:
-                                orig_fp = json.loads(orig_row[0])
-                                ev_fp = {
-                                    "fingerprint": [{"hash": ev_fp_row[2], "offset": 0.0}], # dhash
-                                    "audio_peaks": [],
-                                    "logo_metadata": [],
-                                    "ocr_text": ev_fp_row[4] or ""
-                                }
-                                
-                                from backend.fingerprint import compare_fingerprints
-                                conf, report = compare_fingerprints(orig_fp, ev_fp)
-                                best_confidence_score = report.get("confidence_score", 0.0)
-                                best_confidence_level = report.get("confidence_level", "Low")
-                                best_explanation = report.get("explanation", "")
-                                best_modality_scores = report.get("weighted_evidence", best_modality_scores)
-                                best_agreements = report.get("agreements", [])
-                            except Exception:
-                                pass
-                success = True
-                break
-            except Exception as e:
-                last_err = e
-                attempt += 1
-                if attempt <= max_retries:
-                    sleep_time = backoff_factor ** attempt
-                    logger.warning(f"Transient AI failure: {e}. Retrying in {sleep_time}s (Attempt {attempt}/{max_retries})...")
-                    time.sleep(sleep_time)
-                else:
-                    logger.error(f"AI failure retries exhausted: {e}")
+                        score = sim_res.get("overall_score", 0.0)
+                        if score > max_similarity_score:
+                            max_similarity_score = score
+                            
+                            conn_fp = get_db_connection()
+                            cursor_fp = conn_fp.cursor()
+                            cursor_fp.execute("SELECT fingerprint_json FROM originals WHERE id = ?;", (orig_id,))
+                            orig_row = cursor_fp.fetchone()
+                            
+                            cursor_fp.execute("SELECT phash, ahash, dhash, metadata_hash, ocr_fingerprint FROM fingerprints WHERE entity_type = 'evidence' AND entity_id = ? ORDER BY id DESC LIMIT 1;", (evidence_id,))
+                            ev_fp_row = cursor_fp.fetchone()
+                            conn_fp.close()
+                            
+                            if orig_row and orig_row[0] and ev_fp_row:
+                                try:
+                                    orig_fp = json.loads(orig_row[0])
+                                    ev_fp = {
+                                        "fingerprint": [{"hash": ev_fp_row[2], "offset": 0.0}], # dhash
+                                        "audio_peaks": [],
+                                        "logo_metadata": [],
+                                        "ocr_text": ev_fp_row[4] or ""
+                                    }
+                                    
+                                    from backend.fingerprint import compare_fingerprints
+                                    conf, report = compare_fingerprints(orig_fp, ev_fp)
+                                    best_confidence_score = report.get("confidence_score", 0.0)
+                                    best_confidence_level = report.get("confidence_level", "Low")
+                                    best_explanation = report.get("explanation", "")
+                                    best_modality_scores = report.get("weighted_evidence", best_modality_scores)
+                                    best_agreements = report.get("agreements", [])
+                                except Exception:
+                                    pass
+                    success = True
+                    break
+                except Exception as e:
+                    last_err = e
+                    attempt += 1
+                    if attempt <= max_retries:
+                        sleep_time = backoff_factor ** attempt
+                        logger.warning(f"Transient AI failure: {e}. Retrying in {sleep_time}s (Attempt {attempt}/{max_retries})...")
+                        time.sleep(sleep_time)
+                    else:
+                        logger.error(f"AI failure retries exhausted: {e}")
 
         processing_time = time.time() - start_time
         
