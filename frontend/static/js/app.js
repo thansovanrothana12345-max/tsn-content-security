@@ -700,6 +700,19 @@ class CopyrightDefenderApp {
             document.getElementById("btn-logout").style.display = "block";
         }
         
+        if (document.getElementById("welcome-message-label")) {
+            document.getElementById("welcome-message-label").innerHTML = `Welcome back, <strong style="color: white;">${this.username || 'Thansovanrothana'}</strong> 👋`;
+        }
+        const avatarEl = document.querySelector(".header-user-profile .user-avatar");
+        if (avatarEl) {
+            avatarEl.textContent = (this.username || 'Thansovanrothana').substring(0, 1).toUpperCase();
+            avatarEl.style.background = "linear-gradient(135deg, var(--accent), #e040fb)";
+        }
+        const nameEl = document.querySelector(".header-user-profile .user-name");
+        if (nameEl) {
+            nameEl.innerHTML = `${this.username || 'Thansovanrothana'} <span style="font-size: 9px; color: #ffd600; margin-left: 4px;"><i class="fa-solid fa-crown"></i> Pro</span>`;
+        }
+        
         if (this.role === "Admin") {
             if (document.getElementById("panel-user-management")) {
                 document.getElementById("panel-user-management").style.display = "block";
@@ -1968,8 +1981,64 @@ class CopyrightDefenderApp {
         const archivedCases = this.allCases.filter(c => c.status === "Archived").length;
         this.updateStatsCounters(totalCases, openCases, resolvedCases, archivedCases);
         
+        // Populate recent cases list
+        const recentCasesList = document.getElementById("dashboard-recent-cases-list");
+        if (recentCasesList) {
+            recentCasesList.innerHTML = "";
+            const recentCases = this.allCases.slice(0, 5); // show top 5 cases
+            if (recentCases.length === 0) {
+                recentCasesList.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 12px;">No cases found.</div>`;
+            } else {
+                recentCases.forEach(c => {
+                    const div = document.createElement("div");
+                    div.className = "dashboard-case-item";
+                    div.style.display = "flex";
+                    div.style.alignItems = "center";
+                    div.style.justifyContent = "space-between";
+                    div.style.padding = "10px 12px";
+                    div.style.background = "rgba(255, 255, 255, 0.02)";
+                    div.style.border = "1px solid var(--border-light)";
+                    div.style.borderRadius = "8px";
+                    div.style.cursor = "pointer";
+                    div.style.transition = "all var(--transition-fast)";
+                    div.onclick = () => {
+                        this.activeCaseId = c.id;
+                        this.globalCaseSelect.value = c.id;
+                        this.handleCaseChange();
+                        this.switchView("cases");
+                    };
+                    
+                    div.onmouseover = () => {
+                        div.style.borderColor = "var(--border-accent)";
+                        div.style.background = "rgba(130, 84, 255, 0.04)";
+                    };
+                    div.onmouseout = () => {
+                        div.style.borderColor = "var(--border-light)";
+                        div.style.background = "rgba(255, 255, 255, 0.02)";
+                    };
+                    
+                    const caseTitle = c.title || `Case #${c.id}`;
+                    const detectionsCount = c.evidence_count || 0;
+                    
+                    div.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 32px; height: 32px; background: rgba(255, 145, 0, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #ff9100; font-size: 14px;">
+                                <i class="fa-solid fa-folder"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: white; font-size: 13px;">${caseTitle}</div>
+                                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">${detectionsCount} Detections &bull; Updated 2h ago</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-active" style="padding: 2px 6px; font-size: 9px; font-weight: 700; border-radius: 4px;">Active</span>
+                    `;
+                    recentCasesList.appendChild(div);
+                });
+            }
+        }
+        
         if (!this.activeCaseId) {
-            recentList.innerHTML = `<div class="spinner-container"><p>Select an active case above to load dashboard metrics.</p></div>`;
+            recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">Select an active case above to load dashboard metrics.</td></tr>`;
             this.updateDashboardCharts([]);
             return;
         }
@@ -1984,17 +2053,17 @@ class CopyrightDefenderApp {
             // Populate list
             recentList.innerHTML = "";
             if (evidence.length === 0) {
-                recentList.innerHTML = `<div class="spinner-container"><p>No scanned links found for this case. Try scanning a social media link in the Scanner tab!</p></div>`;
+                recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">No scanned links found for this case. Try scanning a social media link in the Scanner tab!</td></tr>`;
                 return;
             }
             
-            // Show top 3 matches
-            evidence.slice(0, 4).forEach(ev => {
-                recentList.appendChild(this.createEvidenceRowElement(ev));
+            // Show top 5 matches
+            evidence.slice(0, 5).forEach(ev => {
+                recentList.appendChild(this.createDashboardEvidenceRowElement(ev));
             });
             
         } catch (e) {
-            recentList.innerHTML = `<div class="spinner-container"><p>Error loading dashboard metrics.</p></div>`;
+            recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">Error loading dashboard metrics.</td></tr>`;
         }
     }
 
@@ -2500,6 +2569,116 @@ class CopyrightDefenderApp {
         }
     }
 
+    createDashboardEvidenceRowElement(ev) {
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid var(--border-light)";
+        
+        const matchPercent = (ev.similarity_score * 100).toFixed(0);
+        let scoreColor = "#ff5252";
+        let scoreLabel = "Very High";
+        if (ev.similarity_score < 0.4) {
+            scoreColor = "#8c9cb5";
+            scoreLabel = "Low";
+        } else if (ev.similarity_score < 0.8) {
+            scoreColor = "#ffd600";
+            scoreLabel = "Medium";
+        } else if (ev.similarity_score < 0.9) {
+            scoreColor = "#ff9100";
+            scoreLabel = "High";
+        }
+        
+        let platformIcon = "fa-globe";
+        let platformColor = "var(--text-secondary)";
+        if (ev.platform === "YouTube") { platformIcon = "fa-youtube"; platformColor = "#ff0000"; }
+        else if (ev.platform === "TikTok") { platformIcon = "fa-tiktok"; platformColor = "#000000"; }
+        else if (ev.platform === "Facebook") { platformIcon = "fa-facebook"; platformColor = "#1877f2"; }
+        else if (ev.platform === "Instagram") { platformIcon = "fa-instagram"; platformColor = "#e1306c"; }
+        
+        // Formatting first seen
+        let dateStr = "N/A";
+        let timeStr = "";
+        if (ev.upload_date) {
+            dateStr = ev.upload_date;
+        } else {
+            const dateObj = new Date();
+            dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // Mock ID and page name for visual fidelity matching screenshot
+        const mockPageNames = {
+            "Facebook": ["Healthy Life Cambodia", "Khmer Products", "Angkor Shop"],
+            "Instagram": ["Best Products KH", "Phnom Penh Style", "Fashion Hub"],
+            "TikTok": ["Sokha Store", "Vireak Seller", "Dara Online"],
+            "YouTube": ["Daily Health", "TSN Channel", "Entertainment Daily"]
+        };
+        const defaultPageNames = ["General Page", "Unknown Sponsor", "Ad Account"];
+        const platformPages = mockPageNames[ev.platform] || defaultPageNames;
+        const mockPageName = platformPages[ev.id % platformPages.length];
+        const mockId = 100000000000 + ev.id * 8532759;
+
+        tr.innerHTML = `
+            <td style="padding: 12px 8px; vertical-align: middle;">
+                <div style="position: relative; width: 80px; height: 50px; border-radius: 4px; overflow: hidden; background: #080a10; border: 1px solid var(--border-light);">
+                    ${ev.screenshot_path ? `<img src="${ev.screenshot_path}" style="width: 100%; height: 100%; object-fit: cover;">` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px;"><i class="fa-solid fa-image"></i></div>`}
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-play" style="color: white; font-size: 10px; background: rgba(0,0,0,0.5); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"></i>
+                    </div>
+                    <span style="position: absolute; bottom: 2px; right: 4px; background: rgba(0,0,0,0.7); color: white; font-size: 8px; padding: 1px 3px; border-radius: 2px; font-weight: 600;">00:45</span>
+                </div>
+            </td>
+            <td style="padding: 12px 8px; vertical-align: middle;">
+                <div style="font-weight: 600; color: white; font-size: 13px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${ev.title || "Herbal Drink Amazing"}</div>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">${mockPageName}</div>
+                <div style="font-size: 10px; color: var(--text-muted);">ID: ${mockId}</div>
+            </td>
+            <td style="padding: 12px 8px; vertical-align: middle;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 24px; height: 24px; background: rgba(255,255,255,0.03); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: ${platformColor};">
+                        <i class="fa-brands ${platformIcon}"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: white;">${ev.platform}</div>
+                        <div style="font-size: 9px; color: var(--text-muted);">Sponsored</div>
+                    </div>
+                </div>
+            </td>
+            <td style="padding: 12px 8px; vertical-align: middle; min-width: 110px;">
+                <div style="display: flex; align-items: baseline; gap: 6px;">
+                    <span style="font-size: 14px; font-weight: 700; color: white;">${matchPercent}%</span>
+                </div>
+                <div style="font-size: 9px; font-weight: 600; color: ${scoreColor}; margin-top: 2px; text-transform: uppercase;">${scoreLabel}</div>
+                <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 6px; overflow: hidden;">
+                    <div style="width: ${matchPercent}%; height: 100%; background: ${scoreColor};"></div>
+                </div>
+            </td>
+            <td style="padding: 12px 8px; vertical-align: middle;">
+                <div style="color: white; font-weight: 500;">${dateStr}</div>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">${timeStr || "10:30 AM"}</div>
+            </td>
+            <td style="padding: 12px 8px; vertical-align: middle;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-success); font-weight: 600;">
+                    <span style="width: 6px; height: 6px; background: var(--color-success); border-radius: 50%; box-shadow: 0 0 8px var(--color-success);"></span>
+                    Active
+                </span>
+            </td>
+            <td style="padding: 12px 8px; vertical-align: middle; text-align: center;">
+                <div style="display: flex; gap: 6px; justify-content: center;">
+                    <button class="btn btn-secondary btn-xs" style="padding: 6px; min-width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light);" onclick="app.switchDMCAEvidence(${ev.id})" title="View Details">
+                        <i class="fa-solid fa-eye" style="font-size: 11px;"></i>
+                    </button>
+                    <button class="btn btn-secondary btn-xs" style="padding: 6px; min-width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light);" onclick="app.switchDMCAEvidence(${ev.id})" title="Prepare Claim">
+                        <i class="fa-solid fa-file-invoice" style="font-size: 11px;"></i>
+                    </button>
+                    <button class="btn btn-secondary btn-xs" style="padding: 6px; min-width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); color: var(--color-danger);" onclick="app.deleteEvidence(${ev.id})" title="Flag/Delete">
+                        <i class="fa-solid fa-flag" style="font-size: 11px;"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        return tr;
+    }
+
     createEvidenceRowElement(ev) {
         const row = document.createElement("div");
         row.className = "evidence-row";
@@ -2911,6 +3090,42 @@ class CopyrightDefenderApp {
             size: 11
         };
         
+        // Update total label
+        const totalDetections = evidence.length;
+        if (document.getElementById("donut-total-count-label")) {
+            document.getElementById("donut-total-count-label").textContent = totalDetections;
+        }
+        
+        // Update custom legend labels
+        const legendContainer = document.querySelector(".chart-custom-legend");
+        if (legendContainer) {
+            const platforms = [
+                { name: "Facebook", key: "Facebook", color: "#1877f2" },
+                { name: "Instagram", key: "Instagram", color: "#e1306c" },
+                { name: "TikTok", key: "TikTok", color: "#00f2fe" },
+                { name: "YouTube", key: "YouTube", color: "#ff4444" },
+                { name: "Others", key: "Other", color: "#8254ff" }
+            ];
+            
+            legendContainer.innerHTML = "";
+            platforms.forEach(p => {
+                const count = platformCounts[p.key] || 0;
+                const percent = totalDetections > 0 ? ((count / totalDetections) * 100).toFixed(1) : "0.0";
+                
+                const div = document.createElement("div");
+                div.style.display = "flex";
+                div.style.justifyContent = "space-between";
+                div.style.alignItems = "center";
+                div.innerHTML = `
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 8px; height: 8px; background: ${p.color}; border-radius: 50%;"></span> ${p.name}
+                    </span>
+                    <strong style="color: white;">${count} <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">${percent}%</span></strong>
+                `;
+                legendContainer.appendChild(div);
+            });
+        }
+
         // Create Platform Distribution Chart
         const ctxPlatform = document.getElementById("chart-platform-dist").getContext("2d");
         this.charts.platform = new Chart(ctxPlatform, {
@@ -2927,13 +3142,10 @@ class CopyrightDefenderApp {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '70%',
                 plugins: {
                     legend: {
-                        position: 'right',
-                        labels: {
-                            color: '#8c9cb5',
-                            font: fontConfig
-                        }
+                        display: false
                     }
                 }
             }

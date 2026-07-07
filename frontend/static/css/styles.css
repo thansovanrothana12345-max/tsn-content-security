@@ -65,7 +65,7 @@ body {
 /* Sidebar Layout */
 .sidebar {
     width: 260px;
-    background: rgba(3, 5, 9, 0.45);
+    background: #030509;
     border-right: 1px solid var(--border-light);
     border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
     backdrop-filter: blur(24px);
@@ -147,18 +147,18 @@ body {
 }
 
 .nav-item.active {
-    color: white;
-    background: linear-gradient(135deg, rgba(130, 84, 255, 0.16) 0%, rgba(130, 84, 255, 0.03) 100%);
-    border-color: var(--border-accent);
-    box-shadow: 0 4px 20px rgba(130, 84, 255, 0.15), inset 0 0 10px rgba(130, 84, 255, 0.05);
+    color: white !important;
+    background: linear-gradient(135deg, #1877f2 0%, #00d2ff 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 20px rgba(24, 119, 242, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 .nav-item.active:hover {
     transform: none;
 }
 
 .nav-item.active i {
-    color: var(--accent);
-    text-shadow: 0 0 12px var(--accent-glow);
+    color: white !important;
+    text-shadow: 0 0 12px rgba(24, 119, 242, 0.6) !important;
 }
 
 .sidebar-footer {
@@ -180,15 +180,13 @@ body {
 }
 
 header {
-    height: 70px;
+    height: 80px;
     border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 32px;
-    background-color: rgba(5, 7, 12, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background-color: #05070c;
     position: sticky;
     top: 0;
     z-index: 5;
@@ -246,66 +244,87 @@ header {
 
 .stat-card {
     border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
+    border-radius: 20px;
     padding: 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background-color: #0c0f19;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
 }
 
-/* Card 1 (Total Cases) - Deep Purple Gradient */
-.stat-card:not(.info):not(.success):not(.warning) {
-    background: linear-gradient(135deg, rgba(130, 84, 255, 0.08) 0%, rgba(14, 20, 36, 0.4) 100%);
-    box-shadow: 0 8px 32px 0 rgba(130, 84, 255, 0.04);
+/* Card-specific custom themes */
+.stat-card.total-videos {
+    background: linear-gradient(135deg, rgba(24, 119, 242, 0.08) 0%, rgba(12, 15, 25, 0.65) 100%);
+    border-color: rgba(24, 119, 242, 0.15);
+    box-shadow: 0 4px 20px rgba(24, 119, 242, 0.02);
 }
-.stat-card:not(.info):not(.success):not(.warning):hover {
-    box-shadow: 0 12px 30px rgba(130, 84, 255, 0.15);
-    border-color: var(--accent);
+.stat-card.total-videos:hover {
+    border-color: #1877f2;
+    box-shadow: 0 12px 30px rgba(24, 119, 242, 0.16);
 }
-
-/* Card 2 (Open Cases) - Cyan / Info Gradient */
-.stat-card.info {
-    background: linear-gradient(135deg, rgba(0, 176, 255, 0.08) 0%, rgba(14, 20, 36, 0.4) 100%);
-    box-shadow: 0 8px 32px 0 rgba(0, 176, 255, 0.04);
-}
-.stat-card.info:hover {
-    box-shadow: 0 12px 30px rgba(0, 176, 255, 0.15);
-    border-color: var(--color-info);
+.stat-card.total-videos .stat-icon {
+    background-color: rgba(24, 119, 242, 0.1);
+    border-color: rgba(24, 119, 242, 0.18);
+    color: #1877f2;
 }
 
-/* Card 3 (Resolved) - Emerald Gradient */
-.stat-card.success {
-    background: linear-gradient(135deg, rgba(0, 230, 118, 0.08) 0%, rgba(14, 20, 36, 0.4) 100%);
-    box-shadow: 0 8px 32px 0 rgba(0, 230, 118, 0.04);
+.stat-card.detected-ads {
+    background: linear-gradient(135deg, rgba(0, 230, 118, 0.08) 0%, rgba(12, 15, 25, 0.65) 100%);
+    border-color: rgba(0, 230, 118, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 230, 118, 0.02);
 }
-.stat-card.success:hover {
-    box-shadow: 0 12px 30px rgba(0, 230, 118, 0.15);
+.stat-card.detected-ads:hover {
     border-color: var(--color-success);
+    box-shadow: 0 12px 30px rgba(0, 230, 118, 0.16);
+}
+.stat-card.detected-ads .stat-icon {
+    background-color: rgba(0, 230, 118, 0.1);
+    border-color: rgba(0, 230, 118, 0.18);
+    color: var(--color-success);
 }
 
-/* Card 4 (Archived) - Amber Gradient */
-.stat-card.warning {
-    background: linear-gradient(135deg, rgba(255, 145, 0, 0.08) 0%, rgba(14, 20, 36, 0.4) 100%);
-    box-shadow: 0 8px 32px 0 rgba(255, 145, 0, 0.04);
+.stat-card.active-cases {
+    background: linear-gradient(135deg, rgba(255, 145, 0, 0.08) 0%, rgba(12, 15, 25, 0.65) 100%);
+    border-color: rgba(255, 145, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(255, 145, 0, 0.02);
 }
-.stat-card.warning:hover {
-    box-shadow: 0 12px 30px rgba(255, 145, 0, 0.15);
-    border-color: var(--color-warning);
+.stat-card.active-cases:hover {
+    border-color: #ff9100;
+    box-shadow: 0 12px 30px rgba(255, 145, 0, 0.16);
+}
+.stat-card.active-cases .stat-icon {
+    background-color: rgba(255, 145, 0, 0.1);
+    border-color: rgba(255, 145, 0, 0.18);
+    color: #ff9100;
+}
+
+.stat-card.reports-generated {
+    background: linear-gradient(135deg, rgba(130, 84, 255, 0.08) 0%, rgba(12, 15, 25, 0.65) 100%);
+    border-color: rgba(130, 84, 255, 0.15);
+    box-shadow: 0 4px 20px rgba(130, 84, 255, 0.02);
+}
+.stat-card.reports-generated:hover {
+    border-color: var(--accent);
+    box-shadow: 0 12px 30px rgba(130, 84, 255, 0.16);
+}
+.stat-card.reports-generated .stat-icon {
+    background-color: rgba(130, 84, 255, 0.1);
+    border-color: rgba(130, 84, 255, 0.18);
+    color: var(--accent);
 }
 
 .stat-info h3 {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 12px;
+    text-transform: capitalize;
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 600;
 }
 
@@ -317,28 +336,14 @@ header {
 }
 
 .stat-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: var(--radius-md);
-    background-color: rgba(130, 84, 255, 0.08);
-    border: 1px solid rgba(130, 84, 255, 0.12);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    color: var(--accent);
-}
-
-.stat-card.info .stat-icon {
-    background-color: rgba(0, 176, 255, 0.08);
-    border-color: rgba(0, 176, 255, 0.12);
-    color: var(--color-info);
-}
-
-.stat-card.success .stat-icon {
-    background-color: rgba(0, 230, 118, 0.08);
-    border-color: rgba(0, 230, 118, 0.12);
-    color: var(--color-success);
+    transition: all 0.3s ease;
 }
 
 .stat-card.warning .stat-icon {
@@ -1545,52 +1550,109 @@ textarea.form-input {
 }
 
 /* Premium Pro Sidebar Plan Card */
+/* Premium Pro Sidebar Plan Card */
 .premium-card {
-    background: linear-gradient(135deg, rgba(130, 84, 255, 0.08) 0%, rgba(224, 64, 251, 0.04) 100%);
-    border: 1px solid var(--border-accent);
-    border-radius: var(--radius-md);
-    padding: 14px;
-    margin: 16px 8px;
+    background: linear-gradient(135deg, rgba(24, 119, 242, 0.08) 0%, rgba(130, 84, 255, 0.03) 100%);
+    border: 1px solid rgba(24, 119, 242, 0.15);
+    border-radius: 16px;
+    padding: 20px 16px;
+    margin: 24px 8px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(130, 84, 255, 0.05);
-    transition: var(--transition-normal);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 .premium-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent-hover);
-    box-shadow: 0 8px 24px rgba(130, 84, 255, 0.12);
+    transform: translateY(-4px);
+    border-color: #1877f2;
+    box-shadow: 0 8px 24px rgba(24, 119, 242, 0.15);
 }
 .premium-card-icon {
-    font-size: 16px;
-    color: #ffd700;
-    margin-bottom: 8px;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    width: 32px;
+    height: 32px;
+    background: rgba(24, 119, 242, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1877f2;
+    font-size: 14px;
+    margin-bottom: 12px;
 }
 .premium-card-title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     color: white;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 .premium-card-desc {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-secondary);
-    line-height: 1.4;
-    margin-bottom: 10px;
+    line-height: 1.5;
+    margin-bottom: 16px;
 }
 .premium-card-btn {
     width: 100%;
     justify-content: center;
-    background: linear-gradient(135deg, var(--accent), #e040fb) !important;
-    box-shadow: 0 0 15px rgba(130, 84, 255, 0.3) !important;
+    background: #1877f2 !important;
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3) !important;
     border: none !important;
-    font-size: 11px !important;
-    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 8px 12px !important;
 }
 .premium-card-btn:hover {
     filter: brightness(1.1);
-    box-shadow: 0 0 20px rgba(130, 84, 255, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(24, 119, 242, 0.5) !important;
+}
+
+/* Middle visual floating animations */
+@keyframes float1 {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(3deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+@keyframes float2 {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(-4deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+@keyframes float3 {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+@keyframes float4 {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(-2deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.quick-scan-dropzone:hover {
+    border-color: var(--accent-hover) !important;
+    background: rgba(130, 84, 255, 0.05) !important;
+    box-shadow: 0 8px 24px rgba(130, 84, 255, 0.08);
+}
+
+.dashboard-case-item {
+    transition: all 0.2s ease;
+}
+
+.dashboard-case-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-card .stat-info h3 {
+    margin-bottom: 4px;
+}
+.stat-card .stat-info p {
+    font-size: 28px;
+    line-height: 1.2;
+}
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
 }
 
 
