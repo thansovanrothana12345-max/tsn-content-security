@@ -4,8 +4,9 @@ import hashlib
 from backend.ai.hashing.service import HashingService
 from backend.ai.embeddings.service import EmbeddingsService
 from backend.ai.detectors.service import DetectorsService
+from backend.services.ai_interfaces import ImageFingerprintInterface, VideoFingerprintInterface, AudioFingerprintInterface
 
-class FingerprintService:
+class FingerprintService(ImageFingerprintInterface, VideoFingerprintInterface, AudioFingerprintInterface):
     @classmethod
     def fingerprint_image(cls, pil_img: Image.Image) -> dict:
         """Computes perceptual hashes, embeddings, and ORB keypoints for an image."""

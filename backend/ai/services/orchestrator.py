@@ -6,8 +6,9 @@ from PIL import Image
 from backend.database import get_db_connection
 from backend.ai.fingerprint.service import FingerprintService
 from backend.ai.similarity.service import SimilarityService
+from backend.services.ai_interfaces import ScanOrchestratorInterface, SimilarityEngineInterface
 
-class AIServiceOrchestrator:
+class AIServiceOrchestrator(ScanOrchestratorInterface, SimilarityEngineInterface):
     @classmethod
     def ingest_fingerprint(cls, case_id: int, entity_type: str, entity_id: int, file_path: str) -> int:
         """Processes any media file, generates its AI fingerprints, and stores them in the DB.

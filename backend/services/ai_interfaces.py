@@ -50,3 +50,33 @@ class TextSimilarityInterface(ABC):
     def compare_text(self, text_a: str, text_b: str) -> float:
         """Returns text similarity match score between 0.0 and 1.0."""
         pass
+
+class ImageFingerprintInterface(ABC):
+    @abstractmethod
+    def fingerprint_image(self, pil_img) -> dict:
+        """Computes perceptual hashes, embeddings, and feature descriptors for an image."""
+        pass
+
+class VideoFingerprintInterface(ABC):
+    @abstractmethod
+    def fingerprint_video(self, video_path: str, interval_sec: float = 1.0) -> list:
+        """Processes video frames at intervals and generates visual sequence fingerprints."""
+        pass
+
+class AudioFingerprintInterface(ABC):
+    @abstractmethod
+    def fingerprint_audio(self, audio_path: str) -> dict:
+        """Computes audio segment embeddings and metadata hashes."""
+        pass
+
+class SimilarityEngineInterface(ABC):
+    @abstractmethod
+    def check_similarity(self, case_id: int, source_id: int, source_type: str, target_id: int, target_type: str, match_types: list = None) -> dict:
+        """Compares and scores similarity between two entities."""
+        pass
+
+class ScanOrchestratorInterface(ABC):
+    @abstractmethod
+    def ingest_fingerprint(self, case_id: int, entity_type: str, entity_id: int, file_path: str) -> int:
+        """Processes a media file, generates fingerprints, and persists to registry."""
+        pass
