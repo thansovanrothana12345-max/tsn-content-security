@@ -289,9 +289,20 @@ def hamming_distance(hex1, hex2):
 # Fingerprints Similarity & Time Alignments (Sub-phase 2.9)
 def compare_fingerprints(fp1_data, fp2_data, similarity_threshold=0.80):
     """Compares video/image original reference and leak logs using multi-modal fusion."""
+    from backend.config import Config
+    
     # 1. Video Fingerprint Matcher (sliding dHash Hamming alignment)
     h1 = [item["hash"] if isinstance(item, dict) else item for item in fp1_data.get("fingerprint", [])]
     h2 = [item["hash"] if isinstance(item, dict) else item for item in fp2_data.get("fingerprint", [])]
+    
+    is_video = (h1 and h2) or (fp1_data.get("audio_peaks") and fp2_data.get("audio_peaks"))
+    if is_video:
+        similarity_threshold = getattr(Config, "SIMILARITY_VIDEO_THRESHOLD", 0.80)
+    else:
+        if h1 or h2:
+            similarity_threshold = getattr(Config, "SIMILARITY_IMAGE_THRESHOLD", 0.85)
+        else:
+            similarity_threshold = getattr(Config, "SIMILARITY_AUDIO_THRESHOLD", 0.80)
     
     best_similarity = 0.0
     best_offset = 0

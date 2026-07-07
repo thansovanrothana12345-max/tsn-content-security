@@ -381,9 +381,10 @@ def process_single_scan_job(job):
             
         # 3. Download low-resolution video/asset (if supported by connector)
         update_scan_job_progress(job_id, 80.0)
+        downloaded_asset_path = None
         try:
             log_connector(platform, "DOWNLOAD_ASSET", f"Downloading low-res asset for fingerprinting")
-            connector.download_asset(url, EVIDENCE_DIR)
+            downloaded_asset_path = connector.download_asset(url, EVIDENCE_DIR)
         except Exception as ex:
             log_connector(platform, "DOWNLOAD_ASSET_OMITTED", f"Asset download omitted or failed: {ex}")
             
@@ -429,22 +430,82 @@ def process_single_scan_job(job):
             VALUES (?, ?);
         """, (target_case_id, evidence_id))
         
+        conn.commit()
+        conn.close()
+        
+        # Run AI Fingerprinting & Similarity pipeline
+        asset_file = None
+        if downloaded_asset_path and os.path.exists(downloaded_asset_path):
+            asset_file = downloaded_asset_path
+        elif screenshot_full_path and os.path.exists(screenshot_full_path):
+            asset_file = screenshot_full_path
+            
+        max_similarity_score = 0.0
+        processing_time = 0.0
+        
+        if asset_file:
+            start_time = time.time()
+            try:
+                # Ingest fingerprint via orchestrator
+                evidence_fp_id = AIServiceOrchestrator.ingest_fingerprint(target_case_id, "evidence", evidence_id, asset_file)
+                
+                # Check similarity against all case originals
+                conn_sim = get_db_connection()
+                cursor_sim = conn_sim.cursor()
+                cursor_sim.execute("SELECT id FROM originals WHERE case_id = ?;", (target_case_id,))
+                originals_rows = cursor_sim.fetchall()
+                conn_sim.close()
+                
+                for orig in originals_rows:
+                    orig_id = orig[0] if isinstance(orig, (tuple, list)) else orig["id"]
+                    sim_res = AIServiceOrchestrator.check_similarity(
+                        case_id=target_case_id,
+                        source_id=evidence_id,
+                        source_type="evidence",
+                        target_id=orig_id,
+                        target_type="original",
+                        match_types=["perceptual_hash", "embedding"]
+                    )
+                    score = sim_res.get("overall_score", 0.0)
+                    if score > max_similarity_score:
+                        max_similarity_score = score
+                        
+                # Update evidence score
+                conn_upd = get_db_connection()
+                cursor_upd = conn_upd.cursor()
+                cursor_upd.execute("""
+                    UPDATE evidence
+                    SET similarity_score = ?
+                    WHERE id = ?;
+                """, (max_similarity_score, evidence_id))
+                conn_upd.commit()
+                conn_upd.close()
+                
+                processing_time = time.time() - start_time
+                log_scan_job("DETECTION_JOB", job_id, "Completed", f"model=MultiModalScore score={max_similarity_score:.4f} processing_time={processing_time:.2f}s status=Completed")
+            except Exception as ai_err:
+                log_scan_job("FAILED", job_id, "Failed", f"AI pipeline error: {str(ai_err)}")
+                update_scan_job_progress(job_id, 100.0, status="Failed", error_message=f"AI model failure: {str(ai_err)}")
+                return
+                
         # Write to audit logs
-        cursor.execute("""
+        conn_final = get_db_connection()
+        cursor_final = conn_final.cursor()
+        cursor_final.execute("""
             INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
             VALUES (?, 'CREATE_EVIDENCE', 'evidence', ?, ?);
         """, (user_id, evidence_id, json.dumps({"url": url, "case_id": target_case_id})))
         
-        cursor.execute("""
+        cursor_final.execute("""
             INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details_json)
             VALUES (?, 'SCAN_JOB_COMPLETE', 'scan_job', ?, ?);
         """, (user_id, job_id, json.dumps({"url": url})))
         
-        conn.commit()
-        conn.close()
+        conn_final.commit()
+        conn_final.close()
         
         update_scan_job_progress(job_id, 100.0, status="Completed")
-        log_scan_job("COMPLETE", job_id, "Completed", f"Matched Evidence ID {evidence_id}")
+        log_scan_job("COMPLETE", job_id, "Completed", f"Matched Evidence ID {evidence_id} with score {max_similarity_score:.4f}")
         log_worker("COMPLETE_SCAN_JOB", f"Job ID {job_id} completed successfully.")
         
     except Exception as e:
