@@ -237,7 +237,7 @@ class CopyrightDefenderApp {
         // Sidebar drawer and collapse toggling handlers
         if (this.sidebarToggle) {
             this.sidebarToggle.addEventListener("click", () => {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 1024) {
                     this.sidebar.classList.toggle("open");
                     if (this.sidebarOverlay) this.sidebarOverlay.classList.toggle("active");
                 } else {
@@ -259,7 +259,7 @@ class CopyrightDefenderApp {
                 e.preventDefault();
                 const view = item.getAttribute("data-view");
                 this.switchView(view);
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 1024) {
                     this.sidebar.classList.remove("open");
                     if (this.sidebarOverlay) this.sidebarOverlay.classList.remove("active");
                 }

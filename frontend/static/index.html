@@ -18,8 +18,12 @@
         <div class="brand">
             <div class="brand-icon">
                 <i class="fa-solid fa-shield-halved"></i>
+                <i class="fa-solid fa-copyright"></i>
             </div>
-            <span class="brand-name">TSN Copyright Defender</span>
+            <div class="brand-name-container">
+                <span class="brand-name">TSN</span>
+                <span class="brand-subname">Copyright Defender</span>
+            </div>
         </div>
         
         <nav class="nav-menu">
@@ -247,37 +251,37 @@
                                 <canvas id="chart-platform-dist"></canvas>
                                 <!-- Total badge in the middle of doughnut -->
                                 <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                                    <div style="font-size: 20px; font-weight: 800; color: white;" id="donut-total-count-label">156</div>
-                                    <div style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Total</div>
+                                    <div style="font-size: 24px; font-weight: 800; color: white;" id="donut-total-count-label">156</div>
+                                    <div style="font-size: 13px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Total</div>
                                 </div>
                             </div>
                             
                             <!-- Platform custom legend list on the right -->
-                            <div class="chart-custom-legend" style="flex: 1; display: flex; flex-direction: column; gap: 8px; font-size: 12px; font-weight: 500; color: var(--text-secondary);">
+                            <div class="chart-custom-legend" style="flex: 1; display: flex; flex-direction: column; gap: 8px; font-size: 15px; font-weight: 500; color: var(--text-secondary);">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; background: #1877f2; border-radius: 50%;"></span> Facebook</span>
-                                    <strong style="color: white;">65 <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(41.7%)</span></strong>
+                                    <strong style="color: white;">65 <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">(41.7%)</span></strong>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; background: #e1306c; border-radius: 50%;"></span> Instagram</span>
-                                    <strong style="color: white;">32 <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(20.5%)</span></strong>
+                                    <strong style="color: white;">32 <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">(20.5%)</span></strong>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; background: #00f2fe; border-radius: 50%;"></span> TikTok</span>
-                                    <strong style="color: white;">28 <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(17.9%)</span></strong>
+                                    <strong style="color: white;">28 <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">(17.9%)</span></strong>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; background: #ff4444; border-radius: 50%;"></span> YouTube</span>
-                                    <strong style="color: white;">18 <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(11.5%)</span></strong>
+                                    <strong style="color: white;">18 <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">(11.5%)</span></strong>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; background: #8254ff; border-radius: 50%;"></span> Others</span>
-                                    <strong style="color: white;">13 <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">(8.4%)</span></strong>
+                                    <strong style="color: white;">13 <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">(8.4%)</span></strong>
                                 </div>
                             </div>
                         </div>
                         
-                        <button class="btn btn-secondary btn-sm" onclick="app.switchView('scanner')" style="width: 100%; justify-content: center; font-size: 12px; padding: 6px; border-radius: var(--radius-sm); margin-top: 12px; font-weight: 600;">
+                        <button class="btn btn-secondary btn-sm" onclick="app.switchView('scanner')" style="width: 100%; justify-content: center; font-size: 16px; padding: 10px; border-radius: var(--radius-sm); margin-top: 12px; font-weight: 600;">
                             <i class="fa-solid fa-chart-line"></i> View Full Analytics
                         </button>
                     </div>
@@ -294,21 +298,21 @@
                     <!-- Recently Detected Unauthorized Ads -->
                     <div class="panel" style="margin-bottom: 0; padding: 20px;">
                         <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <h2 class="panel-title" style="font-size: 16px; font-weight: 700;">Recently Detected Unauthorized Ads</h2>
-                            <button class="btn btn-secondary btn-sm" onclick="app.switchView('verification')" style="font-size: 11px; padding: 6px 12px; font-weight: 600;">View All Detections</button>
+                            <h2 class="panel-title">Recently Detected Unauthorized Ads</h2>
+                            <button class="btn btn-secondary btn-sm" onclick="app.switchView('verification')" style="font-size: 14px; padding: 6px 12px; font-weight: 600;">View All Detections</button>
                         </div>
                         
                         <div class="table-responsive" style="overflow-x: auto;">
-                            <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 12px;">
+                            <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                                 <thead>
-                                    <tr style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-size: 11px; text-transform: uppercase;">
-                                        <th style="padding: 10px 8px;">Preview</th>
-                                        <th style="padding: 10px 8px;">Ad Title / Page Name</th>
-                                        <th style="padding: 10px 8px;">Platform</th>
-                                        <th style="padding: 10px 8px;">Match Score</th>
-                                        <th style="padding: 10px 8px;">First Seen</th>
-                                        <th style="padding: 10px 8px;">Status</th>
-                                        <th style="padding: 10px 8px; text-align: center;">Actions</th>
+                                    <tr style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); text-transform: uppercase;">
+                                        <th>Preview</th>
+                                        <th>Ad Title / Page Name</th>
+                                        <th>Platform</th>
+                                        <th>Match Score</th>
+                                        <th>First Seen</th>
+                                        <th>Status</th>
+                                        <th style="text-align: center;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dashboard-recent-evidence">
