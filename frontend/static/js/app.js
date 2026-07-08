@@ -2610,7 +2610,7 @@ class CopyrightDefenderApp {
             "Facebook": ["Healthy Life Cambodia", "Khmer Products", "Angkor Shop"],
             "Instagram": ["Best Products KH", "Phnom Penh Style", "Fashion Hub"],
             "TikTok": ["Sokha Store", "Vireak Seller", "Dara Online"],
-            "YouTube": ["Daily Health", "TSN Channel", "Entertainment Daily"]
+            "YouTube": ["Daily Health", "Copyright Security Channel", "Entertainment Daily"]
         };
         const defaultPageNames = ["General Page", "Unknown Sponsor", "Ad Account"];
         const platformPages = mockPageNames[ev.platform] || defaultPageNames;
