@@ -190,9 +190,10 @@ body {
     transform: none;
 }
 
-.nav-item.active i {
+.nav-item.active i,
+.nav-item.active svg {
     color: white !important;
-    text-shadow: 0 0 12px rgba(24, 119, 242, 0.6) !important;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
 }
 
 .sidebar-footer {
@@ -288,19 +289,20 @@ header {
 
 .stat-card {
     border: 1px solid var(--border-light);
-    border-radius: 20px;
-    padding: 24px;
+    border-radius: 16px;
+    padding: 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background-color: #0c0f19;
+    justify-content: flex-start;
+    gap: 16px;
+    background-color: rgba(12, 15, 25, 0.6);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
 }
 
 /* Card-specific custom themes */
@@ -316,8 +318,8 @@ header {
 }
 
 .stat-card.total-videos .stat-icon {
-    background-color: rgba(24, 119, 242, 0.1);
-    border-color: rgba(24, 119, 242, 0.18);
+    background-color: rgba(24, 119, 242, 0.15);
+    border-color: rgba(24, 119, 242, 0.25);
     color: #1877f2;
 }
 
@@ -333,8 +335,8 @@ header {
 }
 
 .stat-card.detected-ads .stat-icon {
-    background-color: rgba(0, 230, 118, 0.1);
-    border-color: rgba(0, 230, 118, 0.18);
+    background-color: rgba(0, 230, 118, 0.15);
+    border-color: rgba(0, 230, 118, 0.25);
     color: var(--color-success);
 }
 
@@ -350,8 +352,8 @@ header {
 }
 
 .stat-card.active-cases .stat-icon {
-    background-color: rgba(255, 145, 0, 0.1);
-    border-color: rgba(255, 145, 0, 0.18);
+    background-color: rgba(255, 145, 0, 0.15);
+    border-color: rgba(255, 145, 0, 0.25);
     color: #ff9100;
 }
 
@@ -367,30 +369,32 @@ header {
 }
 
 .stat-card.reports-generated .stat-icon {
-    background-color: rgba(130, 84, 255, 0.1);
-    border-color: rgba(130, 84, 255, 0.18);
+    background-color: rgba(130, 84, 255, 0.15);
+    border-color: rgba(130, 84, 255, 0.25);
     color: var(--accent);
 }
 
 .stat-info h3 {
-    font-size: 12px;
+    font-size: 13px;
     text-transform: capitalize;
     color: var(--text-secondary);
-    margin-bottom: 4px;
-    font-weight: 600;
+    margin-bottom: 2px;
+    font-weight: 500;
 }
 
 .stat-info p {
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 700;
     color: white;
     letter-spacing: -0.5px;
+    margin-bottom: 2px;
+    line-height: 1.1;
 }
 
 .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -450,15 +454,16 @@ header {
 }
 
 .btn-primary {
-    background-color: var(--accent);
+    background: linear-gradient(135deg, #1877f2 0%, #8254ff 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(130, 84, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.25);
+    border: none;
 }
 
 .btn-primary:hover {
-    background-color: var(--accent-hover);
+    background: linear-gradient(135deg, #2581f4 0%, #9066ff 100%);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(130, 84, 255, 0.35);
+    box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
 }
 
 .btn-secondary {
