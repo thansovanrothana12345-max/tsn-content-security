@@ -989,6 +989,31 @@ def init_db():
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_takedown_logs_evidence ON takedown_logs(evidence_id);")
 
+    # 24b. Notifications Table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        is_read INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+    """)
+    cursor.execute("SELECT COUNT(*) as cnt FROM notifications;")
+    if cursor.fetchone()["cnt"] == 0:
+        try:
+            cursor.execute("""
+                INSERT INTO notifications (user_id, title, message, is_read)
+                VALUES 
+                (1, 'System Update', 'Copyright Security system has been updated to Sprint 9 enterprise specs.', 0),
+                (1, 'Initial Visual Scan Complete', 'Visual scan for YouTube URL completed with 0 matches found.', 1),
+                (1, 'New Infringement Match', 'Warning: High visual similarity match (85.0%) detected on Facebook Reel!', 0);
+            """)
+        except Exception:
+            pass
+
     # 25. Immutable Audit logs migration columns (Sprint 9)
     try:
         cursor.execute("ALTER TABLE audit_logs ADD COLUMN previous_entry_hash TEXT;")

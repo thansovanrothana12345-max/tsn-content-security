@@ -145,9 +145,21 @@
                 </div>
 
                 <!-- Notifications indicator -->
-                <div class="header-notification-bell" style="position: relative; cursor: pointer; color: var(--text-secondary); font-size: 16px; background: rgba(255, 255, 255, 0.02); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); transition: all 0.2s;" onclick="alert('No new notifications.')">
+                <div class="header-notification-bell" id="notification-bell-btn" style="position: relative; cursor: pointer; color: var(--text-secondary); font-size: 16px; background: rgba(255, 255, 255, 0.02); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); transition: all 0.2s;">
                     <i class="fa-solid fa-bell"></i>
-                    <span class="bell-badge" style="position: absolute; top: -2px; right: -2px; width: 14px; height: 14px; background: var(--color-danger); border-radius: 50%; color: white; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 0 8px var(--color-danger);">5</span>
+                    <span class="bell-badge" id="notification-badge" style="position: absolute; top: -2px; right: -2px; width: 14px; height: 14px; background: var(--color-danger); border-radius: 50%; color: white; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 0 8px var(--color-danger); display: none;">0</span>
+                    
+                    <!-- Dropdown Panel -->
+                    <div id="notification-dropdown" class="panel" style="display: none; position: absolute; top: 45px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border-light); padding: 12px; background: #0a0d16; border-radius: var(--radius-md); text-align: left;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; margin-bottom: 8px;">
+                            <h4 style="margin: 0; color: white; font-size: 14px;">Notifications</h4>
+                            <span id="mark-all-read-btn" style="font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600;">Mark all read</span>
+                        </div>
+                        <div id="notification-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Dynamically loaded notifications -->
+                            <div style="text-align: center; color: var(--text-secondary); padding: 16px; font-size: 12px;">No new notifications</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- User profile badge -->

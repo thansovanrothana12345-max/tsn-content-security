@@ -550,6 +550,28 @@ def execute_background_job(job_id, case_id, job_type, payload):
                 SET status = 'Completed', completed_at = ?, finished_at = ?, duration = ?, progress_percent = 100.0, current_step = 'Completed', updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             """, (completed_at, completed_at, duration_val, job_id))
+            
+        # Insert a notification event
+        try:
+            cursor.execute("SELECT job_type, case_id FROM background_jobs WHERE id = ?", (job_id,))
+            j_row = cursor.fetchone()
+            if j_row:
+                j_type = j_row["job_type"]
+                c_id = j_row["case_id"]
+                if error_msg:
+                    title = "Job Failed"
+                    msg = f"Task '{j_type}' failed for Case #{c_id}: {error_msg[:100]}"
+                else:
+                    title = "Job Completed"
+                    msg = f"Task '{j_type}' successfully processed for Case #{c_id}."
+                
+                cursor.execute("""
+                    INSERT INTO notifications (user_id, title, message, is_read)
+                    VALUES (1, ?, ?, 0);
+                """, (title, msg))
+        except Exception as err:
+            print(f"[WORKER] Failed to create notification: {err}")
+            
         conn.commit()
     except Exception as e:
         print(f"[WORKER] Failed to finalize background job {job_id}: {e}")

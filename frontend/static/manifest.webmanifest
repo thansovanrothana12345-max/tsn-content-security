@@ -1,0 +1,16 @@
+{
+  "name": "𝑪𝒐𝒑𝒚𝒓𝒊𝒈𝒉𝒕 𝑺𝒆𝒄𝒖𝒓𝒊𝒕𝒚",
+  "short_name": "𝑪𝒐𝒑𝒚𝒓𝒊𝒈𝒉𝒕 𝑺𝒆𝒄𝒖𝒓𝒊𝒕𝒚",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070c",
+  "theme_color": "#05070c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/static/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

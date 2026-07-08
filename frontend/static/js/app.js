@@ -231,6 +231,13 @@ class CopyrightDefenderApp {
         this.verifyNoteForm = document.getElementById("verify-note-form");
         this.previousJobStatuses = {};
         this.scanQueueTimer = null;
+
+        // Notification Elements
+        this.notificationBellBtn = document.getElementById("notification-bell-btn");
+        this.notificationDropdown = document.getElementById("notification-dropdown");
+        this.notificationBadge = document.getElementById("notification-badge");
+        this.notificationList = document.getElementById("notification-list");
+        this.markAllReadBtn = document.getElementById("mark-all-read-btn");
     }
 
     initEvents() {
@@ -625,6 +632,42 @@ class CopyrightDefenderApp {
         if (this.verifyNoteForm) {
             this.verifyNoteForm.addEventListener("submit", (e) => this.handleNoteSubmit(e));
         }
+
+        // Notifications events
+        if (this.notificationBellBtn) {
+            this.notificationBellBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if (this.notificationDropdown) {
+                    const visible = this.notificationDropdown.style.display === "block";
+                    this.notificationDropdown.style.display = visible ? "none" : "block";
+                    if (!visible) this.loadNotifications();
+                }
+            });
+        }
+        
+        document.addEventListener("click", () => {
+            if (this.notificationDropdown) {
+                this.notificationDropdown.style.display = "none";
+            }
+        });
+        
+        if (this.notificationDropdown) {
+            this.notificationDropdown.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+        }
+        
+        if (this.markAllReadBtn) {
+            this.markAllReadBtn.addEventListener("click", async () => {
+                try {
+                    await this.authFetch("/api/v1/notifications/read-all", { method: "POST" });
+                    this.loadNotifications();
+                    this.showToast("All notifications marked as read.", "success");
+                } catch (e) {
+                    console.error("Error marking all read:", e);
+                }
+            });
+        }
     }
 
     async initAuth() {
@@ -645,6 +688,7 @@ class CopyrightDefenderApp {
                     this.username = username;
                     this.role = role;
                     this.updateAuthUI();
+                    this.loadNotifications();
                     return;
                 }
             } catch (e) {
@@ -661,6 +705,7 @@ class CopyrightDefenderApp {
                 this.username = user.username;
                 this.role = user.role;
                 this.updateAuthUI();
+                this.loadNotifications();
                 return;
             }
         } catch (e) {
@@ -806,6 +851,7 @@ class CopyrightDefenderApp {
             passwordInput.value = "";
             
             this.updateAuthUI();
+            this.loadNotifications();
             this.showToast(`Logged in successfully as ${this.username}!`, "success");
             
             // Redirect to Dashboard and load layout stats
@@ -963,6 +1009,7 @@ class CopyrightDefenderApp {
     initAutoRefresh() {
         setInterval(() => {
             if (this.token) {
+                this.loadNotifications();
                 if (this.activeView === "dashboard") {
                     this.loadDashboardData();
                 } else if (this.activeView === "cases") {
@@ -972,6 +1019,87 @@ class CopyrightDefenderApp {
                 }
             }
         }, 30000); // refresh every 30 seconds
+    }
+
+    async loadNotifications() {
+        if (!this.token || this.token === "dev_bypass") return;
+        try {
+            const res = await this.authFetch("/api/v1/notifications");
+            if (!res.ok) return;
+            const list = await res.json();
+            
+            const unreadCount = list.filter(n => n.is_read === 0).length;
+            if (this.notificationBadge) {
+                this.notificationBadge.textContent = unreadCount;
+                this.notificationBadge.style.display = unreadCount > 0 ? "flex" : "none";
+            }
+            
+            if (this.notificationList) {
+                this.notificationList.innerHTML = "";
+                if (list.length === 0) {
+                    this.notificationList.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 16px; font-size: 12px;">No notifications</div>`;
+                    return;
+                }
+                
+                list.forEach(item => {
+                    const el = document.createElement("div");
+                    el.style.padding = "10px";
+                    el.style.borderRadius = "var(--radius-sm)";
+                    el.style.border = "1px solid var(--border-light)";
+                    el.style.background = item.is_read ? "transparent" : "rgba(130, 84, 255, 0.05)";
+                    el.style.cursor = "pointer";
+                    el.style.transition = "background 0.2s";
+                    el.style.display = "flex";
+                    el.style.flexDirection = "column";
+                    el.style.gap = "4px";
+                    
+                    const header = document.createElement("div");
+                    header.style.display = "flex";
+                    header.style.justifyContent = "space-between";
+                    header.style.alignItems = "center";
+                    
+                    const title = document.createElement("span");
+                    title.style.fontWeight = item.is_read ? "600" : "800";
+                    title.style.fontSize = "12px";
+                    title.style.color = item.is_read ? "var(--text-secondary)" : "white";
+                    title.textContent = item.title;
+                    header.appendChild(title);
+                    
+                    if (!item.is_read) {
+                        const dot = document.createElement("span");
+                        dot.style.width = "6px";
+                        dot.style.height = "6px";
+                        dot.style.background = "var(--accent)";
+                        dot.style.borderRadius = "50%";
+                        header.appendChild(dot);
+                    }
+                    
+                    const msg = document.createElement("span");
+                    msg.style.fontSize = "11px";
+                    msg.style.color = item.is_read ? "var(--text-muted)" : "var(--text-secondary)";
+                    msg.style.lineHeight = "1.3";
+                    msg.textContent = item.message;
+                    
+                    el.appendChild(header);
+                    el.appendChild(msg);
+                    
+                    el.addEventListener("click", async () => {
+                        if (!item.is_read) {
+                            try {
+                                await this.authFetch(\`/api/v1/notifications/\${item.id}/read\`, { method: "POST" });
+                                this.loadNotifications();
+                            } catch (e) {
+                                console.error("Error marking notification read:", e);
+                            }
+                        }
+                    });
+                    
+                    this.notificationList.appendChild(el);
+                });
+            }
+        } catch (e) {
+            console.error("Error loading notifications:", e);
+        }
     }
 
     handleCaseChange() {
