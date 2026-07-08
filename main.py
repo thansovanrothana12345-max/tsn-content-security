@@ -34,7 +34,7 @@ def find_free_port():
 
 def run_server(port):
     """Runs the FastAPI server inside a background thread."""
-    uvicorn.run(fastapi_app, host="127.0.0.1", port=port, log_level="warning")
+    uvicorn.run(fastapi_app, host="0.0.0.0", port=port, log_level="warning")
 
 def wait_for_port(port, host="127.0.0.1", timeout=5.0):
     """Retries connecting to the port until it is open."""

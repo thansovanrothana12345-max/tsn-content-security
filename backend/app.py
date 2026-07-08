@@ -116,11 +116,7 @@ def on_startup():
 def serve_index():
     index_path = os.path.join(STATIC_DIR, "index.html")
 
-    print("=" * 60)
-    print("STATIC_DIR :", STATIC_DIR)
-    print("INDEX PATH :", index_path)
-    print("EXISTS     :", os.path.exists(index_path))
-    print("=" * 60)
+    logger.info("Serving index page request.")
 
     if os.path.exists(index_path):
         return FileResponse(index_path)

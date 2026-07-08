@@ -35,6 +35,7 @@ class CopyrightDefenderApp {
             }
             this.initSignaturePad();
             this.initAutoRefresh();
+            this.switchView(this.activeView);
         });
     }
 
@@ -122,6 +123,34 @@ class CopyrightDefenderApp {
         this.btnDeleteEvidencePreview = document.getElementById("btn-delete-evidence-preview");
         this.btnCopyEvidenceLink = document.getElementById("btn-copy-evidence-link");
         this.btnDownloadEvidenceFile = document.getElementById("btn-download-evidence-file");
+
+        // Sprint 8 Workspace bindings
+        this.wTabDetect = document.getElementById("workspace-tab-btn-detect");
+        this.wTabRegistry = document.getElementById("workspace-tab-btn-registry");
+        this.wTabReview = document.getElementById("workspace-tab-btn-review");
+
+        this.wPanelDetect = document.getElementById("workspace-panel-detect");
+        this.wPanelRegistry = document.getElementById("workspace-panel-registry");
+        this.wPanelReview = document.getElementById("workspace-panel-review");
+
+        this.wRefVideo = document.getElementById("workspace-ref-video");
+        this.wRefVideoPlaceholder = document.getElementById("workspace-ref-video-placeholder");
+        this.wInfringeVideo = document.getElementById("workspace-infringe-video");
+        this.wInfringeVideoPlaceholder = document.getElementById("workspace-infringe-video-placeholder");
+
+        this.btnWSyncPlay = document.getElementById("btn-workspace-sync-play");
+        this.sliderWSyncSeek = document.getElementById("slider-workspace-sync-seek");
+        this.btnWPrevFrame = document.getElementById("btn-workspace-prev-frame");
+        this.btnWNextFrame = document.getElementById("btn-workspace-next-frame");
+        this.lblWTime = document.getElementById("lbl-workspace-time");
+        this.lblWDuration = document.getElementById("lbl-workspace-duration");
+
+        this.btnWApprove = document.getElementById("btn-workspace-approve");
+        this.btnWReject = document.getElementById("btn-workspace-reject");
+        this.btnWFlag = document.getElementById("btn-workspace-flag");
+        this.wReviewInvestigator = document.getElementById("workspace-review-investigator");
+        this.wReviewPriority = document.getElementById("workspace-review-priority");
+        this.wReviewNotes = document.getElementById("workspace-review-notes");
 
         // Evidence Viewer Modal
         this.evidenceViewerOverlay = document.getElementById("modal-evidence-viewer-overlay");
@@ -241,6 +270,27 @@ class CopyrightDefenderApp {
     }
 
     initEvents() {
+        // Bind password visibility toggles
+        document.querySelectorAll(".password-toggle-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const input = btn.previousElementSibling;
+                const icon = btn.querySelector("i");
+                if (input && icon) {
+                    if (input.type === "password") {
+                        input.type = "text";
+                        icon.classList.remove("fa-eye");
+                        icon.classList.add("fa-eye-slash");
+                        btn.setAttribute("aria-label", "Hide password");
+                    } else {
+                        input.type = "password";
+                        icon.classList.remove("fa-eye-slash");
+                        icon.classList.add("fa-eye");
+                        btn.setAttribute("aria-label", "Show password");
+                    }
+                }
+            });
+        });
+
         // Sidebar drawer and collapse toggling handlers
         if (this.sidebarToggle) {
             this.sidebarToggle.addEventListener("click", () => {
@@ -530,11 +580,41 @@ class CopyrightDefenderApp {
             });
         }
 
-        // Logout Click
+        // Logout Click (Sidebar Panel)
         if (this.btnLogout) {
             this.btnLogout.addEventListener("click", (e) => {
                 e.preventDefault();
-                this.handleLogout();
+                if (confirm("Are you sure you want to logout?")) {
+                    this.handleLogout();
+                }
+            });
+        }
+
+        // Header User Avatar Dropdown Toggle
+        const avatarBtn = document.getElementById("header-user-avatar-btn");
+        const avatarDropdown = document.getElementById("avatar-dropdown-panel");
+        if (avatarBtn && avatarDropdown) {
+            avatarBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const isVisible = avatarDropdown.style.display === "flex";
+                avatarDropdown.style.display = isVisible ? "none" : "flex";
+            });
+
+            document.addEventListener("click", () => {
+                avatarDropdown.style.display = "none";
+            });
+        }
+
+        // Dropdown Logout Click
+        const headerLogout = document.getElementById("btn-header-logout");
+        if (headerLogout) {
+            headerLogout.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (avatarDropdown) avatarDropdown.style.display = "none";
+                if (confirm("Are you sure you want to logout?")) {
+                    this.handleLogout();
+                }
             });
         }
 
@@ -684,6 +764,166 @@ class CopyrightDefenderApp {
                 }
             });
         }
+        // Initialize Workspace Events
+        this.initWorkspaceEvents();
+    }
+
+    initWorkspaceEvents() {
+        // Tab switching events
+        if (this.wTabDetect) {
+            this.wTabDetect.addEventListener("click", () => this.switchWorkspaceTab("detect"));
+        }
+        if (this.wTabRegistry) {
+            this.wTabRegistry.addEventListener("click", () => this.switchWorkspaceTab("registry"));
+        }
+        if (this.wTabReview) {
+            this.wTabReview.addEventListener("click", () => this.switchWorkspaceTab("review"));
+        }
+
+        // Synchronized playback controls
+        if (this.btnWSyncPlay) {
+            this.btnWSyncPlay.addEventListener("click", () => {
+                if (!this.wInfringeVideo || !this.wRefVideo) return;
+                if (this.wInfringeVideo.paused || this.wRefVideo.paused) {
+                    this.wInfringeVideo.play().catch(() => { });
+                    this.wRefVideo.play().catch(() => { });
+                    this.btnWSyncPlay.innerHTML = `<i class="fa-solid fa-pause"></i> Sync Pause`;
+                } else {
+                    this.wInfringeVideo.pause();
+                    this.wRefVideo.pause();
+                    this.btnWSyncPlay.innerHTML = `<i class="fa-solid fa-play"></i> Sync Play`;
+                }
+            });
+        }
+
+        if (this.sliderWSyncSeek) {
+            this.sliderWSyncSeek.addEventListener("input", () => {
+                if (!this.wInfringeVideo || !this.wRefVideo) return;
+                const val = parseFloat(this.sliderWSyncSeek.value);
+                const dur = this.wInfringeVideo.duration || 0;
+                if (dur > 0) {
+                    const targetTime = (val / 100) * dur;
+                    this.wInfringeVideo.currentTime = targetTime;
+                    this.wRefVideo.currentTime = targetTime;
+                }
+            });
+        }
+
+        if (this.btnWPrevFrame) {
+            this.btnWPrevFrame.addEventListener("click", () => {
+                if (!this.wInfringeVideo || !this.wRefVideo) return;
+                this.wInfringeVideo.currentTime = Math.max(0, this.wInfringeVideo.currentTime - 0.04);
+                this.wRefVideo.currentTime = Math.max(0, this.wRefVideo.currentTime - 0.04);
+            });
+        }
+
+        if (this.btnWNextFrame) {
+            this.btnWNextFrame.addEventListener("click", () => {
+                if (!this.wInfringeVideo || !this.wRefVideo) return;
+                const dur = this.wInfringeVideo.duration || 0;
+                this.wInfringeVideo.currentTime = Math.min(dur, this.wInfringeVideo.currentTime + 0.04);
+                this.wRefVideo.currentTime = Math.min(dur, this.wRefVideo.currentTime + 0.04);
+            });
+        }
+
+        if (this.wInfringeVideo) {
+            const formatTime = (sec) => {
+                if (isNaN(sec)) return "00:00";
+                const m = Math.floor(sec / 60).toString().padStart(2, '0');
+                const s = Math.floor(sec % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+            this.wInfringeVideo.addEventListener("timeupdate", () => {
+                const cur = this.wInfringeVideo.currentTime;
+                const dur = this.wInfringeVideo.duration || 0;
+                if (dur > 0) {
+                    this.sliderWSyncSeek.value = (cur / dur) * 100;
+                    if (this.lblWTime) this.lblWTime.textContent = formatTime(cur);
+                    if (this.lblWDuration) this.lblWDuration.textContent = formatTime(dur);
+                }
+            });
+        }
+
+        // Review Action decisions
+        if (this.btnWApprove) {
+            this.btnWApprove.addEventListener("click", () => this.saveWorkspaceReview("Verified"));
+        }
+        if (this.btnWReject) {
+            this.btnWReject.addEventListener("click", () => this.saveWorkspaceReview("Rejected"));
+        }
+        if (this.btnWFlag) {
+            this.btnWFlag.addEventListener("click", () => this.saveWorkspaceReview("Flagged"));
+        }
+    }
+
+    switchWorkspaceTab(tab) {
+        if (!this.wTabDetect || !this.wTabRegistry || !this.wTabReview) return;
+        this.wTabDetect.classList.remove("active");
+        this.wTabRegistry.classList.remove("active");
+        this.wTabReview.classList.remove("active");
+
+        if (this.wPanelDetect) this.wPanelDetect.style.display = "none";
+        if (this.wPanelRegistry) this.wPanelRegistry.style.display = "none";
+        if (this.wPanelReview) this.wPanelReview.style.display = "none";
+
+        if (tab === "detect") {
+            this.wTabDetect.classList.add("active");
+            if (this.wPanelDetect) this.wPanelDetect.style.display = "block";
+        } else if (tab === "registry") {
+            this.wTabRegistry.classList.add("active");
+            if (this.wPanelRegistry) this.wPanelRegistry.style.display = "block";
+        } else if (tab === "review") {
+            this.wTabReview.classList.add("active");
+            if (this.wPanelReview) this.wPanelReview.style.display = "block";
+        }
+    }
+
+    async saveWorkspaceReview(status) {
+        if (!this.activeEvidenceItem) return;
+        const notes = this.wReviewNotes ? this.wReviewNotes.value : "";
+        const investigator = this.wReviewInvestigator ? this.wReviewInvestigator.value : "Admin";
+        const priority = this.wReviewPriority ? this.wReviewPriority.value : "Medium";
+        const evidenceId = this.activeEvidenceItem.id;
+
+        try {
+            // 1. Update evidence status endpoint
+            let targetStatus = "Verified";
+            if (status === "Rejected") targetStatus = "Resolved";
+            if (status === "Flagged") targetStatus = "Detected";
+
+            await this.authFetch(`/api/v1/evidence/${evidenceId}/status`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: targetStatus })
+            });
+
+            // 2. Try to update verification record if one matches this case
+            const activeVerification = this.verifications ? this.verifications.find(v => v.case_id === this.activeEvidenceItem.case_id) : null;
+            if (activeVerification) {
+                let verStatus = "Verified";
+                if (status === "Rejected") verStatus = "Rejected";
+                if (status === "Flagged") verStatus = "Pending";
+
+                await this.authFetch(`/api/v1/verification/${activeVerification.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        status: verStatus,
+                        reviewer_notes: `${investigator} (${priority}): ${notes}`
+                    })
+                });
+            }
+
+            this.showToast(`Investigation review completed as: ${status}`, "success");
+            this.evidencePreviewModal.style.display = "none";
+
+            // Reload lists
+            this.loadEvidenceFiles();
+            if (this.loadVerificationRecords) this.loadVerificationRecords();
+            if (this.loadCaseTimeline) this.loadCaseTimeline(this.activeCaseId);
+        } catch (e) {
+            this.showToast("Failed to save investigator review remarks.", "danger");
+        }
     }
 
     async initAuth() {
@@ -739,11 +979,8 @@ class CopyrightDefenderApp {
         localStorage.removeItem("auth_username");
         localStorage.removeItem("auth_role");
 
-        if (document.getElementById("sidebar-user-info")) {
-            document.getElementById("sidebar-user-info").style.display = "none";
-        }
-        if (document.getElementById("btn-logout")) {
-            document.getElementById("btn-logout").style.display = "none";
+        if (document.getElementById("sidebar-user-panel")) {
+            document.getElementById("sidebar-user-panel").style.display = "none";
         }
         if (document.getElementById("panel-user-management")) {
             document.getElementById("panel-user-management").style.display = "none";
@@ -755,28 +992,30 @@ class CopyrightDefenderApp {
     }
 
     updateAuthUI() {
-        if (document.getElementById("sidebar-username-label")) {
-            document.getElementById("sidebar-username-label").textContent = this.username;
-        }
-        if (document.getElementById("sidebar-user-info")) {
-            document.getElementById("sidebar-user-info").style.display = "block";
-        }
-        if (document.getElementById("btn-logout")) {
-            document.getElementById("btn-logout").style.display = "block";
+        const username = this.username || 'Thansovanrothana';
+        const role = this.role || 'Guest';
+
+        if (document.getElementById("sidebar-user-panel")) {
+            document.getElementById("sidebar-user-panel").style.display = "flex";
+
+            const avatarEl = document.getElementById("sidebar-user-avatar");
+            const fullnameEl = document.getElementById("sidebar-user-fullname");
+            const emailEl = document.getElementById("sidebar-user-email");
+            const roleEl = document.getElementById("sidebar-user-role");
+
+            if (avatarEl) avatarEl.textContent = username.substring(0, 1).toUpperCase();
+            if (fullnameEl) fullnameEl.textContent = username;
+            if (emailEl) emailEl.textContent = `${username.toLowerCase()}@tsncopyright.com`;
+            if (roleEl) roleEl.textContent = role;
         }
 
-        if (document.getElementById("welcome-message-label")) {
-            document.getElementById("welcome-message-label").innerHTML = `Welcome back, <strong style="color: white;">${this.username || 'Thansovanrothana'}</strong> 👋`;
-        }
-        const avatarEl = document.querySelector(".header-user-profile .user-avatar");
-        if (avatarEl) {
-            avatarEl.textContent = (this.username || 'Thansovanrothana').substring(0, 1).toUpperCase();
-            avatarEl.style.background = "linear-gradient(135deg, var(--accent), #e040fb)";
-        }
-        const nameEl = document.querySelector(".header-user-profile .user-name");
-        if (nameEl) {
-            nameEl.innerHTML = `${this.username || 'Thansovanrothana'} <span style="font-size: 9px; color: #ffd600; margin-left: 4px;"><i class="fa-solid fa-crown"></i> Pro</span>`;
-        }
+        const headerAvatar = document.getElementById("header-avatar-letter");
+        const dropdownUsername = document.getElementById("dropdown-username");
+        const dropdownRole = document.getElementById("dropdown-role");
+
+        if (headerAvatar) headerAvatar.textContent = username.substring(0, 1).toUpperCase();
+        if (dropdownUsername) dropdownUsername.textContent = username;
+        if (dropdownRole) dropdownRole.textContent = role;
 
         if (this.role === "Admin") {
             if (document.getElementById("panel-user-management")) {
@@ -793,7 +1032,26 @@ class CopyrightDefenderApp {
         }
     }
 
+    sanitizeInput(str) {
+        if (typeof str !== 'string') return str;
+        return str.replace(/[<>"'/]/g, function (m) {
+            return {
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#x27;',
+                '/': '&#x2F;'
+            }[m];
+        });
+    }
+
     async authFetch(url, options = {}) {
+        // Check browser offline status
+        if (navigator && !navigator.onLine) {
+            this.showToast("No internet connection. Please check your network status.", "warning");
+            throw new Error("OFFLINE");
+        }
+
         if (!options.headers) {
             options.headers = {};
         }
@@ -802,20 +1060,64 @@ class CopyrightDefenderApp {
             options.headers["Authorization"] = `Bearer ${this.token}`;
         }
 
-        const res = await fetch(url, options);
+        const maxRetries = 3;
+        let attempt = 0;
+        let lastError = null;
 
-        if (res.status === 401) {
-            if (this.token !== null) {
-                this.clearAuth();
-                this.showToast("Session expired or unauthorized. Please login again.", "danger");
+        while (attempt < maxRetries) {
+            attempt++;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+            options.signal = controller.signal;
+
+            try {
+                const res = await fetch(url, options);
+                clearTimeout(timeoutId);
+
+                if (res.status === 401) {
+                    if (this.token !== null) {
+                        this.clearAuth();
+                        this.showToast("Session expired or unauthorized. Please login again.", "danger");
+                    }
+                    throw new Error("UNAUTHORIZED");
+                } else if (res.status === 403) {
+                    this.showToast("Forbidden: You do not have permission to execute this action.", "danger");
+                    throw new Error("FORBIDDEN");
+                }
+
+                // If server error (5xx), try to retry
+                if (res.status >= 500) {
+                    throw new Error(`Server returned status ${res.status}`);
+                }
+
+                return res;
+
+            } catch (err) {
+                clearTimeout(timeoutId);
+                lastError = err;
+
+                // If it is UNAUTHORIZED or FORBIDDEN or OFFLINE, do not retry
+                if (err.message === "UNAUTHORIZED" || err.message === "FORBIDDEN" || err.message === "OFFLINE") {
+                    throw err;
+                }
+
+                // If abort (timeout), log and wait
+                if (err.name === "AbortError") {
+                    console.warn(`Request to ${url} timed out (attempt ${attempt}/${maxRetries}).`);
+                } else {
+                    console.warn(`Request to ${url} failed: ${err.message} (attempt ${attempt}/${maxRetries}).`);
+                }
+
+                if (attempt < maxRetries) {
+                    // Exponential backoff
+                    const backoffTime = Math.pow(2, attempt) * 250; // 500ms, 1000ms, 2000ms
+                    await new Promise(resolve => setTimeout(resolve, backoffTime));
+                }
             }
-            throw new Error("UNAUTHORIZED");
-        } else if (res.status === 403) {
-            this.showToast("Forbidden: You do not have permission to execute this action.", "danger");
-            throw new Error("FORBIDDEN");
         }
 
-        return res;
+        this.showToast("Network request timed out or server is unreachable. Please retry.", "danger");
+        throw lastError || new Error("REQUEST_FAILED");
     }
 
     async handleLogin() {
@@ -963,9 +1265,9 @@ class CopyrightDefenderApp {
             }
         });
 
-        // Update Title Header
+        // Update Title Header & Subtitle
         const viewTitles = {
-            dashboard: "Dashboard Overview",
+            dashboard: "Overview",
             cases: "Case Manager",
             verification: "Verification Center",
             library: "Video Fingerprinter",
@@ -974,7 +1276,23 @@ class CopyrightDefenderApp {
             security: "Security Center",
             settings: "Default Settings"
         };
-        this.pageTitle.textContent = viewTitles[viewName] || "𝑪𝒐𝒑𝒚𝒓𝒊𝒈𝒉𝒕 𝑺𝒆𝒄𝒖𝒓𝒊𝒕𝒚";
+        const viewSubtitles = {
+            dashboard: "",
+            cases: "Organize copyright directories and monitor leaks Monitored.",
+            verification: "Verify identified video and audio infringement occurrences.",
+            library: "Register and reference original video copyright models.",
+            scanner: "Scan public social network entries for video copyright leaks Monitored.",
+            reports: "Compile and issue structured legal takedown letters.",
+            security: "Manage registered user accounts and inspect security audit logs.",
+            settings: "Configure general parameters and threshold parameters."
+        };
+        this.pageTitle.textContent = viewTitles[viewName] || "TSN Copyright Defender";
+        const subtitleEl = document.getElementById("page-current-subtitle");
+        if (subtitleEl) {
+            const subText = viewSubtitles[viewName] || "";
+            subtitleEl.textContent = subText;
+            subtitleEl.style.display = subText ? "block" : "none";
+        }
 
         // Trigger view-specific loaders
         this.loadViewData(viewName);
@@ -1288,13 +1606,13 @@ class CopyrightDefenderApp {
         const tagsInput = document.getElementById("case-tags-input");
         const descInput = document.getElementById("case-desc-input");
 
-        const title = titleInput.value.trim();
-        const client_name = clientInput.value.trim();
+        const title = this.sanitizeInput(titleInput.value.trim());
+        const client_name = this.sanitizeInput(clientInput.value.trim());
         const platform = platformInput.value;
         const priority = priorityInput.value;
         const assigned_user_id = ownerInput && ownerInput.value ? parseInt(ownerInput.value, 10) : null;
-        const tags = tagsInput ? tagsInput.value.trim() : "";
-        const description = descInput.value.trim();
+        const tags = tagsInput ? this.sanitizeInput(tagsInput.value.trim()) : "";
+        const description = this.sanitizeInput(descInput.value.trim());
 
         if (!title || !client_name || !platform) {
             this.showToast("Please fill in all required fields.", "warning");
@@ -1381,16 +1699,16 @@ class CopyrightDefenderApp {
     }
 
     async updateCaseSubmit() {
-        const title = document.getElementById("edit-case-title-input").value.trim();
-        const client_name = document.getElementById("edit-case-client-input").value.trim();
+        const title = this.sanitizeInput(document.getElementById("edit-case-title-input").value.trim());
+        const client_name = this.sanitizeInput(document.getElementById("edit-case-client-input").value.trim());
         const platform = document.getElementById("edit-case-platform-input").value;
         const priority = document.getElementById("edit-case-priority-input").value;
         const status = document.getElementById("edit-case-status-input").value;
         const ownerInput = document.getElementById("edit-case-owner-input");
         const tagsInput = document.getElementById("edit-case-tags-input");
         const assigned_user_id = ownerInput && ownerInput.value ? parseInt(ownerInput.value, 10) : null;
-        const tags = tagsInput ? tagsInput.value.trim() : "";
-        const description = document.getElementById("edit-case-desc-input").value.trim();
+        const tags = tagsInput ? this.sanitizeInput(tagsInput.value.trim()) : "";
+        const description = this.sanitizeInput(document.getElementById("edit-case-desc-input").value.trim());
 
         if (!title || !client_name || !platform) {
             this.showToast("Please fill in all required fields.", "warning");
@@ -1532,7 +1850,13 @@ class CopyrightDefenderApp {
 
     async loadEvidenceFiles() {
         if (!this.activeCaseId) {
-            this.evidenceGalleryGrid.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 10px; grid-column: span 12;">No case folder selected.</p>`;
+            this.evidenceGalleryGrid.innerHTML = `
+                <div class="empty-state-container" style="text-align: center; padding: 40px 20px; color: var(--text-secondary); grid-column: span 12; display: flex; flex-direction: column; align-items: center; gap: 12px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1.5px dashed var(--border-light); width: 100%;">
+                    <i class="fa-solid fa-folder-open" style="font-size: 40px; color: var(--border-light); margin-bottom: 4px;"></i>
+                    <span style="font-size: 13px; font-weight: 600; color: white;">No Active Case Folder Selected</span>
+                    <p style="font-size: 11px; margin: 0; color: var(--text-muted); max-width: 320px; line-height: 1.4;">Select a case folder from the dropdown in the sidebar to review evidence files.</p>
+                </div>
+            `;
             return;
         }
 
@@ -1550,7 +1874,13 @@ class CopyrightDefenderApp {
 
             this.evidenceGalleryGrid.innerHTML = "";
             if (list.length === 0) {
-                this.evidenceGalleryGrid.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 20px; grid-column: span 12;">No evidence files found.</p>`;
+                this.evidenceGalleryGrid.innerHTML = `
+                    <div class="empty-state-container" style="text-align: center; padding: 40px 20px; color: var(--text-secondary); grid-column: span 12; display: flex; flex-direction: column; align-items: center; gap: 12px; background: rgba(255,255,255,0.01); border-radius: 8px; border: 1.5px dashed var(--border-light); width: 100%;">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 40px; color: var(--border-light); margin-bottom: 4px;"></i>
+                        <span style="font-size: 13px; font-weight: 600; color: white;">No Evidence Records Found</span>
+                        <p style="font-size: 11px; margin: 0; color: var(--text-muted); max-width: 320px; line-height: 1.4;">No scans or uploads match the selected filters. Paste a social media link in the Scanner tab to run an AI similarity lookup.</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -1683,6 +2013,9 @@ class CopyrightDefenderApp {
     openEvidenceViewer(item) {
         this.activeEvidenceItem = item;
 
+        // Reset to first tab: AI Similarity Detection
+        this.switchWorkspaceTab("detect");
+
         this.evidencePreviewTitle.textContent = item.title || "Untitled Evidence";
         this.evidencePreviewPlatformBadge.textContent = item.platform || "Other";
         this.evidencePreviewPlatformBadge.className = "badge badge-active";
@@ -1715,6 +2048,21 @@ class CopyrightDefenderApp {
         this.evidencePreviewSize.textContent = sizeStr;
         this.evidencePreviewScore.textContent = item.similarity_score ? `${(item.similarity_score * 100).toFixed(1)}%` : "0.0%";
 
+        // Populate optional registry specs
+        const resEl = document.getElementById("evidence-preview-resolution");
+        const durEl = document.getElementById("evidence-preview-duration");
+        if (resEl) resEl.textContent = item.resolution || "1920 x 1080 (16:9)";
+        if (durEl) {
+            const formatTime = (sec) => {
+                if (isNaN(sec) || sec === null) return "00:45";
+                const m = Math.floor(sec / 60).toString().padStart(2, '0');
+                const s = Math.floor(sec % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            };
+            durEl.textContent = item.duration ? formatTime(item.duration) : "00:45";
+        }
+
+        // Initialize fingerprint signatures
         const fpStatusEl = document.getElementById("evidence-preview-fp-status");
         const embStatusEl = document.getElementById("evidence-preview-embedding-status");
         const hashStatusEl = document.getElementById("evidence-preview-hash-status");
@@ -1754,16 +2102,17 @@ class CopyrightDefenderApp {
         const hashVal = item.sha256_hash || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
         this.evidencePreviewHash.textContent = hashVal;
 
+        // Load media preview inside Tab 2 Registry
         this.evidencePreviewMediaContainer.innerHTML = "";
         const ft = item.file_type || "";
         const sp = item.screenshot_path || "";
 
         if (ft.startsWith("image/") || sp.endsWith(".jpg") || sp.endsWith(".png") || sp.endsWith(".jpeg") || sp.endsWith(".webp")) {
             const imgPath = sp ? sp : item.url;
-            this.evidencePreviewMediaContainer.innerHTML = `<img src="${imgPath}" style="max-width: 100%; max-height: 380px; object-fit: contain; border-radius: 6px;" alt="Evidence screenshot">`;
+            this.evidencePreviewMediaContainer.innerHTML = `<img src="${imgPath}" style="max-width: 100%; max-height: 280px; object-fit: contain; border-radius: 6px;" alt="Evidence screenshot">`;
         } else if (ft.startsWith("video/")) {
             this.evidencePreviewMediaContainer.innerHTML = `
-                <video controls src="${item.url}" style="max-width: 100%; max-height: 380px; border-radius: 6px; background: black; width: 100%;">
+                <video controls src="${item.url}" style="max-width: 100%; max-height: 280px; border-radius: 6px; background: black; width: 100%;">
                     Your browser does not support the video tag.
                 </video>
             `;
@@ -1793,6 +2142,56 @@ class CopyrightDefenderApp {
                     <span style="font-size: 11px; display: block; margin-top: 4px; word-break: break-all; max-width: 300px; margin: 4px auto 0 auto;">${item.url}</span>
                 </div>
             `;
+        }
+
+        // Setup Side-by-Side players inside Tab 1 AI Detection
+        if (ft.startsWith("video/")) {
+            this.wInfringeVideo.src = item.url || "";
+            if (this.wInfringeVideoPlaceholder) this.wInfringeVideoPlaceholder.style.display = "none";
+            this.wInfringeVideo.style.display = "block";
+
+            // Query matched reference video if available
+            const matchedRef = this.originals && this.originals.length > 0 ? this.originals[0] : null;
+            if (matchedRef && matchedRef.url) {
+                this.wRefVideo.src = matchedRef.url;
+            } else {
+                this.wRefVideo.src = item.url || "";
+            }
+            if (this.wRefVideoPlaceholder) this.wRefVideoPlaceholder.style.display = "none";
+            this.wRefVideo.style.display = "block";
+
+            if (this.btnWSyncPlay) {
+                this.btnWSyncPlay.style.display = "inline-flex";
+                this.btnWSyncPlay.innerHTML = `<i class="fa-solid fa-play"></i> Sync Play`;
+            }
+            if (this.sliderWSyncSeek) this.sliderWSyncSeek.disabled = false;
+        } else {
+            // Hide video tags and show warning label
+            this.wInfringeVideo.src = "";
+            this.wInfringeVideo.style.display = "none";
+            if (this.wInfringeVideoPlaceholder) {
+                this.wInfringeVideoPlaceholder.style.display = "flex";
+                const label = document.getElementById("workspace-infringe-label");
+                if (label) label.textContent = "Compare players optimized for video stream files.";
+            }
+
+            this.wRefVideo.src = "";
+            this.wRefVideo.style.display = "none";
+            if (this.wRefVideoPlaceholder) {
+                this.wRefVideoPlaceholder.style.display = "flex";
+            }
+
+            if (this.btnWSyncPlay) this.btnWSyncPlay.style.display = "none";
+            if (this.sliderWSyncSeek) this.sliderWSyncSeek.disabled = true;
+        }
+
+        // Initialize review form state
+        const activeVerification = this.verifications ? this.verifications.find(v => v.case_id === item.case_id) : null;
+        if (activeVerification) {
+            if (this.wReviewNotes) this.wReviewNotes.value = activeVerification.reviewer_notes || "";
+            if (this.wReviewPriority) this.wReviewPriority.value = activeVerification.priority || "Medium";
+        } else {
+            if (this.wReviewNotes) this.wReviewNotes.value = "";
         }
 
         this.btnDownloadEvidenceFile.href = item.url || "#";
@@ -1962,7 +2361,7 @@ class CopyrightDefenderApp {
     }
 
     async saveCaseNote() {
-        const text = this.caseAddNoteInput.value.trim();
+        const text = this.sanitizeInput(this.caseAddNoteInput.value.trim());
         if (!text) return;
 
         try {
@@ -2147,64 +2546,89 @@ class CopyrightDefenderApp {
         const archivedCases = this.allCases.filter(c => c.status === "Archived").length;
         this.updateStatsCounters(totalCases, openCases, resolvedCases, archivedCases);
 
-        // Populate recent cases list
+        // Populate recent cases list as a table body
         const recentCasesList = document.getElementById("dashboard-recent-cases-list");
         if (recentCasesList) {
             recentCasesList.innerHTML = "";
             const recentCases = this.allCases.slice(0, 5); // show top 5 cases
             if (recentCases.length === 0) {
-                recentCasesList.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 12px;">No cases found.</div>`;
+                recentCasesList.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                            No cases found.
+                        </td>
+                    </tr>
+                `;
             } else {
                 recentCases.forEach(c => {
-                    const div = document.createElement("div");
-                    div.className = "dashboard-case-item";
-                    div.style.display = "flex";
-                    div.style.alignItems = "center";
-                    div.style.justifyContent = "space-between";
-                    div.style.padding = "10px 12px";
-                    div.style.background = "rgba(255, 255, 255, 0.02)";
-                    div.style.border = "1px solid var(--border-light)";
-                    div.style.borderRadius = "8px";
-                    div.style.cursor = "pointer";
-                    div.style.transition = "all var(--transition-fast)";
-                    div.onclick = () => {
+                    const row = document.createElement("tr");
+                    row.style.cursor = "pointer";
+                    row.onclick = () => {
                         this.activeCaseId = c.id;
                         this.globalCaseSelect.value = c.id;
                         this.handleCaseChange();
                         this.switchView("cases");
                     };
 
-                    div.onmouseover = () => {
-                        div.style.borderColor = "var(--border-accent)";
-                        div.style.background = "rgba(130, 84, 255, 0.04)";
-                    };
-                    div.onmouseout = () => {
-                        div.style.borderColor = "var(--border-light)";
-                        div.style.background = "rgba(255, 255, 255, 0.02)";
-                    };
-
                     const caseTitle = c.title || `Case #${c.id}`;
-                    const detectionsCount = c.evidence_count || 0;
+                    const caseStatus = c.status || "Active";
+                    const statusBadgeClass = caseStatus === "Resolved" ? "badge-active" : (caseStatus === "Archived" ? "badge-danger" : "badge-warning");
 
-                    div.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 32px; height: 32px; background: rgba(255, 145, 0, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #ff9100; font-size: 14px;">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600; color: white; font-size: 13px;">${caseTitle}</div>
-                                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">${detectionsCount} Detections &bull; Updated 2h ago</div>
-                            </div>
-                        </div>
-                        <span class="badge badge-active" style="padding: 2px 6px; font-size: 9px; font-weight: 700; border-radius: 4px;">Active</span>
+                    // Simple dynamic formatting of updated date
+                    const updatedDate = c.updated_at ? new Date(c.updated_at).toLocaleDateString() : "Just now";
+
+                    row.innerHTML = `
+                        <td style="padding: 12px 8px; font-weight: 600; color: var(--accent);">#${c.id}</td>
+                        <td style="padding: 12px 8px; font-weight: 600; color: var(--text-primary);">${caseTitle}</td>
+                        <td style="padding: 12px 8px;"><span class="badge ${statusBadgeClass}">${caseStatus}</span></td>
+                        <td style="padding: 12px 8px; color: var(--text-secondary);">${updatedDate}</td>
+                        <td style="padding: 12px 8px; text-align: right;">
+                            <button class="btn btn-secondary btn-sm" style="min-height: 28px; padding: 4px 10px; font-size: 11px;">View</button>
+                        </td>
                     `;
-                    recentCasesList.appendChild(div);
+                    recentCasesList.appendChild(row);
                 });
             }
         }
 
+        // Fetch and update System Overview metrics
+        try {
+            const metricsRes = await this.authFetch("/metrics");
+            if (metricsRes.ok) {
+                const metricsData = await metricsRes.json();
+
+                const dbSizeEl = document.getElementById("metric-db-size");
+                const storageEl = document.getElementById("metric-storage");
+                const healthEl = document.getElementById("metric-health");
+                const responseTimeEl = document.getElementById("metric-response-time");
+                const queueEl = document.getElementById("metric-queue");
+                const jobsEl = document.getElementById("metric-jobs");
+
+                if (dbSizeEl) dbSizeEl.textContent = `${metricsData.storage_size_mb || '4.8'} MB`;
+                if (storageEl) storageEl.textContent = `${metricsData.storage_size_mb || '12.4'} MB`;
+                if (healthEl) {
+                    healthEl.textContent = metricsData.status === "online" ? "Good" : "Offline";
+                    healthEl.style.color = metricsData.status === "online" ? "var(--color-success)" : "var(--color-danger)";
+                }
+
+                const avgLatency = metricsData.ai_performance && metricsData.ai_performance.avg_latency_ms
+                    ? `${Math.round(metricsData.ai_performance.avg_latency_ms)} ms`
+                    : "124 ms";
+                if (responseTimeEl) responseTimeEl.textContent = avgLatency;
+
+                const queuedCount = metricsData.scan_jobs ? (metricsData.scan_jobs.Pending || 0) : 0;
+                const runningCount = metricsData.scan_jobs ? (metricsData.scan_jobs.Running || 0) : 0;
+                if (queueEl) queueEl.textContent = `${runningCount} Active / ${queuedCount} Queued`;
+
+                const completedCount = metricsData.scan_jobs ? (metricsData.scan_jobs.Completed || 0) : 12;
+                if (jobsEl) jobsEl.textContent = `${completedCount} Completed`;
+            }
+        } catch (err) {
+            console.error("Failed to load metrics:", err);
+        }
+
         if (!this.activeCaseId) {
-            recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">Select an active case above to load dashboard metrics.</td></tr>`;
+            recentList.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-secondary);">Select an active case above to load dashboard metrics.</td></tr>`;
             this.updateDashboardCharts([]);
             return;
         }
@@ -2220,7 +2644,7 @@ class CopyrightDefenderApp {
             // Populate list
             recentList.innerHTML = "";
             if (evidence.length === 0) {
-                recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">No scanned links found for this case. Try scanning a social media link in the Scanner tab!</td></tr>`;
+                recentList.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-secondary);">No scanned links found for this case. Try scanning a social media link in the Scanner tab!</td></tr>`;
                 return;
             }
 
@@ -2230,7 +2654,7 @@ class CopyrightDefenderApp {
             });
 
         } catch (e) {
-            recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">Error loading dashboard metrics.</td></tr>`;
+            recentList.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-secondary);">Error loading dashboard metrics.</td></tr>`;
         }
     }
 
@@ -2741,25 +3165,25 @@ class CopyrightDefenderApp {
         tr.style.borderBottom = "1px solid var(--border-light)";
 
         const matchPercent = (ev.similarity_score * 100).toFixed(0);
-        let scoreColor = "#ff5252";
+        let scoreColor = "var(--color-danger)";
         let scoreLabel = "Very High";
         if (ev.similarity_score < 0.4) {
-            scoreColor = "#8c9cb5";
+            scoreColor = "var(--text-secondary)";
             scoreLabel = "Low";
         } else if (ev.similarity_score < 0.8) {
-            scoreColor = "#ffd600";
+            scoreColor = "var(--color-warning)";
             scoreLabel = "Medium";
         } else if (ev.similarity_score < 0.9) {
-            scoreColor = "#ff9100";
+            scoreColor = "var(--color-warning)";
             scoreLabel = "High";
         }
 
         let platformIcon = "fa-globe";
         let platformColor = "var(--text-secondary)";
-        if (ev.platform === "YouTube") { platformIcon = "fa-youtube"; platformColor = "#ff0000"; }
-        else if (ev.platform === "TikTok") { platformIcon = "fa-tiktok"; platformColor = "#000000"; }
-        else if (ev.platform === "Facebook") { platformIcon = "fa-facebook"; platformColor = "#1877f2"; }
-        else if (ev.platform === "Instagram") { platformIcon = "fa-instagram"; platformColor = "#e1306c"; }
+        if (ev.platform === "YouTube") { platformIcon = "fa-youtube"; platformColor = "#EF4444"; }
+        else if (ev.platform === "TikTok") { platformIcon = "fa-tiktok"; platformColor = "#111827"; }
+        else if (ev.platform === "Facebook") { platformIcon = "fa-facebook"; platformColor = "#4F7CFF"; }
+        else if (ev.platform === "Instagram") { platformIcon = "fa-instagram"; platformColor = "#6D5EF7"; }
 
         // Formatting first seen
         let dateStr = "N/A";
@@ -2777,70 +3201,42 @@ class CopyrightDefenderApp {
             "Facebook": ["Healthy Life Cambodia", "Khmer Products", "Angkor Shop"],
             "Instagram": ["Best Products KH", "Phnom Penh Style", "Fashion Hub"],
             "TikTok": ["Sokha Store", "Vireak Seller", "Dara Online"],
-            "YouTube": ["Daily Health", "𝑪𝒐𝒑𝒚𝒓𝒊𝒈𝒉𝒕 𝑺𝒆𝒄𝒖𝒓𝒊𝒕𝒚 Channel", "Entertainment Daily"]
+            "YouTube": ["Daily Health", "TSN Copyright Channel", "Entertainment Daily"]
         };
         const defaultPageNames = ["General Page", "Unknown Sponsor", "Ad Account"];
         const platformPages = mockPageNames[ev.platform] || defaultPageNames;
         const mockPageName = platformPages[ev.id % platformPages.length];
-        const mockId = 100000000000 + ev.id * 8532759;
 
         tr.innerHTML = `
             <td style="padding: 12px 8px; vertical-align: middle;">
-                <div style="position: relative; width: 80px; height: 50px; border-radius: 4px; overflow: hidden; background: #080a10; border: 1px solid var(--border-light);">
-                    ${ev.screenshot_path ? `<img src="${ev.screenshot_path}" style="width: 100%; height: 100%; object-fit: cover;">` : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px;"><i class="fa-solid fa-image"></i></div>`}
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;">
-                        <i class="fa-solid fa-play" style="color: white; font-size: 10px; background: rgba(0,0,0,0.5); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"></i>
-                    </div>
-                    <span style="position: absolute; bottom: 2px; right: 4px; background: rgba(0,0,0,0.7); color: white; font-size: 8px; padding: 1px 3px; border-radius: 2px; font-weight: 600;">00:45</span>
-                </div>
-            </td>
-            <td style="padding: 12px 8px; vertical-align: middle;">
-                <div style="font-weight: 600; color: white; font-size: 13px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${ev.title || "Herbal Drink Amazing"}</div>
-                <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">${mockPageName}</div>
-                <div style="font-size: 10px; color: var(--text-muted);">ID: ${mockId}</div>
-            </td>
-            <td style="padding: 12px 8px; vertical-align: middle;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <div style="width: 24px; height: 24px; background: rgba(255,255,255,0.03); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: ${platformColor};">
+                    <div style="width: 24px; height: 24px; background: rgba(79, 124, 255, 0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: ${platformColor};">
                         <i class="fa-brands ${platformIcon}"></i>
                     </div>
                     <div>
-                        <div style="font-weight: 600; color: white;">${ev.platform}</div>
-                        <div style="font-size: 9px; color: var(--text-muted);">Sponsored</div>
+                        <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;">${mockPageName}</div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">${ev.platform} &bull; Sponsored</div>
                     </div>
                 </div>
             </td>
-            <td style="padding: 12px 8px; vertical-align: middle; min-width: 110px;">
-                <div style="display: flex; align-items: baseline; gap: 6px;">
-                    <span style="font-size: 14px; font-weight: 700; color: white;">${matchPercent}%</span>
-                </div>
-                <div style="font-size: 9px; font-weight: 600; color: ${scoreColor}; margin-top: 2px; text-transform: uppercase;">${scoreLabel}</div>
-                <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 6px; overflow: hidden;">
-                    <div style="width: ${matchPercent}%; height: 100%; background: ${scoreColor};"></div>
-                </div>
+            <td style="padding: 12px 8px; vertical-align: middle; min-width: 100px;">
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-primary);">${matchPercent}%</div>
+                <div style="font-size: 9px; font-weight: 600; color: ${scoreColor}; margin-top: 1px; text-transform: uppercase;">${scoreLabel}</div>
             </td>
             <td style="padding: 12px 8px; vertical-align: middle;">
-                <div style="color: white; font-weight: 500;">${dateStr}</div>
-                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">${timeStr || "10:30 AM"}</div>
+                <div style="color: var(--text-primary); font-weight: 500;">${dateStr}</div>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-top: 1px;">${timeStr || "10:30 AM"}</div>
             </td>
             <td style="padding: 12px 8px; vertical-align: middle;">
-                <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-success); font-weight: 600;">
-                    <span style="width: 6px; height: 6px; background: var(--color-success); border-radius: 50%; box-shadow: 0 0 8px var(--color-success);"></span>
+                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-success); font-weight: 600;">
+                    <span style="width: 6px; height: 6px; background: var(--color-success); border-radius: 50%;"></span>
                     Active
                 </span>
             </td>
-            <td style="padding: 12px 8px; vertical-align: middle; text-align: center;">
-                <div style="display: flex; gap: 6px; justify-content: center;">
-                    <button class="btn btn-secondary btn-xs" style="padding: 6px; min-width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light);" onclick="app.switchDMCAEvidence(${ev.id})" title="View Details">
-                        <i class="fa-solid fa-eye" style="font-size: 11px;"></i>
-                    </button>
-                    <button class="btn btn-secondary btn-xs" style="padding: 6px; min-width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light);" onclick="app.switchDMCAEvidence(${ev.id})" title="Prepare Claim">
-                        <i class="fa-solid fa-file-invoice" style="font-size: 11px;"></i>
-                    </button>
-                    <button class="btn btn-secondary btn-xs" style="padding: 6px; min-width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); color: var(--color-danger);" onclick="app.deleteEvidence(${ev.id})" title="Flag/Delete">
-                        <i class="fa-solid fa-flag" style="font-size: 11px;"></i>
-                    </button>
-                </div>
+            <td style="padding: 12px 8px; vertical-align: middle; text-align: right;">
+                <button class="btn btn-secondary btn-xs" style="padding: 4px 8px; min-width: 28px; height: 28px; border-radius: 6px; background: #F3F4F6; border: 1px solid var(--border-light); font-size: 11px; color: var(--text-primary);" onclick="app.switchDMCAEvidence(${ev.id})" title="View Details">
+                    View
+                </button>
             </td>
         `;
         return tr;
@@ -3253,7 +3649,7 @@ class CopyrightDefenderApp {
 
         // Setup shared chart configurations
         const fontConfig = {
-            family: "'Outfit', sans-serif",
+            family: "'Inter', sans-serif",
             size: 11
         };
 
@@ -3263,15 +3659,23 @@ class CopyrightDefenderApp {
             document.getElementById("donut-total-count-label").textContent = totalDetections;
         }
 
+        const platformColorsMap = {
+            "Facebook": "#4F7CFF",
+            "Instagram": "#6D5EF7",
+            "TikTok": "#111827",
+            "YouTube": "#EF4444",
+            "Other": "#9CA3AF"
+        };
+
         // Update custom legend labels
         const legendContainer = document.querySelector(".chart-custom-legend");
         if (legendContainer) {
             const platforms = [
-                { name: "Facebook", key: "Facebook", color: "#1877f2" },
-                { name: "Instagram", key: "Instagram", color: "#e1306c" },
-                { name: "TikTok", key: "TikTok", color: "#00f2fe" },
-                { name: "YouTube", key: "YouTube", color: "#ff4444" },
-                { name: "Others", key: "Other", color: "#8254ff" }
+                { name: "Facebook", key: "Facebook", color: "#4F7CFF" },
+                { name: "Instagram", key: "Instagram", color: "#6D5EF7" },
+                { name: "TikTok", key: "TikTok", color: "#111827" },
+                { name: "YouTube", key: "YouTube", color: "#EF4444" },
+                { name: "Others", key: "Other", color: "#9CA3AF" }
             ];
 
             legendContainer.innerHTML = "";
@@ -3287,7 +3691,7 @@ class CopyrightDefenderApp {
                     <span style="display: flex; align-items: center; gap: 6px;">
                         <span style="width: 8px; height: 8px; background: ${p.color}; border-radius: 50%;"></span> ${p.name}
                     </span>
-                    <strong style="color: white;">${count} <span style="font-size: 10px; font-weight: 400; color: var(--text-muted);">${percent}%</span></strong>
+                    <strong style="color: var(--text-primary); font-size: 13px;">${count} <span style="font-size: 10px; font-weight: 400; color: var(--text-secondary);">${percent}%</span></strong>
                 `;
                 legendContainer.appendChild(div);
             });
@@ -3295,14 +3699,16 @@ class CopyrightDefenderApp {
 
         // Create Platform Distribution Chart
         const ctxPlatform = document.getElementById("chart-platform-dist").getContext("2d");
+        const keys = Object.keys(platformCounts);
+        const chartBgColors = keys.map(k => platformColorsMap[k] || "#9CA3AF");
         this.charts.platform = new Chart(ctxPlatform, {
             type: 'doughnut',
             data: {
-                labels: Object.keys(platformCounts),
+                labels: keys,
                 datasets: [{
                     data: Object.values(platformCounts),
-                    backgroundColor: ['#ff4444', '#00f2fe', '#1877f2', '#e1306c', '#8254ff'],
-                    borderColor: 'rgba(22, 28, 45, 0.8)',
+                    backgroundColor: chartBgColors,
+                    borderColor: 'var(--bg-secondary)',
                     borderWidth: 2
                 }]
             },
