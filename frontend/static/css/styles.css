@@ -94,10 +94,10 @@ body {
 }
 
 .brand-icon {
-    width: 80px;
-    height: 80px;
+    width: 84px;
+    height: 84px;
     background: rgba(24, 119, 242, 0.06);
-    border-radius: 16px;
+    border-radius: 18px;
     border: 2px solid rgba(24, 119, 242, 0.25);
     display: flex;
     align-items: center;
