@@ -94,10 +94,10 @@ body {
 }
 
 .brand-icon {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     background: rgba(24, 119, 242, 0.06);
-    border-radius: 14px;
+    border-radius: 16px;
     border: 2px solid rgba(24, 119, 242, 0.25);
     display: flex;
     align-items: center;
@@ -117,7 +117,7 @@ body {
 }
 
 .brand-name {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
     line-height: 1;
     color: white;
@@ -125,7 +125,7 @@ body {
 }
 
 .brand-subname {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
@@ -290,7 +290,7 @@ header {
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
 }
 
 /* Card-specific custom themes */
@@ -302,7 +302,7 @@ header {
 
 .stat-card.total-videos:hover {
     border-color: #1877f2;
-    box-shadow: 0 12px 30px rgba(24, 119, 242, 0.16);
+    box-shadow: 0 16px 36px rgba(24, 119, 242, 0.35);
 }
 
 .stat-card.total-videos .stat-icon {
@@ -319,7 +319,7 @@ header {
 
 .stat-card.detected-ads:hover {
     border-color: var(--color-success);
-    box-shadow: 0 12px 30px rgba(0, 230, 118, 0.16);
+    box-shadow: 0 16px 36px rgba(0, 230, 118, 0.35);
 }
 
 .stat-card.detected-ads .stat-icon {
@@ -336,7 +336,7 @@ header {
 
 .stat-card.active-cases:hover {
     border-color: #ff9100;
-    box-shadow: 0 12px 30px rgba(255, 145, 0, 0.16);
+    box-shadow: 0 16px 36px rgba(255, 145, 0, 0.35);
 }
 
 .stat-card.active-cases .stat-icon {
@@ -353,7 +353,7 @@ header {
 
 .stat-card.reports-generated:hover {
     border-color: var(--accent);
-    box-shadow: 0 12px 30px rgba(130, 84, 255, 0.16);
+    box-shadow: 0 16px 36px rgba(130, 84, 255, 0.35);
 }
 
 .stat-card.reports-generated .stat-icon {
