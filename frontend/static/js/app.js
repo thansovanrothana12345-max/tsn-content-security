@@ -893,7 +893,7 @@ class CopyrightDefenderApp {
             security: "Security Center",
             settings: "Default Settings"
         };
-        this.pageTitle.textContent = viewTitles[viewName] || "Copyright Security";
+        this.pageTitle.textContent = viewTitles[viewName] || "𝑪𝒐𝒑𝒚𝒓𝒊𝒈𝒉𝒕 𝑺𝒆𝒄𝒖𝒓𝒊𝒕𝒚";
         
         // Trigger view-specific loaders
         this.loadViewData(viewName);
@@ -2610,7 +2610,7 @@ class CopyrightDefenderApp {
             "Facebook": ["Healthy Life Cambodia", "Khmer Products", "Angkor Shop"],
             "Instagram": ["Best Products KH", "Phnom Penh Style", "Fashion Hub"],
             "TikTok": ["Sokha Store", "Vireak Seller", "Dara Online"],
-            "YouTube": ["Daily Health", "Copyright Security Channel", "Entertainment Daily"]
+            "YouTube": ["Daily Health", "𝑪𝒐𝒑𝒚𝒓𝒊𝒈𝒉𝒕 𝑺𝒆𝒄𝒖𝒓𝒊𝒕𝒚 Channel", "Entertainment Daily"]
         };
         const defaultPageNames = ["General Page", "Unknown Sponsor", "Ad Account"];
         const platformPages = mockPageNames[ev.platform] || defaultPageNames;
