@@ -15,18 +15,18 @@ class CopyrightDefenderApp {
         this.token = null;
         this.username = null;
         this.role = null;
-        
+
         this.charts = {
             platform: null,
             similarity: null,
             status: null
         };
-        
+
         // Bind UI Elements
         this.initElements();
         // Bind Events
         this.initEvents();
-        
+
         // Startup Initialization
         this.initAuth().then(() => {
             this.loadSettings();
@@ -47,7 +47,7 @@ class CopyrightDefenderApp {
         this.navItems = document.querySelectorAll(".nav-item");
         this.pageTitle = document.getElementById("page-current-title");
         this.globalCaseSelect = document.getElementById("global-case-select");
-        
+
         // Case Modals
         this.newCaseModal = document.getElementById("modal-new-case-overlay");
         this.btnHeaderNewCase = document.getElementById("btn-header-new-case");
@@ -55,13 +55,13 @@ class CopyrightDefenderApp {
         this.btnCloseCaseModal = document.getElementById("btn-close-case-modal");
         this.btnCancelCaseModal = document.getElementById("btn-cancel-case-modal");
         this.newCaseForm = document.getElementById("new-case-form");
-        
+
         // Edit Case Modal
         this.editCaseModal = document.getElementById("modal-edit-case-overlay");
         this.btnCloseEditCaseModal = document.getElementById("btn-close-edit-case-modal");
         this.btnCancelEditCaseModal = document.getElementById("btn-cancel-edit-case-modal");
         this.editCaseForm = document.getElementById("edit-case-form");
-        
+
         // Filters & Search
         this.caseSearchInput = document.getElementById("case-search-input");
         this.caseFilterStatus = document.getElementById("case-filter-status");
@@ -71,14 +71,14 @@ class CopyrightDefenderApp {
         this.caseFilterStartDate = document.getElementById("case-filter-start-date");
         this.caseFilterEndDate = document.getElementById("case-filter-end-date");
         this.caseSortBy = document.getElementById("case-sort-by");
-        
+
         // Pagination & Table elements
         this.casePaginationLimit = document.getElementById("case-pagination-limit");
         this.casePaginationInfo = document.getElementById("case-pagination-info");
         this.btnCasePagePrev = document.getElementById("btn-case-page-prev");
         this.btnCasePageNext = document.getElementById("btn-case-page-next");
         this.casesTableBody = document.getElementById("cases-table-body");
-        
+
         // Case Details & Timeline Panel
         this.caseDetailsEmptyState = document.getElementById("case-details-empty-state");
         this.caseDetailsContent = document.getElementById("case-details-content");
@@ -87,13 +87,13 @@ class CopyrightDefenderApp {
         this.btnSaveCaseNote = document.getElementById("btn-save-case-note");
         this.caseAddNoteInput = document.getElementById("case-add-note-input");
         this.caseTimelineContainer = document.getElementById("case-timeline-container");
-        
+
         // Tabs Elements
         this.tabBtnDetails = document.getElementById("tab-btn-details");
         this.tabBtnEvidence = document.getElementById("tab-btn-evidence");
         this.panelTabDetails = document.getElementById("panel-tab-details");
         this.panelTabEvidence = document.getElementById("panel-tab-evidence");
-        
+
         // Evidence Manager
         this.evidenceUploadZone = document.getElementById("evidence-upload-zone");
         this.evidenceFileInput = document.getElementById("evidence-file-input");
@@ -103,7 +103,7 @@ class CopyrightDefenderApp {
         this.evidenceUploadPercent = document.getElementById("evidence-upload-percent");
         this.evidenceUploadFill = document.getElementById("evidence-upload-fill");
         this.evidenceGalleryGrid = document.getElementById("evidence-gallery-grid");
-        
+
         // Evidence Preview Modal Bindings
         this.evidencePreviewModal = document.getElementById("evidence-preview-modal");
         this.btnCloseEvidencePreview = document.getElementById("btn-close-evidence-preview");
@@ -122,34 +122,34 @@ class CopyrightDefenderApp {
         this.btnDeleteEvidencePreview = document.getElementById("btn-delete-evidence-preview");
         this.btnCopyEvidenceLink = document.getElementById("btn-copy-evidence-link");
         this.btnDownloadEvidenceFile = document.getElementById("btn-download-evidence-file");
-        
+
         // Evidence Viewer Modal
         this.evidenceViewerOverlay = document.getElementById("modal-evidence-viewer-overlay");
         this.btnCloseEvidenceViewer = document.getElementById("btn-close-evidence-viewer");
         this.evidenceViewerTitle = document.getElementById("evidence-viewer-title");
-        
+
         this.viewerImgContainer = document.getElementById("evidence-viewer-image-container");
         this.viewerImg = document.getElementById("evidence-viewer-image");
         this.btnZoomIn = document.getElementById("btn-zoom-in");
         this.btnZoomOut = document.getElementById("btn-zoom-out");
         this.btnZoomReset = document.getElementById("btn-zoom-reset");
-        
+
         this.viewerVideoContainer = document.getElementById("evidence-viewer-video-container");
         this.viewerVideo = document.getElementById("evidence-viewer-video");
-        
+
         this.viewerDocContainer = document.getElementById("evidence-viewer-doc-container");
         this.viewerDocName = document.getElementById("evidence-viewer-doc-name");
         this.viewerDocSize = document.getElementById("evidence-viewer-doc-size");
         this.btnDownloadEvidenceDoc = document.getElementById("btn-download-evidence-doc");
-        
+
         this.viewerLinkContainer = document.getElementById("evidence-viewer-link-container");
         this.viewerLinkTitle = document.getElementById("evidence-viewer-link-title");
         this.viewerLinkUrl = document.getElementById("evidence-viewer-link-url");
         this.btnOpenEvidenceLink = document.getElementById("btn-open-evidence-link");
-        
+
         this.viewerUploader = document.getElementById("evidence-viewer-uploader");
         this.viewerTimestamp = document.getElementById("evidence-viewer-timestamp");
-        
+
         // Library Uploads
         this.uploadZone = document.getElementById("original-upload-zone");
         this.originalFileInput = document.getElementById("original-file-input");
@@ -157,14 +157,14 @@ class CopyrightDefenderApp {
         this.uploadProgressContainer = document.getElementById("upload-progress-bar-container");
         this.uploadProgressPercent = document.getElementById("upload-progress-percent");
         this.uploadProgressFill = document.getElementById("upload-progress-fill");
-        
+
         // Scanner
         this.scannerUrlInput = document.getElementById("scanner-url-input");
         this.btnRunScan = document.getElementById("btn-run-scan");
         this.scanResultsPanel = document.getElementById("scan-results-panel");
         this.scanResultsContent = document.getElementById("scan-results-content");
         this.scannedEvidenceList = document.getElementById("scanned-evidence-list");
-        
+
         // DMCA Form & Output
         this.dmcaForm = document.getElementById("dmca-config-form");
         this.dmcaEvidenceSelect = document.getElementById("dmca-evidence-select");
@@ -177,10 +177,10 @@ class CopyrightDefenderApp {
         this.dmcaDeclarationCheck = document.getElementById("dmca-declaration-check");
         this.btnExportPdf = document.getElementById("btn-export-pdf");
         this.btnExportDocx = document.getElementById("btn-export-docx");
-        
+
         // Settings Form
         this.settingsForm = document.getElementById("settings-defaults-form");
-        
+
         // Security Center Elements (Epic 6)
         this.securityActionFilter = document.getElementById("security-action-filter");
         this.btnRefreshAudit = document.getElementById("btn-refresh-audit");
@@ -188,7 +188,7 @@ class CopyrightDefenderApp {
         this.btnAuditPrev = document.getElementById("btn-audit-prev");
         this.btnAuditNext = document.getElementById("btn-audit-next");
         this.auditPaginationInfo = document.getElementById("audit-pagination-info");
-        
+
         this.securityAuditPage = 0;
         this.securityAuditLimit = 15;
 
@@ -197,7 +197,7 @@ class CopyrightDefenderApp {
         this.loginForm = document.getElementById("login-form");
         this.loginErrorMsg = document.getElementById("login-error-msg");
         this.btnLogout = document.getElementById("btn-logout");
-        
+
         // User registration
         this.userRegistrationForm = document.getElementById("user-registration-form");
 
@@ -244,7 +244,7 @@ class CopyrightDefenderApp {
         // Sidebar drawer and collapse toggling handlers
         if (this.sidebarToggle) {
             this.sidebarToggle.addEventListener("click", () => {
-                if (window.innerWidth <= 1024) {
+                if (window.innerWidth <= 1032) {
                     this.sidebar.classList.toggle("open");
                     if (this.sidebarOverlay) this.sidebarOverlay.classList.toggle("active");
                 } else {
@@ -270,46 +270,46 @@ class CopyrightDefenderApp {
                 e.preventDefault();
                 const view = item.getAttribute("data-view");
                 this.switchView(view, item);
-                if (window.innerWidth <= 1024) {
+                if (window.innerWidth <= 1032) {
                     this.sidebar.classList.remove("open");
                     if (this.sidebarOverlay) this.sidebarOverlay.classList.remove("active");
                 }
             });
         });
-        
+
         // Global Case select change
         this.globalCaseSelect.addEventListener("change", (e) => {
             this.activeCaseId = e.target.value ? parseInt(e.target.value) : null;
             this.handleCaseChange();
         });
-        
+
         // New Case Modals
         const openModal = () => {
             this.newCaseModal.classList.add("active");
             document.getElementById("case-title-input").focus();
         };
         const closeModal = () => this.newCaseModal.classList.remove("active");
-        
+
         this.btnHeaderNewCase.addEventListener("click", openModal);
         this.btnCasesNewCase.addEventListener("click", openModal);
         this.btnCloseCaseModal.addEventListener("click", closeModal);
         this.btnCancelCaseModal.addEventListener("click", closeModal);
-        
+
         this.newCaseForm.addEventListener("submit", (e) => {
             e.preventDefault();
             this.createCase();
         });
-        
+
         // Edit Case Modals
         const closeEditModal = () => this.editCaseModal.style.display = "none";
         this.btnCloseEditCaseModal.addEventListener("click", closeEditModal);
         this.btnCancelEditCaseModal.addEventListener("click", closeEditModal);
-        
+
         this.editCaseForm.addEventListener("submit", (e) => {
             e.preventDefault();
             this.updateCaseSubmit();
         });
-        
+
         // Real-time search with debounce
         let searchTimeout;
         this.caseSearchInput.addEventListener("input", () => {
@@ -317,7 +317,7 @@ class CopyrightDefenderApp {
             this.caseCurrentPage = 1;
             searchTimeout = setTimeout(() => this.loadCases(), 300);
         });
-        
+
         // Filter and Sort change events
         this.caseFilterStatus.addEventListener("change", () => { this.caseCurrentPage = 1; this.loadCases(); });
         this.caseFilterPriority.addEventListener("change", () => { this.caseCurrentPage = 1; this.loadCases(); });
@@ -326,7 +326,7 @@ class CopyrightDefenderApp {
         if (this.caseFilterStartDate) this.caseFilterStartDate.addEventListener("change", () => { this.caseCurrentPage = 1; this.loadCases(); });
         if (this.caseFilterEndDate) this.caseFilterEndDate.addEventListener("change", () => { this.caseCurrentPage = 1; this.loadCases(); });
         this.caseSortBy.addEventListener("change", () => { this.caseCurrentPage = 1; this.loadCases(); });
-        
+
         // Pagination events
         if (this.casePaginationLimit) {
             this.casePaginationLimit.addEventListener("change", (e) => {
@@ -351,7 +351,7 @@ class CopyrightDefenderApp {
                 }
             });
         }
-        
+
         // Case Details Panel actions
         this.btnEditCase.addEventListener("click", () => this.openEditCaseModal());
         this.btnDeleteCaseAction.addEventListener("click", (e) => this.deleteCase(this.activeCaseId, e));
@@ -361,12 +361,12 @@ class CopyrightDefenderApp {
                 this.saveCaseNote();
             }
         });
-        
+
         // Tabs Toggling
         this.switchDetailsTab("details"); // Default
         this.tabBtnDetails.addEventListener("click", () => this.switchDetailsTab("details"));
         this.tabBtnEvidence.addEventListener("click", () => this.switchDetailsTab("evidence"));
-        
+
         // Evidence Upload Select
         this.evidenceUploadZone.addEventListener("click", () => this.evidenceFileInput.click());
         this.evidenceFileInput.addEventListener("change", (e) => {
@@ -374,7 +374,7 @@ class CopyrightDefenderApp {
                 this.uploadEvidenceFiles(e.target.files);
             }
         });
-        
+
         // Evidence Drag & Drop
         this.evidenceUploadZone.addEventListener("dragover", (e) => {
             e.preventDefault();
@@ -393,7 +393,7 @@ class CopyrightDefenderApp {
                 this.uploadEvidenceFiles(e.dataTransfer.files);
             }
         });
-        
+
         // Evidence Filters & Search
         let evidenceSearchTimeout;
         this.evidenceSearchInput.addEventListener("input", () => {
@@ -401,7 +401,7 @@ class CopyrightDefenderApp {
             evidenceSearchTimeout = setTimeout(() => this.loadEvidenceFiles(), 300);
         });
         this.evidenceFilterType.addEventListener("change", () => this.loadEvidenceFiles());
-        
+
         // Evidence Viewer zoom & close
         this.viewerZoomLevel = 1.0;
         this.btnCloseEvidenceViewer.addEventListener("click", () => {
@@ -418,7 +418,7 @@ class CopyrightDefenderApp {
                 if (videoEl) videoEl.pause();
             });
         }
-        
+
         if (this.btnCopyEvidenceHash) {
             this.btnCopyEvidenceHash.addEventListener("click", () => {
                 const hashVal = this.evidencePreviewHash.textContent;
@@ -429,7 +429,7 @@ class CopyrightDefenderApp {
                 });
             });
         }
-        
+
         if (this.btnCopyEvidenceLink) {
             this.btnCopyEvidenceLink.addEventListener("click", () => {
                 if (this.activeEvidenceItem) {
@@ -445,7 +445,7 @@ class CopyrightDefenderApp {
                 }
             });
         }
-        
+
         if (this.btnDeleteEvidencePreview) {
             this.btnDeleteEvidencePreview.addEventListener("click", () => {
                 if (this.activeEvidenceItem) {
@@ -485,7 +485,7 @@ class CopyrightDefenderApp {
                 this.uploadOriginalFile(e.target.files[0]);
             }
         });
-        
+
         // Drag over effects
         this.uploadZone.addEventListener("dragover", (e) => {
             e.preventDefault();
@@ -501,21 +501,21 @@ class CopyrightDefenderApp {
                 this.uploadOriginalFile(e.dataTransfer.files[0]);
             }
         });
-        
+
         // Scanner
         this.btnRunScan.addEventListener("click", () => this.runInfringementScan());
-        
+
         // DMCA notices
         this.dmcaForm.addEventListener("submit", (e) => {
             e.preventDefault();
             this.generateDMCAReport();
         });
-        
+
         this.btnCopyDmca.addEventListener("click", () => this.copyDMCAClipboard());
         this.btnDownloadDmca.addEventListener("click", () => this.downloadDMCANotice());
         this.btnExportPdf.addEventListener("click", () => this.exportReportDocument("pdf"));
         this.btnExportDocx.addEventListener("click", () => this.exportReportDocument("docx"));
-        
+
         // Settings save
         this.settingsForm.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -529,7 +529,7 @@ class CopyrightDefenderApp {
                 this.handleLogin();
             });
         }
-        
+
         // Logout Click
         if (this.btnLogout) {
             this.btnLogout.addEventListener("click", (e) => {
@@ -537,7 +537,7 @@ class CopyrightDefenderApp {
                 this.handleLogout();
             });
         }
-        
+
         // User registration submit
         if (this.userRegistrationForm) {
             this.userRegistrationForm.addEventListener("submit", (e) => {
@@ -545,7 +545,7 @@ class CopyrightDefenderApp {
                 this.handleUserRegistration();
             });
         }
-        
+
         // Security Center Filters and Pagination
         if (this.btnRefreshAudit) {
             this.btnRefreshAudit.addEventListener("click", () => {
@@ -644,19 +644,19 @@ class CopyrightDefenderApp {
                 }
             });
         }
-        
+
         document.addEventListener("click", () => {
             if (this.notificationDropdown) {
                 this.notificationDropdown.style.display = "none";
             }
         });
-        
+
         if (this.notificationDropdown) {
             this.notificationDropdown.addEventListener("click", (e) => {
                 e.stopPropagation();
             });
         }
-        
+
         if (this.markAllReadBtn) {
             this.markAllReadBtn.addEventListener("click", async () => {
                 try {
@@ -674,7 +674,7 @@ class CopyrightDefenderApp {
         const token = localStorage.getItem("auth_token");
         const username = localStorage.getItem("auth_username");
         const role = localStorage.getItem("auth_role");
-        
+
         if (token) {
             try {
                 const parts = token.split('.');
@@ -695,7 +695,7 @@ class CopyrightDefenderApp {
                 console.error("Token decoding error", e);
             }
         }
-        
+
         // Check for development bypass auth
         try {
             const res = await fetch("/api/v1/auth/roles/me");
@@ -711,10 +711,10 @@ class CopyrightDefenderApp {
         } catch (e) {
             console.log("No development bypass", e);
         }
-        
+
         this.clearAuth();
     }
-    
+
     clearAuth() {
         this.token = null;
         this.username = null;
@@ -722,7 +722,7 @@ class CopyrightDefenderApp {
         localStorage.removeItem("auth_token");
         localStorage.removeItem("auth_username");
         localStorage.removeItem("auth_role");
-        
+
         if (document.getElementById("sidebar-user-info")) {
             document.getElementById("sidebar-user-info").style.display = "none";
         }
@@ -732,12 +732,12 @@ class CopyrightDefenderApp {
         if (document.getElementById("panel-user-management")) {
             document.getElementById("panel-user-management").style.display = "none";
         }
-        
+
         if (this.loginOverlay) {
             this.loginOverlay.classList.add("active");
         }
     }
-    
+
     updateAuthUI() {
         if (document.getElementById("sidebar-username-label")) {
             document.getElementById("sidebar-username-label").textContent = this.username;
@@ -748,7 +748,7 @@ class CopyrightDefenderApp {
         if (document.getElementById("btn-logout")) {
             document.getElementById("btn-logout").style.display = "block";
         }
-        
+
         if (document.getElementById("welcome-message-label")) {
             document.getElementById("welcome-message-label").innerHTML = `Welcome back, <strong style="color: white;">${this.username || 'Thansovanrothana'}</strong> 👋`;
         }
@@ -761,7 +761,7 @@ class CopyrightDefenderApp {
         if (nameEl) {
             nameEl.innerHTML = `${this.username || 'Thansovanrothana'} <span style="font-size: 9px; color: #ffd600; margin-left: 4px;"><i class="fa-solid fa-crown"></i> Pro</span>`;
         }
-        
+
         if (this.role === "Admin") {
             if (document.getElementById("panel-user-management")) {
                 document.getElementById("panel-user-management").style.display = "block";
@@ -771,23 +771,23 @@ class CopyrightDefenderApp {
                 document.getElementById("panel-user-management").style.display = "none";
             }
         }
-        
+
         if (this.loginOverlay) {
             this.loginOverlay.classList.remove("active");
         }
     }
-    
+
     async authFetch(url, options = {}) {
         if (!options.headers) {
             options.headers = {};
         }
-        
+
         if (this.token && this.token !== "dev_bypass") {
             options.headers["Authorization"] = `Bearer ${this.token}`;
         }
-        
+
         const res = await fetch(url, options);
-        
+
         if (res.status === 401) {
             if (this.token !== null) {
                 this.clearAuth();
@@ -798,71 +798,71 @@ class CopyrightDefenderApp {
             this.showToast("Forbidden: You do not have permission to execute this action.", "danger");
             throw new Error("FORBIDDEN");
         }
-        
+
         return res;
     }
-    
+
     async handleLogin() {
         const emailInput = document.getElementById("login-email-input");
         const passwordInput = document.getElementById("login-password-input");
-        
+
         const email = emailInput.value.trim();
         const password = passwordInput.value;
-        
+
         if (!email || !password) return;
-        
+
         try {
             const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
-            
+
             if (res.status === 401) {
                 this.loginErrorMsg.classList.add("active");
                 return;
             }
-            
+
             if (!res.ok) {
                 throw new Error("Login failed");
             }
-            
+
             const data = await res.json();
-            
+
             if (!data.success || !data.token || !data.user) {
                 throw new Error("Invalid response format from authentication server.");
             }
-            
+
             const token = data.token;
             const username = data.user.username;
             const role = data.user.role;
-            
+
             // Store session
             localStorage.setItem("auth_token", token);
             localStorage.setItem("auth_username", username);
             localStorage.setItem("auth_role", role);
-            
+
             this.token = token;
             this.username = username;
             this.role = role;
-            
+
             this.loginErrorMsg.classList.remove("active");
             emailInput.value = "";
             passwordInput.value = "";
-            
+
             this.updateAuthUI();
             this.loadNotifications();
             this.showToast(`Logged in successfully as ${this.username}!`, "success");
-            
+
             // Redirect to Dashboard and load layout stats
             this.switchView("dashboard");
             this.loadCases();
-            
+
         } catch (e) {
             this.showToast("Network error or server unavailable.", "danger");
         }
     }
-    
+
     async handleLogout() {
         try {
             await this.authFetch("/api/v1/auth/logout", { method: "POST" });
@@ -872,30 +872,30 @@ class CopyrightDefenderApp {
         this.clearAuth();
         this.showToast("Logged out successfully.", "info");
     }
-    
+
     async handleUserRegistration() {
         const usernameInput = document.getElementById("reg-username");
         const emailInput = document.getElementById("reg-email");
         const passwordInput = document.getElementById("reg-password");
         const roleInput = document.getElementById("reg-role");
-        
+
         const username = usernameInput.value.trim();
         const email = emailInput.value.trim();
         const password = passwordInput.value;
         const role = roleInput.value;
-        
+
         if (!username || !email || !password || !role) {
             this.showToast("All fields are required for registration.", "warning");
             return;
         }
-        
+
         try {
             const res = await this.authFetch("/api/v1/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, email, password, role })
             });
-            
+
             if (res.ok) {
                 this.showToast(`User ${username} successfully registered!`, "success");
                 usernameInput.value = "";
@@ -913,7 +913,7 @@ class CopyrightDefenderApp {
 
     switchView(viewName, clickedItem = null) {
         this.activeView = viewName;
-        
+
         // Update tabs active state
         this.navItems.forEach(item => {
             if (clickedItem) {
@@ -933,7 +933,7 @@ class CopyrightDefenderApp {
                 }
             }
         });
-        
+
         // Show/hide view panes
         this.viewPanes.forEach(pane => {
             if (pane.id === `view-${viewName}`) {
@@ -942,7 +942,7 @@ class CopyrightDefenderApp {
                 pane.style.display = "none";
             }
         });
-        
+
         // Update Title Header
         const viewTitles = {
             dashboard: "Dashboard Overview",
@@ -955,7 +955,7 @@ class CopyrightDefenderApp {
             settings: "Default Settings"
         };
         this.pageTitle.textContent = viewTitles[viewName] || "𝑪𝒐𝒑𝒚𝒓𝒊𝒈𝒉𝒕 𝑺𝒆𝒄𝒖𝒓𝒊𝒕𝒚";
-        
+
         // Trigger view-specific loaders
         this.loadViewData(viewName);
 
@@ -1027,20 +1027,20 @@ class CopyrightDefenderApp {
             const res = await this.authFetch("/api/v1/notifications");
             if (!res.ok) return;
             const list = await res.json();
-            
+
             const unreadCount = list.filter(n => n.is_read === 0).length;
             if (this.notificationBadge) {
                 this.notificationBadge.textContent = unreadCount;
                 this.notificationBadge.style.display = unreadCount > 0 ? "flex" : "none";
             }
-            
+
             if (this.notificationList) {
                 this.notificationList.innerHTML = "";
                 if (list.length === 0) {
                     this.notificationList.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 16px; font-size: 12px;">No notifications</div>`;
                     return;
                 }
-                
+
                 list.forEach(item => {
                     const el = document.createElement("div");
                     el.style.padding = "10px";
@@ -1052,19 +1052,19 @@ class CopyrightDefenderApp {
                     el.style.display = "flex";
                     el.style.flexDirection = "column";
                     el.style.gap = "4px";
-                    
+
                     const header = document.createElement("div");
                     header.style.display = "flex";
                     header.style.justifyContent = "space-between";
                     header.style.alignItems = "center";
-                    
+
                     const title = document.createElement("span");
                     title.style.fontWeight = item.is_read ? "600" : "800";
                     title.style.fontSize = "12px";
                     title.style.color = item.is_read ? "var(--text-secondary)" : "white";
                     title.textContent = item.title;
                     header.appendChild(title);
-                    
+
                     if (!item.is_read) {
                         const dot = document.createElement("span");
                         dot.style.width = "6px";
@@ -1073,27 +1073,29 @@ class CopyrightDefenderApp {
                         dot.style.borderRadius = "50%";
                         header.appendChild(dot);
                     }
-                    
+
                     const msg = document.createElement("span");
                     msg.style.fontSize = "11px";
                     msg.style.color = item.is_read ? "var(--text-muted)" : "var(--text-secondary)";
                     msg.style.lineHeight = "1.3";
                     msg.textContent = item.message;
-                    
+
                     el.appendChild(header);
                     el.appendChild(msg);
-                    
+
                     el.addEventListener("click", async () => {
                         if (!item.is_read) {
                             try {
-                                await this.authFetch(\`/api/v1/notifications/\${item.id}/read\`, { method: "POST" });
+                                await this.authFetch(`/api/v1/notifications/${item.id}/read`, {
+                                    method: "POST"
+                                });
                                 this.loadNotifications();
                             } catch (e) {
                                 console.error("Error marking notification read:", e);
                             }
                         }
                     });
-                    
+
                     this.notificationList.appendChild(el);
                 });
             }
@@ -1104,11 +1106,11 @@ class CopyrightDefenderApp {
 
     handleCaseChange() {
         this.showToast(`Switched active case folder.`, "info");
-        
+
         // Set context headers
         const caseObj = this.cases.find(c => c.id === this.activeCaseId);
         const name = caseObj ? caseObj.title : "No Active Case";
-        
+
         const badges = ["library-case-badge", "scanner-case-badge", "reports-case-badge"];
         badges.forEach(b => {
             const el = document.getElementById(b);
@@ -1121,7 +1123,7 @@ class CopyrightDefenderApp {
                 }
             }
         });
-        
+
         // Sync the view we are currently on
         this.loadViewData(this.activeView);
     }
@@ -1135,12 +1137,12 @@ class CopyrightDefenderApp {
             if (!res.ok) return;
             const users = await res.json();
             this.users = users;
-            
+
             // Populate Create and Edit Modal owner selector
             const createOwnerSelect = document.getElementById("case-owner-input");
             const editOwnerSelect = document.getElementById("edit-case-owner-input");
             const filterOwnerSelect = document.getElementById("case-filter-owner");
-            
+
             if (createOwnerSelect) {
                 createOwnerSelect.innerHTML = '<option value="">-- Assign Owner --</option>';
                 users.forEach(u => {
@@ -1150,7 +1152,7 @@ class CopyrightDefenderApp {
                     createOwnerSelect.appendChild(opt);
                 });
             }
-            
+
             if (editOwnerSelect) {
                 editOwnerSelect.innerHTML = '<option value="">-- Assign Owner --</option>';
                 users.forEach(u => {
@@ -1160,7 +1162,7 @@ class CopyrightDefenderApp {
                     editOwnerSelect.appendChild(opt);
                 });
             }
-            
+
             if (filterOwnerSelect) {
                 filterOwnerSelect.innerHTML = '<option value="">All Owners</option>';
                 users.forEach(u => {
@@ -1180,23 +1182,23 @@ class CopyrightDefenderApp {
             if (this.token && this.users.length === 0) {
                 await this.loadUsers();
             }
-            
+
             // 1. Fetch full list for the global dropdown (unfiltered active cases)
             const fullRes = await this.authFetch("/api/v1/cases");
             const allCases = await fullRes.json();
             this.allCases = allCases;
-            
+
             // Populate select dropdown
             const currentSelected = this.globalCaseSelect.value;
             this.globalCaseSelect.innerHTML = '<option value="">-- Select Case Folder --</option>';
-            
+
             allCases.forEach(c => {
                 const opt = document.createElement("option");
                 opt.value = c.id;
                 opt.textContent = c.title;
                 this.globalCaseSelect.appendChild(opt);
             });
-            
+
             if (currentSelected && allCases.some(c => c.id == currentSelected)) {
                 this.globalCaseSelect.value = currentSelected;
             } else if (allCases.length > 0 && !this.activeCaseId) {
@@ -1204,11 +1206,11 @@ class CopyrightDefenderApp {
                 this.activeCaseId = allCases[0].id;
                 this.handleCaseChange();
             }
-            
+
             // 2. Fetch filtered list for rendering if in cases view
             let renderList = allCases;
             this.casesTotalCount = allCases.length;
-            
+
             if (this.activeView === "cases") {
                 const queryParams = new URLSearchParams();
                 if (this.caseSearchInput && this.caseSearchInput.value.trim()) {
@@ -1241,11 +1243,11 @@ class CopyrightDefenderApp {
                 }
                 const filteredRes = await this.authFetch(`/api/v1/cases?${queryParams.toString()}`);
                 renderList = await filteredRes.json();
-                
+
                 const totalCountHeader = filteredRes.headers.get("X-Total-Count");
                 this.casesTotalCount = totalCountHeader ? parseInt(totalCountHeader, 10) : allCases.length;
             }
-            
+
             this.cases = renderList;
             if (this.activeView === "cases") {
                 this.renderCasesList();
@@ -1264,7 +1266,7 @@ class CopyrightDefenderApp {
         const ownerInput = document.getElementById("case-owner-input");
         const tagsInput = document.getElementById("case-tags-input");
         const descInput = document.getElementById("case-desc-input");
-        
+
         const title = titleInput.value.trim();
         const client_name = clientInput.value.trim();
         const platform = platformInput.value;
@@ -1272,24 +1274,24 @@ class CopyrightDefenderApp {
         const assigned_user_id = ownerInput && ownerInput.value ? parseInt(ownerInput.value, 10) : null;
         const tags = tagsInput ? tagsInput.value.trim() : "";
         const description = descInput.value.trim();
-        
+
         if (!title || !client_name || !platform) {
             this.showToast("Please fill in all required fields.", "warning");
             return;
         }
-        
+
         try {
             const res = await this.authFetch("/api/v1/cases", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title, client_name, platform, priority, description, assigned_user_id, tags })
             });
-            
+
             if (!res.ok) throw new Error("Failed to save");
-            
+
             const newCase = await res.json();
             this.showToast(`Case "${newCase.title}" created!`, "success");
-            
+
             // Clear inputs & close modal
             titleInput.value = "";
             clientInput.value = "";
@@ -1299,15 +1301,15 @@ class CopyrightDefenderApp {
             if (tagsInput) tagsInput.value = "";
             descInput.value = "";
             this.newCaseModal.classList.remove("active");
-            
+
             // Reload cases
             await this.loadCases();
-            
+
             // Set as active case
             this.globalCaseSelect.value = newCase.id;
             this.activeCaseId = newCase.id;
             this.handleCaseChange();
-            
+
         } catch (e) {
             this.showToast("Error creating case folder.", "danger");
         }
@@ -1316,13 +1318,13 @@ class CopyrightDefenderApp {
     async deleteCase(caseId, e) {
         if (e) e.stopPropagation();
         if (!confirm("Are you sure you want to delete this case? All uploaded videos, visual fingerprints, and matched reports inside this case will be soft-deleted!")) return;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/cases/${caseId}`, { method: "DELETE" });
             if (!res.ok) throw new Error();
-            
+
             this.showToast("Case soft-deleted successfully.", "success");
-            
+
             if (this.activeCaseId === caseId) {
                 this.activeCaseId = null;
                 this.globalCaseSelect.value = "";
@@ -1337,9 +1339,9 @@ class CopyrightDefenderApp {
     openEditCaseModal(c) {
         const caseObj = c || this.cases.find(item => item.id === this.activeCaseId);
         if (!caseObj) return;
-        
+
         this.editingCaseId = caseObj.id;
-        
+
         document.getElementById("edit-case-title-input").value = caseObj.title || "";
         document.getElementById("edit-case-client-input").value = caseObj.client_name || "";
         document.getElementById("edit-case-platform-input").value = caseObj.platform || "YouTube";
@@ -1352,11 +1354,11 @@ class CopyrightDefenderApp {
             document.getElementById("edit-case-tags-input").value = caseObj.tags || "";
         }
         document.getElementById("edit-case-desc-input").value = caseObj.description || "";
-        
+
         this.editCaseModal.style.display = "flex";
         document.getElementById("edit-case-title-input").focus();
     }
-    
+
     async updateCaseSubmit() {
         const title = document.getElementById("edit-case-title-input").value.trim();
         const client_name = document.getElementById("edit-case-client-input").value.trim();
@@ -1368,28 +1370,28 @@ class CopyrightDefenderApp {
         const assigned_user_id = ownerInput && ownerInput.value ? parseInt(ownerInput.value, 10) : null;
         const tags = tagsInput ? tagsInput.value.trim() : "";
         const description = document.getElementById("edit-case-desc-input").value.trim();
-        
+
         if (!title || !client_name || !platform) {
             this.showToast("Please fill in all required fields.", "warning");
             return;
         }
-        
+
         const targetId = this.editingCaseId || this.activeCaseId;
         if (!targetId) return;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/cases/${targetId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title, client_name, platform, priority, status, description, assigned_user_id, tags })
             });
-            
+
             if (!res.ok) throw new Error();
-            
+
             const updated = await res.json();
             this.showToast(`Case "${updated.title}" updated successfully!`, "success");
             this.editCaseModal.style.display = "none";
-            
+
             await this.loadCases();
             if (this.activeCaseId == targetId) {
                 this.showCaseDetails(this.activeCaseId);
@@ -1398,7 +1400,7 @@ class CopyrightDefenderApp {
             this.showToast("Failed to update case folder.", "danger");
         }
     }
-    
+
     switchDetailsTab(tabName) {
         if (tabName === "details") {
             this.tabBtnDetails.classList.add("active");
@@ -1419,17 +1421,17 @@ class CopyrightDefenderApp {
             this.showToast("Please select a case folder first.", "warning");
             return;
         }
-        
+
         const fileList = Array.from(files);
         if (fileList.length === 0) return;
-        
+
         this.evidenceUploadProgress.style.display = "block";
         this.evidenceUploadPercent.textContent = "0%";
         this.evidenceUploadFill.style.width = "0%";
-        
+
         let successCount = 0;
         let failCount = 0;
-        
+
         for (let i = 0; i < fileList.length; i++) {
             const file = fileList[i];
             const MAX_SIZE = 50 * 1024 * 1024;
@@ -1438,7 +1440,7 @@ class CopyrightDefenderApp {
                 failCount++;
                 continue;
             }
-            
+
             const ext = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
             const allowed = [
                 '.png', '.jpg', '.jpeg', '.gif', '.webp',
@@ -1450,20 +1452,20 @@ class CopyrightDefenderApp {
                 failCount++;
                 continue;
             }
-            
+
             const formData = new FormData();
             formData.append("file", file);
-            
+
             try {
                 const percent = Math.round(((i) / fileList.length) * 100);
                 this.evidenceUploadPercent.textContent = `${percent}%`;
                 this.evidenceUploadFill.style.width = `${percent}%`;
-                
+
                 const res = await this.authFetch(`/api/v1/evidence/upload/${this.activeCaseId}`, {
                     method: "POST",
                     body: formData
                 });
-                
+
                 if (!res.ok) {
                     let errMsg = "Upload failed";
                     try {
@@ -1484,7 +1486,7 @@ class CopyrightDefenderApp {
                     }
                     throw new Error(errMsg);
                 }
-                
+
                 successCount++;
             } catch (err) {
                 console.error(err);
@@ -1492,14 +1494,14 @@ class CopyrightDefenderApp {
                 failCount++;
             }
         }
-        
+
         this.evidenceUploadPercent.textContent = "100%";
         this.evidenceUploadFill.style.width = "100%";
-        
+
         setTimeout(() => {
             this.evidenceUploadProgress.style.display = "none";
         }, 1500);
-        
+
         if (successCount > 0) {
             this.showToast(`Successfully uploaded ${successCount} file(s).`, "success");
             this.loadEvidenceFiles();
@@ -1512,25 +1514,25 @@ class CopyrightDefenderApp {
             this.evidenceGalleryGrid.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 10px; grid-column: span 12;">No case folder selected.</p>`;
             return;
         }
-        
+
         const q = this.evidenceSearchInput.value.trim();
         const type = this.evidenceFilterType.value;
-        
+
         const queryParams = new URLSearchParams();
         if (q) queryParams.append("q", q);
         if (type) queryParams.append("file_type", type);
-        
+
         try {
             const res = await this.authFetch(`/api/v1/evidence/${this.activeCaseId}?${queryParams.toString()}`);
             if (!res.ok) throw new Error();
             const list = await res.json();
-            
+
             this.evidenceGalleryGrid.innerHTML = "";
             if (list.length === 0) {
                 this.evidenceGalleryGrid.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 20px; grid-column: span 12;">No evidence files found.</p>`;
                 return;
             }
-            
+
             list.forEach(item => {
                 const card = document.createElement("div");
                 card.className = "evidence-gallery-card";
@@ -1544,39 +1546,39 @@ class CopyrightDefenderApp {
                 card.style.position = "relative";
                 card.style.height = "165px";
                 card.style.transition = "transform 0.2s, border-color 0.2s, box-shadow 0.2s";
-                
+
                 card.addEventListener("mouseenter", () => {
                     card.style.transform = "translateY(-3px)";
                     card.style.borderColor = "var(--accent)";
                     card.style.boxShadow = "0 4px 12px rgba(130, 84, 255, 0.15)";
                 });
-                
+
                 card.addEventListener("mouseleave", () => {
                     card.style.transform = "none";
                     card.style.borderColor = "var(--border-light)";
                     card.style.boxShadow = "none";
                 });
-                
+
                 card.addEventListener("click", () => {
                     this.openEvidenceViewer(item);
                 });
-                
+
                 const ft = item.file_type || "";
                 const sp = item.screenshot_path || "";
                 let previewHtml = "";
-                
+
                 // Determine platform icon
                 let platformIcon = '<i class="fa-solid fa-link" style="color: var(--accent);"></i>';
                 if (item.platform === "YouTube") platformIcon = '<i class="fa-brands fa-youtube" style="color: #ff0000;"></i>';
                 else if (item.platform === "TikTok") platformIcon = '<i class="fa-brands fa-tiktok" style="color: #00f2fe;"></i>';
                 else if (item.platform === "Facebook") platformIcon = '<i class="fa-brands fa-facebook" style="color: #1877f2;"></i>';
                 else if (item.platform === "Instagram") platformIcon = '<i class="fa-brands fa-instagram" style="color: #e1306c;"></i>';
-                
+
                 // Status badge
                 let statusBadgeClass = "badge-secondary";
                 if (item.status === "Verified" || item.status === "Resolved") statusBadgeClass = "badge-success";
                 else if (item.status === "DMCA Drafted" || item.status === "DMCA Filed") statusBadgeClass = "badge-warning";
-                
+
                 if (ft.startsWith("image/") || sp.endsWith(".jpg") || sp.endsWith(".png") || sp.endsWith(".jpeg") || sp.endsWith(".webp")) {
                     const imgUrl = sp ? sp : item.url;
                     previewHtml = `
@@ -1598,7 +1600,7 @@ class CopyrightDefenderApp {
                     let docColor = "#ea4335";
                     if (ft.includes("word") || ft.includes("doc")) { docIcon = "fa-file-word"; docColor = "#4285f4"; }
                     else if (ft.includes("text") || ft.includes("txt")) { docIcon = "fa-file-lines"; docColor = "#fbbc05"; }
-                    
+
                     previewHtml = `
                         <div style="width: 100%; height: 100px; background: rgba(130, 84, 255, 0.03); display: flex; align-items: center; justify-content: center; position: relative;">
                             <i class="fa-solid ${docIcon}" style="font-size: 36px; color: ${docColor};"></i>
@@ -1613,7 +1615,7 @@ class CopyrightDefenderApp {
                         </div>
                     `;
                 }
-                
+
                 let sizeStr = "";
                 if (item.file_size) {
                     const sz = item.file_size;
@@ -1621,7 +1623,7 @@ class CopyrightDefenderApp {
                     else if (sz < 1024 * 1024) sizeStr = `${(sz / 1024).toFixed(1)} KB`;
                     else sizeStr = `${(sz / (1024 * 1024)).toFixed(1)} MB`;
                 }
-                
+
                 card.innerHTML = `
                     ${previewHtml}
                     <div style="padding: 8px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; min-height: 65px; border-top: 1px solid var(--border-light);">
@@ -1645,7 +1647,7 @@ class CopyrightDefenderApp {
 
     async deleteEvidenceFile(id) {
         if (!confirm("Are you sure you want to delete this evidence entry? All associated physical storage records will be removed!")) return;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/evidence/${id}`, { method: "DELETE" });
             if (!res.ok) throw new Error();
@@ -1659,11 +1661,11 @@ class CopyrightDefenderApp {
 
     openEvidenceViewer(item) {
         this.activeEvidenceItem = item;
-        
+
         this.evidencePreviewTitle.textContent = item.title || "Untitled Evidence";
         this.evidencePreviewPlatformBadge.textContent = item.platform || "Other";
         this.evidencePreviewPlatformBadge.className = "badge badge-active";
-        
+
         const status = item.status || "Detected";
         this.evidencePreviewStatusBadge.textContent = status;
         this.evidencePreviewStatusBadge.style.background = "";
@@ -1675,13 +1677,13 @@ class CopyrightDefenderApp {
         } else {
             this.evidencePreviewStatusBadge.className = "badge badge-warning";
         }
-        
+
         this.evidencePreviewSourceUrl.href = item.url || "#";
         this.evidencePreviewSourceUrl.textContent = item.url ? `${item.url}` : "No source URL";
-        
+
         this.evidencePreviewUploader.textContent = item.uploader || "System";
         this.evidencePreviewMime.textContent = item.file_type || "link";
-        
+
         let sizeStr = "N/A";
         if (item.file_size) {
             const sz = item.file_size;
@@ -1691,17 +1693,17 @@ class CopyrightDefenderApp {
         }
         this.evidencePreviewSize.textContent = sizeStr;
         this.evidencePreviewScore.textContent = item.similarity_score ? `${(item.similarity_score * 100).toFixed(1)}%` : "0.0%";
-        
+
         const fpStatusEl = document.getElementById("evidence-preview-fp-status");
         const embStatusEl = document.getElementById("evidence-preview-embedding-status");
         const hashStatusEl = document.getElementById("evidence-preview-hash-status");
         const procStatusEl = document.getElementById("evidence-preview-processing-status");
-        
+
         if (fpStatusEl) fpStatusEl.textContent = "Loading...";
         if (embStatusEl) embStatusEl.textContent = "Loading...";
         if (hashStatusEl) hashStatusEl.textContent = "Loading...";
         if (procStatusEl) procStatusEl.textContent = "Loading...";
-        
+
         this.authFetch(`/api/v2/fingerprint/entity/evidence/${item.id}`)
             .then(res => {
                 if (!res.ok) throw new Error();
@@ -1725,16 +1727,16 @@ class CopyrightDefenderApp {
                 if (hashStatusEl) hashStatusEl.textContent = "None";
                 if (procStatusEl) procStatusEl.textContent = "Pending Ingestion";
             });
-        
+
         this.evidencePreviewCustodyTime.textContent = new Date(item.created_at || item.upload_date).toLocaleString();
-        
+
         const hashVal = item.sha256_hash || "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
         this.evidencePreviewHash.textContent = hashVal;
-        
+
         this.evidencePreviewMediaContainer.innerHTML = "";
         const ft = item.file_type || "";
         const sp = item.screenshot_path || "";
-        
+
         if (ft.startsWith("image/") || sp.endsWith(".jpg") || sp.endsWith(".png") || sp.endsWith(".jpeg") || sp.endsWith(".webp")) {
             const imgPath = sp ? sp : item.url;
             this.evidencePreviewMediaContainer.innerHTML = `<img src="${imgPath}" style="max-width: 100%; max-height: 380px; object-fit: contain; border-radius: 6px;" alt="Evidence screenshot">`;
@@ -1748,7 +1750,7 @@ class CopyrightDefenderApp {
             let icon = "fa-file-pdf";
             if (ft.includes("word") || ft.includes("doc")) icon = "fa-file-word";
             else if (ft.includes("text") || ft.includes("txt")) icon = "fa-file-lines";
-            
+
             this.evidencePreviewMediaContainer.innerHTML = `
                 <div style="text-align: center; color: var(--text-secondary);">
                     <i class="fa-solid ${icon}" style="font-size: 64px; color: var(--accent); margin-bottom: 12px; display: block;"></i>
@@ -1762,7 +1764,7 @@ class CopyrightDefenderApp {
             else if (item.platform === "TikTok") platformIcon = "fa-brands fa-tiktok";
             else if (item.platform === "Facebook") platformIcon = "fa-brands fa-facebook";
             else if (item.platform === "Instagram") platformIcon = "fa-brands fa-instagram";
-            
+
             this.evidencePreviewMediaContainer.innerHTML = `
                 <div style="text-align: center; color: var(--text-secondary); width: 100%;">
                     <i class="${platformIcon}" style="font-size: 64px; color: var(--accent); margin-bottom: 12px; display: block;"></i>
@@ -1771,7 +1773,7 @@ class CopyrightDefenderApp {
                 </div>
             `;
         }
-        
+
         this.btnDownloadEvidenceFile.href = item.url || "#";
         this.btnDownloadEvidenceFile.setAttribute("download", item.title || "evidence");
         if (!item.url || item.url.startsWith("http")) {
@@ -1779,7 +1781,7 @@ class CopyrightDefenderApp {
         } else {
             this.btnDownloadEvidenceFile.style.display = "inline-flex";
         }
-        
+
         this.evidencePreviewModal.style.display = "flex";
     }
 
@@ -1789,25 +1791,25 @@ class CopyrightDefenderApp {
             this.caseDetailsContent.style.display = "none";
             return;
         }
-        
+
         const caseObj = this.cases.find(c => c.id === caseId);
         if (!caseObj) {
             this.caseDetailsEmptyState.style.display = "flex";
             this.caseDetailsContent.style.display = "none";
             return;
         }
-        
+
         this.caseDetailsEmptyState.style.display = "none";
         this.caseDetailsContent.style.display = "block";
-        
+
         document.getElementById("detail-case-id").textContent = caseObj.id;
         document.getElementById("detail-case-title").textContent = caseObj.title;
         document.getElementById("detail-case-client").textContent = caseObj.client_name || "N/A";
-        
+
         const platformBadge = document.getElementById("detail-case-platform");
         platformBadge.textContent = caseObj.platform || "Unknown";
         platformBadge.className = `badge badge-active`;
-        
+
         const priorityBadge = document.getElementById("detail-case-priority");
         priorityBadge.textContent = caseObj.priority || "Medium";
         if (caseObj.priority === "Critical") {
@@ -1827,7 +1829,7 @@ class CopyrightDefenderApp {
             priorityBadge.style.background = "";
             priorityBadge.style.color = "";
         }
-        
+
         const statusBadge = document.getElementById("detail-case-status");
         statusBadge.textContent = caseObj.status || "Draft";
         statusBadge.style.background = "";
@@ -1849,13 +1851,13 @@ class CopyrightDefenderApp {
         } else {
             statusBadge.className = "badge badge-secondary";
         }
-        
+
         document.getElementById("detail-case-description").textContent = caseObj.description || "No description notes available.";
         document.getElementById("detail-case-owner").textContent = caseObj.owner_username || "System Admin";
-        
+
         const createdDate = new Date(caseObj.created_at);
         document.getElementById("detail-case-created").textContent = createdDate.toLocaleString();
-        
+
         const tagsContainer = document.getElementById("detail-case-tags");
         if (tagsContainer) {
             tagsContainer.innerHTML = "";
@@ -1880,36 +1882,36 @@ class CopyrightDefenderApp {
                 tagsContainer.innerHTML = '<span style="font-size: 12px; color: var(--text-secondary);">No tags</span>';
             }
         }
-        
+
         this.loadCaseTimeline(caseId);
         this.loadEvidenceFiles();
     }
-    
+
     async loadCaseTimeline(caseId) {
         this.caseTimelineContainer.innerHTML = `<div class="spinner-container"><p><i class="fa-solid fa-spinner fa-spin"></i> Loading timeline...</p></div>`;
         try {
             const res = await this.authFetch(`/api/v1/cases/${caseId}/timeline`);
             if (!res.ok) throw new Error();
             const timeline = await res.json();
-            
+
             this.caseTimelineContainer.innerHTML = "";
             if (timeline.length === 0) {
                 this.caseTimelineContainer.innerHTML = `<p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 10px;">No activity logs found.</p>`;
                 return;
             }
-            
+
             timeline.forEach(item => {
                 const el = document.createElement("div");
                 el.style.borderLeft = "2px solid var(--border-light)";
                 el.style.paddingLeft = "12px";
                 el.style.position = "relative";
                 el.style.marginBottom = "12px";
-                
+
                 let dotColor = "var(--text-secondary)";
                 if (item.type === "Created") dotColor = "var(--accent)";
                 else if (item.type === "Note") dotColor = "#4caf50";
                 else if (item.type === "History") dotColor = "#ff9800";
-                
+
                 const dot = document.createElement("div");
                 dot.style.position = "absolute";
                 dot.style.left = "-5px";
@@ -1919,9 +1921,9 @@ class CopyrightDefenderApp {
                 dot.style.borderRadius = "50%";
                 dot.style.background = dotColor;
                 el.appendChild(dot);
-                
+
                 const timeText = new Date(item.timestamp).toLocaleString();
-                
+
                 el.innerHTML += `
                     <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">
                         <span><strong>${item.username}</strong> (${item.type})</span>
@@ -1931,26 +1933,26 @@ class CopyrightDefenderApp {
                 `;
                 this.caseTimelineContainer.appendChild(el);
             });
-            
+
             this.caseTimelineContainer.scrollTop = this.caseTimelineContainer.scrollHeight;
         } catch (e) {
             this.caseTimelineContainer.innerHTML = `<p style="font-size: 12px; color: var(--accent); text-align: center; margin-top: 10px;">Failed to load timeline activity.</p>`;
         }
     }
-    
+
     async saveCaseNote() {
         const text = this.caseAddNoteInput.value.trim();
         if (!text) return;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/cases/${this.activeCaseId}/notes`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ note: text })
             });
-            
+
             if (!res.ok) throw new Error();
-            
+
             this.caseAddNoteInput.value = "";
             this.showToast("Note added to timeline.", "success");
             this.loadCaseTimeline(this.activeCaseId);
@@ -1963,13 +1965,13 @@ class CopyrightDefenderApp {
         const tbody = document.getElementById("cases-table-body");
         if (!tbody) return;
         tbody.innerHTML = "";
-        
+
         // Update pagination controls info and buttons
         const startIdx = this.cases.length > 0 ? (this.caseCurrentPage - 1) * this.casePageLimit + 1 : 0;
         const endIdx = Math.min(this.caseCurrentPage * this.casePageLimit, this.casesTotalCount);
         if (this.casePaginationInfo) {
-            this.casePaginationInfo.textContent = this.casesTotalCount > 0 
-                ? `${startIdx}-${endIdx} of ${this.casesTotalCount}` 
+            this.casePaginationInfo.textContent = this.casesTotalCount > 0
+                ? `${startIdx}-${endIdx} of ${this.casesTotalCount}`
                 : "0-0 of 0";
         }
         if (this.btnCasePagePrev) {
@@ -1978,7 +1980,7 @@ class CopyrightDefenderApp {
         if (this.btnCasePageNext) {
             this.btnCasePageNext.disabled = endIdx >= this.casesTotalCount;
         }
-        
+
         if (this.cases.length === 0) {
             tbody.innerHTML = `
                 <tr>
@@ -1989,25 +1991,25 @@ class CopyrightDefenderApp {
             `;
             return;
         }
-        
+
         this.cases.forEach(c => {
             const row = document.createElement("tr");
             row.style.cursor = "pointer";
             row.style.borderBottom = "1px solid var(--border-light)";
             row.style.transition = "background 0.2s";
-            
+
             if (this.activeCaseId === c.id) {
                 row.style.background = "rgba(130, 84, 255, 0.08)";
                 row.style.borderLeft = "3px solid var(--accent)";
             }
-            
+
             // Priority badge styling
             let priorityBadgeColor = "";
             if (c.priority === "Critical") priorityBadgeColor = "background: #ea4335; color: #fff;";
             else if (c.priority === "High") priorityBadgeColor = "background: rgba(234, 67, 53, 0.15); color: #ea4335;";
             else if (c.priority === "Medium") priorityBadgeColor = "background: rgba(251, 188, 5, 0.15); color: #fbbc05;";
             else priorityBadgeColor = "background: rgba(52, 168, 83, 0.15); color: #34a853;";
-            
+
             // Status badge styling
             let statusBadgeColor = "background: rgba(255, 255, 255, 0.1); color: var(--text-secondary);";
             if (c.status === "Investigating" || c.status === "Active") statusBadgeColor = "background: rgba(130, 84, 255, 0.15); color: var(--accent);";
@@ -2017,10 +2019,10 @@ class CopyrightDefenderApp {
             else if (c.status === "DMCA Draft" || c.status === "DMCA Sent") statusBadgeColor = "background: rgba(251, 188, 5, 0.15); color: #fbbc05;";
             else if (c.status === "Resolved") statusBadgeColor = "background: rgba(52, 168, 83, 0.15); color: #34a853;";
             else if (c.status === "Archived") statusBadgeColor = "background: rgba(255, 255, 255, 0.05); color: var(--text-secondary);";
-            
+
             const createdDate = c.created_at ? new Date(c.created_at).toLocaleDateString() : "N/A";
             const updatedDate = c.updated_at ? new Date(c.updated_at).toLocaleDateString() : "N/A";
-            
+
             row.innerHTML = `
                 <td style="padding: 10px 4px; font-weight: bold; color: var(--accent);" data-label="ID">#${c.id}</td>
                 <td style="padding: 10px 4px; font-weight: 500; color: var(--text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" data-label="Case Name">${c.title}</td>
@@ -2042,13 +2044,13 @@ class CopyrightDefenderApp {
                     </div>
                 </td>
             `;
-            
+
             row.addEventListener("click", (ev) => {
                 if (ev.target.closest("button") || ev.target.closest("i") || ev.target.closest("a")) return;
                 this.globalCaseSelect.value = c.id;
                 this.activeCaseId = c.id;
                 this.handleCaseChange();
-                
+
                 document.querySelectorAll("#cases-table-body tr").forEach(r => {
                     r.style.background = "";
                     r.style.borderLeft = "";
@@ -2056,13 +2058,13 @@ class CopyrightDefenderApp {
                 row.style.background = "rgba(130, 84, 255, 0.08)";
                 row.style.borderLeft = "3px solid var(--accent)";
             });
-            
+
             // Wire action buttons
             row.querySelector(".btn-action-edit").addEventListener("click", (e) => {
                 e.stopPropagation();
                 this.openEditCaseModal(c);
             });
-            
+
             row.querySelector(".btn-action-duplicate").addEventListener("click", async (e) => {
                 e.stopPropagation();
                 if (confirm(`Are you sure you want to duplicate case "${c.title}"?`)) {
@@ -2084,7 +2086,7 @@ class CopyrightDefenderApp {
                     }
                 }
             });
-            
+
             row.querySelector(".btn-action-archive").addEventListener("click", async (e) => {
                 e.stopPropagation();
                 if (confirm(`Are you sure you want to archive case "${c.title}"?`)) {
@@ -2101,12 +2103,12 @@ class CopyrightDefenderApp {
                     }
                 }
             });
-            
+
             row.querySelector(".btn-action-delete").addEventListener("click", (e) => {
                 e.stopPropagation();
                 this.deleteCase(c.id, e);
             });
-            
+
             tbody.appendChild(row);
         });
     }
@@ -2116,14 +2118,14 @@ class CopyrightDefenderApp {
     // -------------------------------------------------------------
     async loadDashboardData() {
         const recentList = document.getElementById("dashboard-recent-evidence");
-        
+
         // Calculate case metrics from allCases list
         const totalCases = this.allCases.length;
         const openCases = this.allCases.filter(c => c.status !== "Resolved" && c.status !== "Archived").length;
         const resolvedCases = this.allCases.filter(c => c.status === "Resolved").length;
         const archivedCases = this.allCases.filter(c => c.status === "Archived").length;
         this.updateStatsCounters(totalCases, openCases, resolvedCases, archivedCases);
-        
+
         // Populate recent cases list
         const recentCasesList = document.getElementById("dashboard-recent-cases-list");
         if (recentCasesList) {
@@ -2150,7 +2152,7 @@ class CopyrightDefenderApp {
                         this.handleCaseChange();
                         this.switchView("cases");
                     };
-                    
+
                     div.onmouseover = () => {
                         div.style.borderColor = "var(--border-accent)";
                         div.style.background = "rgba(130, 84, 255, 0.04)";
@@ -2159,10 +2161,10 @@ class CopyrightDefenderApp {
                         div.style.borderColor = "var(--border-light)";
                         div.style.background = "rgba(255, 255, 255, 0.02)";
                     };
-                    
+
                     const caseTitle = c.title || `Case #${c.id}`;
                     const detectionsCount = c.evidence_count || 0;
-                    
+
                     div.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 32px; height: 32px; background: rgba(255, 145, 0, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #ff9100; font-size: 14px;">
@@ -2179,32 +2181,32 @@ class CopyrightDefenderApp {
                 });
             }
         }
-        
+
         if (!this.activeCaseId) {
             recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">Select an active case above to load dashboard metrics.</td></tr>`;
             this.updateDashboardCharts([]);
             return;
         }
-        
+
         try {
             // Load evidence
             const res = await this.authFetch(`/api/v1/evidence/${this.activeCaseId}`);
             const evidence = await res.json();
-            
+
             this.updateDashboardCharts(evidence);
-            
+
             // Populate list
             recentList.innerHTML = "";
             if (evidence.length === 0) {
                 recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">No scanned links found for this case. Try scanning a social media link in the Scanner tab!</td></tr>`;
                 return;
             }
-            
+
             // Show top 5 matches
             evidence.slice(0, 5).forEach(ev => {
                 recentList.appendChild(this.createDashboardEvidenceRowElement(ev));
             });
-            
+
         } catch (e) {
             recentList.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--text-secondary);">Error loading dashboard metrics.</td></tr>`;
         }
@@ -2219,7 +2221,7 @@ class CopyrightDefenderApp {
             document.getElementById("stat-resolved-cases-count").textContent = resolved;
         if (document.getElementById("stat-archived-cases-count"))
             document.getElementById("stat-archived-cases-count").textContent = archived;
-            
+
         // Also keep legacy selectors updated if any tests/utilities depend on them
         if (document.getElementById("stat-originals-count")) {
             const totalOriginals = this.allCases.reduce((sum, c) => sum + (c.originals_count || c.original_count || 0), 0);
@@ -2243,13 +2245,13 @@ class CopyrightDefenderApp {
             this.originalsFileList.innerHTML = `<div class="spinner-container"><p>Select a case in the top dropdown to upload and inspect original videos.</p></div>`;
             return;
         }
-        
+
         try {
             const res = await this.authFetch(`/api/v1/originals/${this.activeCaseId}`);
             const originals = await res.json();
-            
+
             this.originalsFileList.innerHTML = "";
-            
+
             if (originals.length === 0) {
                 this.originalsFileList.innerHTML = `
                     <div class="spinner-container">
@@ -2258,15 +2260,15 @@ class CopyrightDefenderApp {
                 `;
                 return;
             }
-            
+
             originals.forEach(orig => {
                 const li = document.createElement("li");
                 li.className = "file-row";
-                
+
                 const mb = (orig.filesize / (1024 * 1024)).toFixed(1);
                 const minutes = Math.floor(orig.duration / 60);
                 const seconds = Math.round(orig.duration % 60);
-                
+
                 li.innerHTML = `
                     <i class="fa-solid fa-file-video" style="font-size: 24px; color: var(--accent);"></i>
                     <div class="file-name">
@@ -2291,22 +2293,22 @@ class CopyrightDefenderApp {
             this.showToast("Select a Case Folder before uploading original files.", "warning");
             return;
         }
-        
+
         const formData = new FormData();
         formData.append("case_id", this.activeCaseId);
         formData.append("file", file);
-        
+
         // Show progress bar
         this.uploadProgressContainer.style.display = "block";
         this.uploadProgressPercent.textContent = "0%";
         this.uploadProgressFill.style.width = "0%";
-        
+
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/v1/originals/upload", true);
         if (this.token && this.token !== "dev_bypass") {
             xhr.setRequestHeader("Authorization", `Bearer ${this.token}`);
         }
-        
+
         // Track upload progress
         xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
@@ -2317,11 +2319,11 @@ class CopyrightDefenderApp {
                 this.uploadProgressFill.style.width = `${displayPercent}%`;
             }
         };
-        
+
         xhr.onload = () => {
             this.uploadProgressContainer.style.display = "none";
             this.originalFileInput.value = ""; // Reset
-            
+
             if (xhr.status === 200) {
                 const result = JSON.parse(xhr.responseText);
                 this.showToast(`Successfully hashed and added ${result.filename}!`, "success");
@@ -2331,26 +2333,26 @@ class CopyrightDefenderApp {
                 let err = "Upload failed.";
                 try {
                     err = JSON.parse(xhr.responseText).detail || err;
-                } catch(e) {}
+                } catch (e) { }
                 this.showToast(`Fingerprinting failed: ${err}`, "danger");
             }
         };
-        
+
         xhr.onerror = () => {
             this.uploadProgressContainer.style.display = "none";
             this.showToast("Network upload error.", "danger");
         };
-        
+
         xhr.send(formData);
     }
 
     async deleteOriginal(origId) {
         if (!confirm("Are you sure you want to delete this original video record? Visual scans referencing this work will retain match stats but the original database file will be deleted.")) return;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/originals/${origId}`, { method: "DELETE" });
             if (!res.ok) throw new Error();
-            
+
             this.showToast("Original record deleted.", "success");
             this.loadOriginalsLibrary();
             this.loadCases(); // Refresh counts
@@ -2367,11 +2369,11 @@ class CopyrightDefenderApp {
             this.scannedEvidenceList.innerHTML = `<div class="spinner-container"><p>Select a case above to load scanned URL evidence logs.</p></div>`;
             return;
         }
-        
+
         try {
             const res = await this.authFetch(`/api/v1/evidence/${this.activeCaseId}`);
             const evidence = await res.json();
-            
+
             this.scannedEvidenceList.innerHTML = "";
             if (evidence.length === 0) {
                 this.scannedEvidenceList.innerHTML = `
@@ -2381,7 +2383,7 @@ class CopyrightDefenderApp {
                 `;
                 return;
             }
-            
+
             evidence.forEach(ev => {
                 this.scannedEvidenceList.appendChild(this.createEvidenceRowElement(ev));
             });
@@ -2400,34 +2402,34 @@ class CopyrightDefenderApp {
             this.showToast("Please select an active Case Folder first.", "warning");
             return;
         }
-        
+
         // Check if there are originals in this case first
         const caseObj = this.cases.find(c => c.id === this.activeCaseId);
         if (!caseObj || caseObj.original_count === 0) {
             this.showToast("You must upload at least one original video in the Fingerprinter tab before scanning links for visual matches.", "warning");
             return;
         }
-        
+
         this.scanResultsPanel.style.display = "none";
         this.btnRunScan.disabled = true;
         this.btnRunScan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Scanning...`;
-        
+
         try {
             const res = await this.authFetch("/api/v1/evidence/scan", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ case_id: this.activeCaseId, url: url })
             });
-            
+
             if (!res.ok) {
                 const errDetail = await res.json();
                 throw new Error(errDetail.detail || "Scan request failed.");
             }
-            
+
             this.showToast("Scan job successfully enqueued.", "info");
             this.scannerUrlInput.value = "";
             await this.loadScanQueueHistory();
-            
+
         } catch (e) {
             this.showToast(e.message || "An error occurred during scanning.", "danger");
             this.btnRunScan.disabled = false;
@@ -2562,12 +2564,12 @@ class CopyrightDefenderApp {
                     try {
                         const date = new Date(job.started_at);
                         startTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    } catch (e) {}
+                    } catch (e) { }
                 } else if (job.created_at) {
                     try {
                         const date = new Date(job.created_at);
                         startTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " (queued)";
-                    } catch (e) {}
+                    } catch (e) { }
                 }
 
                 // Format duration
@@ -2661,12 +2663,12 @@ class CopyrightDefenderApp {
                 if (matched.length > 0) {
                     matched.sort((a, b) => b.id - a.id);
                     const result = matched[0];
-                    
+
                     const similarityVal = typeof result.similarity_score === 'number' ? result.similarity_score : 0.0;
                     const matchPercent = (similarityVal * 100).toFixed(1);
                     let scoreClass = "low-match";
                     let alertMsg = "Visual match checks finished. No substantial copies detected.";
-                    
+
                     if (similarityVal >= 0.8) {
                         scoreClass = "high-match";
                         alertMsg = `Visual match detected! Found a visual overlap of ${matchPercent}% with original work: "${result.matched_original_name || 'Original Video'}".`;
@@ -2683,7 +2685,7 @@ class CopyrightDefenderApp {
                     const screenshotHtml = result.screenshot_path
                         ? `<img src="${result.screenshot_path}" class="evidence-thumbnail" style="width: 200px; height: 120px; border-radius: var(--radius-md); border: 1px solid var(--border-light); object-fit: cover;">`
                         : `<div class="evidence-placeholder" style="width: 200px; height: 120px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: var(--bg-dark); border: 1px solid var(--border-light);"><i class="fa-solid fa-image" style="font-size: 24px; color: var(--text-secondary);"></i></div>`;
-                    
+
                     this.scanResultsPanel.style.display = "block";
                     this.scanResultsContent.innerHTML = `
                         <div style="display: flex; gap: 24px; align-items: center;">
@@ -2704,7 +2706,7 @@ class CopyrightDefenderApp {
                     `;
                 }
             }
-            
+
             this.loadScannedEvidence();
             this.loadCases();
         } catch (e) {
@@ -2715,7 +2717,7 @@ class CopyrightDefenderApp {
     createDashboardEvidenceRowElement(ev) {
         const tr = document.createElement("tr");
         tr.style.borderBottom = "1px solid var(--border-light)";
-        
+
         const matchPercent = (ev.similarity_score * 100).toFixed(0);
         let scoreColor = "#ff5252";
         let scoreLabel = "Very High";
@@ -2729,14 +2731,14 @@ class CopyrightDefenderApp {
             scoreColor = "#ff9100";
             scoreLabel = "High";
         }
-        
+
         let platformIcon = "fa-globe";
         let platformColor = "var(--text-secondary)";
         if (ev.platform === "YouTube") { platformIcon = "fa-youtube"; platformColor = "#ff0000"; }
         else if (ev.platform === "TikTok") { platformIcon = "fa-tiktok"; platformColor = "#000000"; }
         else if (ev.platform === "Facebook") { platformIcon = "fa-facebook"; platformColor = "#1877f2"; }
         else if (ev.platform === "Instagram") { platformIcon = "fa-instagram"; platformColor = "#e1306c"; }
-        
+
         // Formatting first seen
         let dateStr = "N/A";
         let timeStr = "";
@@ -2747,7 +2749,7 @@ class CopyrightDefenderApp {
             dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         }
-        
+
         // Mock ID and page name for visual fidelity matching screenshot
         const mockPageNames = {
             "Facebook": ["Healthy Life Cambodia", "Khmer Products", "Angkor Shop"],
@@ -2825,18 +2827,18 @@ class CopyrightDefenderApp {
     createEvidenceRowElement(ev) {
         const row = document.createElement("div");
         row.className = "evidence-row";
-        
+
         const matchPercent = (ev.similarity_score * 100).toFixed(1);
         let scoreClass = "low-match";
         if (ev.similarity_score >= 0.8) scoreClass = "high-match";
         else if (ev.similarity_score >= 0.4) scoreClass = "mid-match";
-        
+
         let platformIcon = "fa-globe";
         if (ev.platform === "YouTube") platformIcon = "fa-youtube platform-youtube";
         else if (ev.platform === "TikTok") platformIcon = "fa-tiktok platform-tiktok";
         else if (ev.platform === "Facebook") platformIcon = "fa-facebook platform-facebook";
         else if (ev.platform === "Instagram") platformIcon = "fa-instagram platform-instagram";
-        
+
         row.innerHTML = `
             ${ev.screenshot_path ? `<img src="${ev.screenshot_path}" class="evidence-thumbnail">` : `<div class="evidence-placeholder"><i class="fa-solid fa-image"></i></div>`}
             
@@ -2875,11 +2877,11 @@ class CopyrightDefenderApp {
 
     async deleteEvidence(evId) {
         if (!confirm("Are you sure you want to delete this evidence record? This will delete local screenshot files and remove visual logs.")) return;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/evidence/${evId}`, { method: "DELETE" });
             if (!res.ok) throw new Error();
-            
+
             this.showToast("Evidence record deleted.", "success");
             this.loadScannedEvidence();
             this.loadCases();
@@ -2905,15 +2907,15 @@ class CopyrightDefenderApp {
             this.dmcaEvidenceSelect.innerHTML = '<option value="">-- Choose verified leak --</option>';
             return;
         }
-        
+
         try {
             const res = await this.authFetch(`/api/v1/evidence/${this.activeCaseId}`);
             const evidence = await res.json();
-            
+
             // Only list items with positive scans (usually match score >= 40%)
             const selectedVal = this.dmcaEvidenceSelect.value;
             this.dmcaEvidenceSelect.innerHTML = '<option value="">-- Choose verified leak --</option>';
-            
+
             evidence.forEach(ev => {
                 const opt = document.createElement("option");
                 opt.value = ev.id;
@@ -2921,24 +2923,24 @@ class CopyrightDefenderApp {
                 opt.textContent = `[${ev.platform}] ${ev.title} (${matchPercent}% match)`;
                 this.dmcaEvidenceSelect.appendChild(opt);
             });
-            
+
             if (selectedVal && evidence.some(e => e.id == selectedVal)) {
                 this.dmcaEvidenceSelect.value = selectedVal;
             }
-            
+
             // Autofill settings defaults if settings are stored in local storage
             const owner = localStorage.getItem("default_owner");
             const sender = localStorage.getItem("default_sender");
             const email = localStorage.getItem("default_email");
             const phone = localStorage.getItem("default_phone");
             const address = localStorage.getItem("default_address");
-            
+
             if (owner) document.getElementById("dmca-owner-name").value = owner;
             if (sender) document.getElementById("dmca-sender-name").value = sender;
             if (email) document.getElementById("dmca-sender-email").value = email;
             if (phone) document.getElementById("dmca-sender-phone").value = phone;
             if (address) document.getElementById("dmca-sender-address").value = address;
-            
+
         } catch (e) {
             this.showToast("Failed to load claims config details.", "danger");
         }
@@ -2951,19 +2953,19 @@ class CopyrightDefenderApp {
         const senderEmail = document.getElementById("dmca-sender-email").value.trim();
         const senderPhone = document.getElementById("dmca-sender-phone").value.trim();
         const senderAddress = document.getElementById("dmca-sender-address").value.trim();
-        
+
         if (!evId || !ownerName || !senderName || !senderEmail) {
             this.showToast("Please fill in all required fields.", "warning");
             return;
         }
-        
+
         let sigBase64 = null;
         if (this.hasSigned) {
             sigBase64 = this.signatureCanvas.toDataURL("image/png");
         }
         const templateType = this.dmcaTemplateSelect.value;
         const declarationCheck = this.dmcaDeclarationCheck.checked;
-        
+
         try {
             const res = await this.authFetch("/api/v1/reports/generate", {
                 method: "POST",
@@ -2981,24 +2983,24 @@ class CopyrightDefenderApp {
                     declaration_accepted: declarationCheck
                 })
             });
-            
+
             if (!res.ok) throw new Error("Failed to generate draft.");
-            
+
             const result = await res.json();
             this.currentReportId = result.id;
-            
+
             // Render text
             this.dmcaNoticeOutput.value = result.report_text;
             this.btnCopyDmca.disabled = false;
             this.btnDownloadDmca.disabled = false;
             this.btnExportPdf.disabled = false;
             this.btnExportDocx.disabled = false;
-            
+
             this.showToast("DMCA report notice compiled successfully!", "success");
-            
+
             // Reload evidence matching states to update badge to DMCA Drafted
             this.loadCases();
-            
+
         } catch (e) {
             this.showToast("Failed to compile DMCA report text.", "danger");
         }
@@ -3007,7 +3009,7 @@ class CopyrightDefenderApp {
     copyDMCAClipboard() {
         const txt = this.dmcaNoticeOutput.value;
         if (!txt) return;
-        
+
         navigator.clipboard.writeText(txt).then(() => {
             this.showToast("DMCA report copied to clipboard!", "success");
         }).catch(err => {
@@ -3018,16 +3020,16 @@ class CopyrightDefenderApp {
     downloadDMCANotice() {
         const txt = this.dmcaNoticeOutput.value;
         if (!txt) return;
-        
+
         const blob = new Blob([txt], { type: "text/plain;charset=utf-8" });
         const url = URL.createObjectURL(blob);
-        
+
         const a = document.createElement("a");
         a.href = url;
         a.download = `DMCA_Notice_Case_${this.activeCaseId}_Draft.txt`;
         document.body.appendChild(a);
         a.click();
-        
+
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         this.showToast("DMCA text notice saved to downloads directory.", "success");
@@ -3042,7 +3044,7 @@ class CopyrightDefenderApp {
         const email = localStorage.getItem("default_email");
         const phone = localStorage.getItem("default_phone");
         const address = localStorage.getItem("default_address");
-        
+
         if (owner) document.getElementById("setting-owner").value = owner;
         if (sender) document.getElementById("setting-sender").value = sender;
         if (email) document.getElementById("setting-email").value = email;
@@ -3056,13 +3058,13 @@ class CopyrightDefenderApp {
         const email = document.getElementById("setting-email").value.trim();
         const phone = document.getElementById("setting-phone").value.trim();
         const address = document.getElementById("setting-address").value.trim();
-        
+
         localStorage.setItem("default_owner", owner);
         localStorage.setItem("default_sender", sender);
         localStorage.setItem("default_email", email);
         localStorage.setItem("default_phone", phone);
         localStorage.setItem("default_address", address);
-        
+
         this.showToast("Settings saved successfully.", "success");
     }
 
@@ -3072,22 +3074,22 @@ class CopyrightDefenderApp {
     showToast(message, type = "info") {
         const drawer = document.getElementById("toast-drawer");
         if (!drawer) return;
-        
+
         const toast = document.createElement("div");
         toast.className = `toast ${type}`;
-        
+
         let icon = "fa-info-circle";
         if (type === "success") icon = "fa-circle-check";
         else if (type === "warning") icon = "fa-triangle-exclamation";
         else if (type === "danger") icon = "fa-circle-xmark";
-        
+
         toast.innerHTML = `
             <i class="fa-solid ${icon}"></i>
             <span>${message}</span>
         `;
-        
+
         drawer.appendChild(toast);
-        
+
         // Slide out and remove toast after 4s
         setTimeout(() => {
             toast.style.transform = "translateX(120%)";
@@ -3148,9 +3150,9 @@ class CopyrightDefenderApp {
         this.signatureCanvas.addEventListener("mouseup", stopDrawing);
         this.signatureCanvas.addEventListener("mouseleave", stopDrawing);
 
-        this.signatureCanvas.addEventListener("touchstart", startDrawing);
-        this.signatureCanvas.addEventListener("touchmove", draw);
-        this.signatureCanvas.addEventListener("touchend", stopDrawing);
+        this.signatureCanvas.addEventListener("touchstart", startDrawing, { passive: false });
+        this.signatureCanvas.addEventListener("touchmove", draw, { passive: false });
+        this.signatureCanvas.addEventListener("touchend", stopDrawing, { passive: false });
 
         this.btnClearSignature.addEventListener("click", () => {
             ctx.clearRect(0, 0, this.signatureCanvas.width, this.signatureCanvas.height);
@@ -3163,25 +3165,25 @@ class CopyrightDefenderApp {
             this.showToast("Please draft and submit a report first.", "warning");
             return;
         }
-        
+
         try {
             this.showToast(`Generating ${format.toUpperCase()} report...`, "info");
-            
+
             const res = await this.authFetch(`/api/v1/reports/${this.currentReportId}/export/${format}`);
             if (!res.ok) throw new Error(`Server returned ${res.status}`);
-            
+
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
-            
+
             const a = document.createElement("a");
             a.href = url;
             a.download = `DMCA_Report_Notice_${this.currentReportId}.${format}`;
             document.body.appendChild(a);
             a.click();
-            
+
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
+
             this.showToast(`${format.toUpperCase()} report notice downloaded.`, "success");
         } catch (e) {
             this.showToast(`Failed to export ${format.toUpperCase()} report.`, "danger");
@@ -3194,51 +3196,51 @@ class CopyrightDefenderApp {
     updateDashboardCharts(evidence) {
         const container = document.getElementById("dashboard-charts-container");
         if (!container) return;
-        
+
         if (evidence.length === 0) {
             container.style.display = "none";
             return;
         }
-        
+
         container.style.display = "grid";
-        
+
         // 1. Platform Counts
         const platformCounts = { YouTube: 0, TikTok: 0, Facebook: 0, Instagram: 0, Other: 0 };
         // 2. Similarity Counts
         const similarityCounts = { High: 0, Medium: 0, Low: 0 };
         // 3. Status Counts
         const statusCounts = { Detected: 0, Verified: 0, "DMCA Drafted": 0, "DMCA Filed": 0, Resolved: 0 };
-        
+
         evidence.forEach(ev => {
             const p = ev.platform || "Other";
             platformCounts[p] = (platformCounts[p] || 0) + 1;
-            
+
             const score = ev.similarity_score || 0.0;
             if (score >= 0.8) similarityCounts.High++;
             else if (score >= 0.4) similarityCounts.Medium++;
             else similarityCounts.Low++;
-            
+
             const s = ev.status || "Detected";
             statusCounts[s] = (statusCounts[s] || 0) + 1;
         });
-        
+
         // Destroy existing chart instances if any
         if (this.charts.platform) this.charts.platform.destroy();
         if (this.charts.similarity) this.charts.similarity.destroy();
         if (this.charts.status) this.charts.status.destroy();
-        
+
         // Setup shared chart configurations
         const fontConfig = {
             family: "'Outfit', sans-serif",
             size: 11
         };
-        
+
         // Update total label
         const totalDetections = evidence.length;
         if (document.getElementById("donut-total-count-label")) {
             document.getElementById("donut-total-count-label").textContent = totalDetections;
         }
-        
+
         // Update custom legend labels
         const legendContainer = document.querySelector(".chart-custom-legend");
         if (legendContainer) {
@@ -3249,12 +3251,12 @@ class CopyrightDefenderApp {
                 { name: "YouTube", key: "YouTube", color: "#ff4444" },
                 { name: "Others", key: "Other", color: "#8254ff" }
             ];
-            
+
             legendContainer.innerHTML = "";
             platforms.forEach(p => {
                 const count = platformCounts[p.key] || 0;
                 const percent = totalDetections > 0 ? ((count / totalDetections) * 100).toFixed(1) : "0.0";
-                
+
                 const div = document.createElement("div");
                 div.style.display = "flex";
                 div.style.justifyContent = "space-between";
@@ -3293,7 +3295,7 @@ class CopyrightDefenderApp {
                 }
             }
         });
-        
+
         // Create Similarity Ranges Chart
         const ctxSimilarity = document.getElementById("chart-similarity-ranges").getContext("2d");
         this.charts.similarity = new Chart(ctxSimilarity, {
@@ -3325,7 +3327,7 @@ class CopyrightDefenderApp {
                 }
             }
         });
-        
+
         // Create Status Breakdown Chart
         const ctxStatus = document.getElementById("chart-status-breakdown").getContext("2d");
         this.charts.status = new Chart(ctxStatus, {
@@ -3373,26 +3375,26 @@ class CopyrightDefenderApp {
     async loadSecurityView() {
         if (this.activeView !== "security") return;
         if (!this.securityAuditTbody) return;
-        
+
         this.securityAuditTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 32px;"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--accent); margin-bottom: 8px; display: block;"></i> Loading audit trail...</td></tr>`;
-        
+
         const action = this.securityActionFilter ? this.securityActionFilter.value : "";
         const limit = this.securityAuditLimit;
         const offset = this.securityAuditPage * limit;
-        
+
         let url = `/api/v1/auth/audit/logs?limit=${limit}&offset=${offset}`;
         if (action) {
             url += `&action=${action}`;
         }
-        
+
         try {
             const res = await this.authFetch(url);
             if (!res.ok) throw new Error("Failed to load logs");
-            
+
             const logs = await res.json();
-            
+
             this.securityAuditTbody.innerHTML = "";
-            
+
             if (logs.length === 0) {
                 this.securityAuditTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 32px; color: var(--text-secondary);">No audit logs found matching selected criteria.</td></tr>`;
                 if (this.auditPaginationInfo) this.auditPaginationInfo.textContent = `Showing 0-0 entries`;
@@ -3400,12 +3402,12 @@ class CopyrightDefenderApp {
                 if (this.btnAuditNext) this.btnAuditNext.disabled = true;
                 return;
             }
-            
+
             logs.forEach(log => {
                 const tr = document.createElement("tr");
-                
+
                 const time = new Date(log.created_at).toLocaleString();
-                
+
                 // Set audit action badge class
                 let badgeClass = "default";
                 const act = log.action.toUpperCase();
@@ -3414,10 +3416,10 @@ class CopyrightDefenderApp {
                 else if (act.includes("CREATE") || act.includes("UPLOAD") || act.includes("ENQUEUE")) badgeClass = "create";
                 else if (act.includes("UPDATE")) badgeClass = "update";
                 else if (act.includes("DELETE") || act.includes("FAIL")) badgeClass = "delete";
-                
+
                 // Format target
                 const targetText = log.entity_type ? `${log.entity_type.toUpperCase()} #${log.entity_id || ''}` : "SYSTEM";
-                
+
                 // Format details
                 let detailsText = log.details_json || "";
                 try {
@@ -3427,8 +3429,8 @@ class CopyrightDefenderApp {
                     } else {
                         detailsText = Object.entries(parsed).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`).join(", ");
                     }
-                } catch (e) {}
-                
+                } catch (e) { }
+
                 tr.innerHTML = `
                     <td style="color: var(--text-secondary); white-space: nowrap;" data-label="Timestamp">${time}</td>
                     <td data-label="Action"><span class="audit-badge ${badgeClass}">${log.action}</span></td>
@@ -3437,16 +3439,16 @@ class CopyrightDefenderApp {
                 `;
                 this.securityAuditTbody.appendChild(tr);
             });
-            
+
             // Update pagination display
             const startEntry = offset + 1;
             const endEntry = offset + logs.length;
             if (this.auditPaginationInfo) this.auditPaginationInfo.textContent = `Showing ${startEntry}-${endEntry} entries`;
-            
+
             if (this.btnAuditPrev) this.btnAuditPrev.disabled = this.securityAuditPage === 0;
             // Disable Next if we received less logs than limit (meaning no more pages)
             if (this.btnAuditNext) this.btnAuditNext.disabled = logs.length < limit;
-            
+
         } catch (e) {
             this.securityAuditTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 32px; color: var(--color-danger);"><i class="fa-solid fa-triangle-exclamation"></i> Error loading audit logs: ${e.message}</td></tr>`;
             if (this.btnAuditPrev) this.btnAuditPrev.disabled = true;
@@ -3480,7 +3482,7 @@ class CopyrightDefenderApp {
             this.verifyDetailPanel.style.display = "none";
         }
         this.activeVerificationRecord = null;
-        
+
         try {
             const res = await this.authFetch("/api/v1/verification");
             if (!res.ok) {
@@ -3500,16 +3502,16 @@ class CopyrightDefenderApp {
         let verifiedCount = 0;
         let pendingCount = 0;
         let rejectedCount = 0;
-        
+
         records.forEach(rec => {
             if (rec.status === "Verified") verifiedCount++;
             else if (rec.status === "Pending") pendingCount++;
             else if (rec.status === "Rejected") rejectedCount++;
         });
-        
+
         const total = verifiedCount + rejectedCount;
         const rate = total > 0 ? Math.round((verifiedCount / total) * 100) : 100;
-        
+
         if (this.verifyStatVerified) this.verifyStatVerified.textContent = verifiedCount;
         if (this.verifyStatPending) this.verifyStatPending.textContent = pendingCount;
         if (this.verifyStatRejected) this.verifyStatRejected.textContent = rejectedCount;
@@ -3519,30 +3521,30 @@ class CopyrightDefenderApp {
     renderVerificationTable(records) {
         if (!this.verifyTableBody) return;
         this.verifyTableBody.innerHTML = "";
-        
+
         if (records.length === 0) {
             this.verifyTableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 32px; color: var(--text-secondary);">No verification cases in the queue.</td></tr>`;
             return;
         }
-        
+
         records.forEach(rec => {
             const tr = document.createElement("tr");
             tr.style.cursor = "pointer";
-            
+
             // AI Score Color Coding
             const scorePercent = Math.round(rec.ai_score * 100);
             let scoreClass = "text-muted";
             if (rec.ai_score >= 0.8) scoreClass = "text-success";
             else if (rec.ai_score >= 0.5) scoreClass = "text-warning";
             else scoreClass = "text-danger";
-            
+
             // Status Badge Formatting
             let badgeClass = "badge-warning";
             if (rec.status === "Verified") badgeClass = "badge-success";
             else if (rec.status === "Rejected") badgeClass = "badge-danger";
-            
+
             const lastUpdated = new Date(rec.updated_at).toLocaleString();
-            
+
             let deleteBtnHtml = "";
             if (this.role === "Admin") {
                 deleteBtnHtml = `
@@ -3551,7 +3553,7 @@ class CopyrightDefenderApp {
                     </button>
                 `;
             }
-            
+
             tr.innerHTML = `
                 <td style="font-weight: 600; color: var(--accent);" data-label="Verification ID">#${rec.id}</td>
                 <td style="color: white; font-weight: 500;" data-label="Case Name">${rec.case_name}</td>
@@ -3573,7 +3575,7 @@ class CopyrightDefenderApp {
                     </div>
                 </td>
             `;
-            
+
             // Click to load details
             tr.querySelector(".btn-table-view").addEventListener("click", (e) => {
                 e.stopPropagation();
@@ -3594,7 +3596,7 @@ class CopyrightDefenderApp {
                 });
             }
             tr.addEventListener("click", () => this.showVerificationDetails(rec));
-            
+
             this.verifyTableBody.appendChild(tr);
         });
     }
@@ -3602,12 +3604,12 @@ class CopyrightDefenderApp {
     showVerificationDetails(rec) {
         this.activeVerificationRecord = rec;
         if (!this.verifyDetailPanel) return;
-        
+
         this.verifyDetailPanel.style.display = "block";
         if (this.verifyDetailCaseTitle) {
             this.verifyDetailCaseTitle.textContent = `Case #${rec.case_id}: ${rec.case_name} (Verification #${rec.id})`;
         }
-        
+
         // Metadata / Hash validation badges
         const metaEl = this.verifyDetailMetaVal;
         if (metaEl) {
@@ -3629,7 +3631,7 @@ class CopyrightDefenderApp {
                 metaEl.style.color = "var(--text-secondary)";
             }
         }
-        
+
         const hashEl = this.verifyDetailHashVal;
         if (hashEl) {
             hashEl.textContent = rec.hash_verification;
@@ -3650,12 +3652,12 @@ class CopyrightDefenderApp {
                 hashEl.style.color = "var(--text-secondary)";
             }
         }
-        
+
         // Evidence Summary text
         if (this.verifyDetailSummary) {
             this.verifyDetailSummary.textContent = rec.evidence_summary || "No verification summary entered by the reviewer yet.";
         }
-        
+
         // AI Metrics
         const scorePercent = Math.round(rec.ai_score * 100);
         if (this.verifyDetailAiScore) {
@@ -3680,7 +3682,7 @@ class CopyrightDefenderApp {
                 badge.style.color = "var(--text-secondary)";
             }
         }
-        
+
         // Populate Originals list
         if (this.verifyDetailOriginals) {
             this.verifyDetailOriginals.innerHTML = "";
@@ -3697,7 +3699,7 @@ class CopyrightDefenderApp {
                     row.style.alignItems = "center";
                     row.style.fontSize = "13px";
                     row.style.border = "1px solid var(--border-light)";
-                    
+
                     const sizeMb = (orig.filesize / (1024 * 1024)).toFixed(1);
                     row.innerHTML = `
                         <span style="color: white; font-weight: 500;"><i class="fa-solid fa-file-video" style="color: var(--accent); margin-right: 6px;"></i> ${orig.filename}</span>
@@ -3707,7 +3709,7 @@ class CopyrightDefenderApp {
                 });
             }
         }
-        
+
         // Populate Evidence Files list
         if (this.verifyDetailEvidence) {
             this.verifyDetailEvidence.innerHTML = "";
@@ -3724,11 +3726,11 @@ class CopyrightDefenderApp {
                     row.style.alignItems = "center";
                     row.style.fontSize = "13px";
                     row.style.border = "1px solid var(--border-light)";
-                    
+
                     const simPercent = Math.round(ev.similarity_score * 100);
                     let scoreClr = "var(--text-secondary)";
                     if (ev.similarity_score >= 0.8) scoreClr = "var(--color-success)";
-                    
+
                     row.innerHTML = `
                         <div style="display: flex; flex-direction: column;">
                             <span style="color: white; font-weight: 500;"><i class="fa-brands fa-youtube" style="color: red; margin-right: 6px;"></i> ${ev.title || ev.url}</span>
@@ -3740,7 +3742,7 @@ class CopyrightDefenderApp {
                 });
             }
         }
-        
+
         // Populate Notes Timeline
         if (this.verifyDetailNotesTimeline) {
             this.verifyDetailNotesTimeline.innerHTML = "";
@@ -3753,7 +3755,7 @@ class CopyrightDefenderApp {
                     block.style.padding = "12px";
                     block.style.borderRadius = "6px";
                     block.style.border = "1px solid var(--border-light)";
-                    
+
                     const stamp = new Date(n.created_at).toLocaleString();
                     block.innerHTML = `
                         <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-bottom: 6px;">
@@ -3795,7 +3797,7 @@ class CopyrightDefenderApp {
         e.preventDefault();
         const id = document.getElementById("verify-approve-record-id").value;
         const notes = document.getElementById("verify-approve-notes").value;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/verification/${id}`, {
                 method: "PUT",
@@ -3808,7 +3810,7 @@ class CopyrightDefenderApp {
                     reviewer_notes: notes || "Verification checked and approved by reviewer."
                 })
             });
-            
+
             if (res.ok) {
                 this.showToast("Verification case successfully approved and signed.", "success");
                 if (this.modalVerifyApprove) this.modalVerifyApprove.style.display = "none";
@@ -3826,7 +3828,7 @@ class CopyrightDefenderApp {
         e.preventDefault();
         const id = document.getElementById("verify-reject-record-id").value;
         const notes = document.getElementById("verify-reject-notes").value;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/verification/${id}`, {
                 method: "PUT",
@@ -3839,7 +3841,7 @@ class CopyrightDefenderApp {
                     reviewer_notes: notes
                 })
             });
-            
+
             if (res.ok) {
                 this.showToast("Verification case successfully rejected.", "warning");
                 if (this.modalVerifyReject) this.modalVerifyReject.style.display = "none";
@@ -3857,7 +3859,7 @@ class CopyrightDefenderApp {
         e.preventDefault();
         const id = document.getElementById("verify-note-record-id").value;
         const notes = document.getElementById("verify-note-text").value;
-        
+
         try {
             const res = await this.authFetch(`/api/v1/verification/${id}`, {
                 method: "PUT",
@@ -3866,11 +3868,11 @@ class CopyrightDefenderApp {
                     reviewer_notes: notes
                 })
             });
-            
+
             if (res.ok) {
                 this.showToast("Reviewer note added to timeline.", "success");
                 if (this.modalVerifyAddNote) this.modalVerifyAddNote.style.display = "none";
-                
+
                 // Reload verification detail view specifically
                 const refreshRes = await this.authFetch("/api/v1/verification");
                 if (refreshRes.ok) {

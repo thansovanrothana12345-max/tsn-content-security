@@ -1344,7 +1344,7 @@ textarea.form-input {
 }
 
 /* Laptop & Tablet Layout Breakpoint (iPad Pro Landscape & Desktop Collapsible Sidebar) */
-@media (max-width: 1366px) {
+@media (max-width: 1380px) {
 
     /* Enable Sidebar Toggle */
     .sidebar-toggle-btn {
@@ -1360,6 +1360,7 @@ textarea.form-input {
 
     .sidebar .brand-name-container,
     .sidebar .nav-item span,
+    .sidebar .menu-badge,
     .sidebar .premium-card,
     .sidebar .sidebar-footer {
         display: none !important;
@@ -1375,6 +1376,8 @@ textarea.form-input {
         justify-content: center;
         padding: 12px 0;
         margin: 4px 0;
+        min-height: 48px !important;
+        min-width: 48px;
     }
 
     .sidebar .nav-item i {
@@ -1392,6 +1395,7 @@ textarea.form-input {
 
     .sidebar.expanded .brand-name-container,
     .sidebar.expanded .nav-item span,
+    .sidebar.expanded .menu-badge,
     .sidebar.expanded .premium-card,
     .sidebar.expanded .sidebar-footer {
         display: block !important;
@@ -1420,153 +1424,63 @@ textarea.form-input {
     .panel {
         padding: 20px;
     }
-}
 
-/* Intermediate Tablet Breakpoints (iPad Air & Pro) */
-@media (max-width: 1180px) {
-    .container {
-        padding: 24px;
-    }
-    .stats-grid {
-        gap: 16px;
-    }
-}
-
-@media (max-width: 1112px) {
-    .container {
-        padding: 20px;
-    }
-    .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 12px;
-    }
-    .stat-card {
-        padding: 16px;
-    }
-    .stat-card .stat-info p {
-        font-size: 24px;
-    }
-}
-
-/* Mid-tablet / Stack screens breakpoint */
-@media (max-width: 992px) {
-    .dmca-split-view {
-        grid-template-columns: 1fr;
-        gap: 20px;
+    /* Touch Target Optimization: min 48px height */
+    button,
+    .btn,
+    select,
+    .form-control,
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="search"],
+    .scanner-input-box input,
+    .case-selector {
+        min-height: 48px !important;
+        min-width: 48px;
+        box-sizing: border-box;
     }
 
-    .dmca-editor-panel {
-        height: 500px;
-    }
-}
-
-/* Mobile & Tablet Drawer layout breakpoint (iPad Portrait & Mini size compatibility) */
-@media (max-width: 1024px) {
-    body {
-        overflow-x: hidden;
-    }
-
-    /* Sidebar becomes a sliding Drawer */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 300px;
-        transform: translateX(-100%);
-        z-index: 1001;
-        background: var(--bg-secondary);
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
-        border-radius: 0;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        padding: 24px 16px;
-        overflow-y: auto !important;
+    .btn-xs,
+    .btn-sm,
+    .btn-table-view,
+    .btn-table-verify,
+    .btn-table-delete {
+        min-height: 48px !important;
+        padding: 8px 16px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
-    /* Reveal text labels inside the sliding drawer on mobile */
-    .sidebar .brand-name-container,
-    .sidebar .nav-item span,
-    .sidebar .premium-card,
-    .sidebar .sidebar-footer {
-        display: block !important;
+    /* Active Touch Tap Feedback */
+    button:active,
+    .btn:active,
+    .nav-item:active,
+    .sidebar-toggle-btn:active,
+    .quick-scan-dropzone:active,
+    .upload-zone:active {
+        transform: scale(0.97) !important;
+        opacity: 0.85 !important;
+        transition: transform 0.1s ease !important;
     }
 
-    .sidebar .brand {
-        justify-content: flex-start;
-        padding: 0 8px;
-        margin-bottom: 36px;
-    }
-
-    .sidebar .nav-item {
-        justify-content: flex-start;
-        padding: 12px 16px;
-    }
-
-    .sidebar .nav-item i {
-        margin-right: 12px;
-        font-size: 15px;
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
-    }
-
-    /* Adaptive layout spacing */
-    header {
-        padding: 12px 16px;
-        height: auto;
-        min-height: 70px;
-        flex-wrap: wrap;
-        gap: 12px;
-        justify-content: space-between;
-    }
-
-    .header-actions {
-        width: 100%;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .header-actions>div:first-child {
-        margin-left: 0;
-    }
-
+    /* Header Spacing and Spacing Adaptations */
     .header-actions span {
-        display: none !important;
-        /* Hide 'Active Case:' text labels to save header room */
+        display: none !important; /* Hide 'Active Case:' text labels to save room */
     }
 
-    .header-user-profile .user-name {
-        display: none !important;
-        /* Hide user profile names on mobile headers */
+    .header-user-profile div[style*="text-align: left"] {
+        display: none !important; /* Hide user profile name and plan details */
     }
 
-    .filter-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filter-bar>div,
-    .filter-bar>select {
-        width: 100%;
-    }
-
-    /* Two-column dashboard widgets/details components stacking */
-    #view-verification div[style*="grid-template-columns: 1fr 1fr"] {
-        grid-template-columns: 1fr !important;
-        gap: 20px !important;
-    }
-
-    #evidence-preview-modal .modal-content>div[style*="grid-template-columns"] {
-        grid-template-columns: 1fr !important;
-        gap: 20px !important;
-    }
-
-    /* Table Horizontal Scroll support (standard layout instead of stacked cards) */
+    /* Table Horizontal Scroll support & Sticky Header */
     .table-responsive {
         width: 100% !important;
+        max-height: 500px !important;
+        overflow-y: auto !important;
         overflow-x: auto !important;
+        scroll-behavior: smooth !important;
         -webkit-overflow-scrolling: touch !important;
         margin-bottom: 16px;
     }
@@ -1611,7 +1525,7 @@ textarea.form-input {
         border-bottom: 2px solid var(--border-light) !important;
         white-space: nowrap !important;
     }
-
+    
     .enterprise-table td,
     .data-table td,
     .audit-table td {
@@ -1627,6 +1541,195 @@ textarea.form-input {
     .data-table td:last-child,
     .audit-table td:last-child {
         text-align: right !important;
+    }
+
+    /* Modal Keyboard Friendliness & Scrollability */
+    .modal, .modal-card {
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Upload Area optimization */
+    .upload-zone {
+        padding: 32px 20px !important;
+    }
+
+    .quick-scan-dropzone .btn {
+        min-height: 48px !important;
+        padding: 12px 24px !important;
+        font-size: 14px !important;
+    }
+
+    /* Form spacing adjustments */
+    .form-group {
+        margin-bottom: 24px !important;
+    }
+    .form-label {
+        font-size: 16px !important;
+        margin-bottom: 10px !important;
+    }
+}
+
+/* Intermediate Tablet Breakpoints (iPad Air & Pro) */
+@media (max-width: 1180px) {
+    .container {
+        padding: 24px;
+    }
+    .stats-grid {
+        gap: 16px;
+    }
+    /* Stack Detection Statistics legend vertically when panel is narrow */
+    .chart-panel div[style*="display: flex; align-items: center"] {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+    .chart-custom-legend {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 1112px) {
+    .container {
+        padding: 20px;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+    }
+    .stat-card {
+        padding: 16px;
+    }
+    .stat-card .stat-info p {
+        font-size: 24px;
+    }
+}
+
+/* Mid-tablet / Stack screens breakpoint */
+@media (max-width: 992px) {
+    .dmca-split-view {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .dmca-editor-panel {
+        height: 500px;
+    }
+}
+
+/* Mobile & Tablet Drawer layout breakpoint (iPad Portrait & Mini size compatibility) */
+@media (max-width: 1032px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Sidebar becomes a sliding Drawer */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 300px;
+        transform: translateX(-100%);
+        z-index: 1001;
+        background: var(--bg-secondary);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        border-radius: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 24px 16px;
+        overflow-y: auto !important;
+    }
+
+    /* Reveal text labels inside the sliding drawer on mobile */
+    .sidebar .brand-name-container,
+    .sidebar .nav-item span,
+    .sidebar .menu-badge,
+    .sidebar .premium-card,
+    .sidebar .sidebar-footer {
+        display: block !important;
+    }
+
+    .sidebar .brand {
+        justify-content: flex-start;
+        padding: 0 8px;
+        margin-bottom: 36px;
+    }
+
+    .sidebar .nav-item {
+        justify-content: flex-start;
+        padding: 12px 16px;
+        min-height: 48px !important;
+    }
+
+    .sidebar .nav-item i {
+        margin-right: 12px;
+        font-size: 15px;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Adaptive layout spacing */
+    header {
+        padding: 12px 16px;
+        height: auto;
+        min-height: 70px;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .header-actions>div:first-child {
+        margin-left: 0;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-bar>div,
+    .filter-bar>select {
+        width: 100%;
+    }
+
+    /* Two-column dashboard widgets/details components stacking */
+    #view-verification div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    #evidence-preview-modal .modal-content>div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+
+    /* Stack middle grid and bottom grid panels on portrait viewports */
+    .dashboard-middle-grid,
+    .dashboard-bottom-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Stack Quick Scan details */
+    .quick-scan-container {
+        flex-direction: column !important;
+        gap: 20px !important;
+        align-items: stretch !important;
+    }
+    .quick-scan-dropzone, 
+    .quick-scan-visual, 
+    .quick-scan-features {
+        max-width: 100% !important;
+        width: 100% !important;
+        flex: none !important;
     }
 }
 
@@ -1942,68 +2045,23 @@ textarea.form-input {
 }
 
 /* iPad and Tablet Touch UI and Typography Compliance */
-@media (max-width: 1024px) {
-    /* Touch Target Optimization: min 44px height */
-    button,
-    .btn,
-    .nav-item,
-    .sidebar-toggle-btn,
-    select,
-    .form-control,
+@media (max-width: 1032px) {
+    /* Enforce 16px Minimum Text Size only on inputs/selects/textareas on touch screens to prevent iOS zoom */
     input[type="text"],
     input[type="password"],
     input[type="email"],
     input[type="search"],
-    .scanner-input-box input {
-        min-height: 44px !important;
-        min-width: 44px;
-        box-sizing: border-box;
-    }
-
-    .btn-xs,
-    .btn-sm,
-    .btn-table-view,
-    .btn-table-verify,
-    .btn-table-delete {
-        min-height: 44px !important;
-        padding: 8px 16px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
-    /* Active Touch Tap Feedback */
-    button:active,
-    .btn:active,
-    .nav-item:active,
-    .sidebar-toggle-btn:active,
-    .quick-scan-dropzone:active {
-        transform: scale(0.97) !important;
-        opacity: 0.85 !important;
-        transition: transform 0.1s ease !important;
-    }
-
-    /* Enforce 16px Minimum Text Size globally on touch screens */
-    body,
-    p,
-    span,
-    div,
-    a,
-    button,
     select,
-    input,
-    td,
-    th,
-    .stat-sub,
-    .badge,
-    .sidebar-footer {
+    textarea,
+    .form-control,
+    .form-input,
+    .scanner-input-box input {
         font-size: 16px !important;
+    }
+
+    body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
-    }
-
-    h1, h2, h3, h4, h5, h6, .panel-title, .page-title {
-        font-size: max(18px, inherit) !important;
     }
 }
