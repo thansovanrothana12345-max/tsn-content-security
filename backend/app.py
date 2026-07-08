@@ -19,7 +19,7 @@ app = FastAPI(
 # Enable CORS restricted to localhost/loopback origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex="https?://(127\\.0\\.0\\.1|localhost)(:\\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
