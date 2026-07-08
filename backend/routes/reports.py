@@ -37,7 +37,7 @@ class NoticePDF(FPDF):
     def header(self):
         self.set_font("Helvetica", "B", 8)
         self.set_text_color(128, 128, 128)
-        self.cell(0, 10, "COPYRIGHT SECURITY - SYSTEM COMPLIANCE REPORT", ln=True, align="R")
+        self.cell(0, 10, "TSN COPYRIGHT DEFENDER - SYSTEM COMPLIANCE REPORT", ln=True, align="R")
         self.line(10, 18, 200, 18)
         self.ln(5)
         
