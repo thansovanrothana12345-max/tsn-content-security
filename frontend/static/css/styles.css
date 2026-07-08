@@ -94,9 +94,11 @@ body {
 }
 
 .brand-icon {
-    width: 42px;
-    height: 42px;
-    background: transparent;
+    width: 44px;
+    height: 44px;
+    background: rgba(24, 119, 242, 0.06);
+    border-radius: 10px;
+    border: 1.5px solid rgba(24, 119, 242, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -106,20 +108,6 @@ body {
 
 .brand:hover .brand-icon {
     transform: rotate(6deg) scale(1.05);
-}
-
-.brand-icon i.fa-shield-halved {
-    font-size: 38px;
-    color: #1877f2;
-}
-
-.brand-icon i.fa-copyright {
-    position: absolute;
-    font-size: 15px;
-    color: white;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -46%);
 }
 
 .brand-name-container {

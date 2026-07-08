@@ -2023,7 +2023,7 @@ class CopyrightDefenderApp {
                     div.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <div style="width: 32px; height: 32px; background: rgba(255, 145, 0, 0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #ff9100; font-size: 14px;">
-                                <i class="fa-solid fa-folder"></i>
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                             </div>
                             <div>
                                 <div style="font-weight: 600; color: white; font-size: 13px;">${caseTitle}</div>
