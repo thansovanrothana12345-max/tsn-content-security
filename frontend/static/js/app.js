@@ -256,9 +256,13 @@ class CopyrightDefenderApp {
         // Nav menu click
         this.navItems.forEach(item => {
             item.addEventListener("click", (e) => {
+                if (item.hasAttribute("onclick")) {
+                    e.preventDefault();
+                    return;
+                }
                 e.preventDefault();
                 const view = item.getAttribute("data-view");
-                this.switchView(view);
+                this.switchView(view, item);
                 if (window.innerWidth <= 1024) {
                     this.sidebar.classList.remove("open");
                     if (this.sidebarOverlay) this.sidebarOverlay.classList.remove("active");
@@ -861,15 +865,26 @@ class CopyrightDefenderApp {
         }
     }
 
-    switchView(viewName) {
+    switchView(viewName, clickedItem = null) {
         this.activeView = viewName;
         
         // Update tabs active state
         this.navItems.forEach(item => {
-            if (item.getAttribute("data-view") === viewName) {
-                item.classList.add("active");
+            if (clickedItem) {
+                if (item === clickedItem) {
+                    item.classList.add("active");
+                } else {
+                    item.classList.remove("active");
+                }
             } else {
-                item.classList.remove("active");
+                // Programmatic selection: match by data-view but prioritize standard views
+                const matchesView = item.getAttribute("data-view") === viewName;
+                const isStandardView = !item.hasAttribute("onclick");
+                if (matchesView && isStandardView) {
+                    item.classList.add("active");
+                } else {
+                    item.classList.remove("active");
+                }
             }
         });
         
