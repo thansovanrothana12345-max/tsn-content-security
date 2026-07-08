@@ -638,16 +638,32 @@ class CopyrightDefenderApp {
             this.notificationBellBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 if (this.notificationDropdown) {
-                    const visible = this.notificationDropdown.style.display === "block";
-                    this.notificationDropdown.style.display = visible ? "none" : "block";
-                    if (!visible) this.loadNotifications();
+                    const isActive = this.notificationDropdown.classList.contains("active");
+                    if (isActive) {
+                        this.notificationDropdown.classList.remove("active");
+                        setTimeout(() => {
+                            if (!this.notificationDropdown.classList.contains("active")) {
+                                this.notificationDropdown.style.display = "none";
+                            }
+                        }, 200);
+                    } else {
+                        this.notificationDropdown.style.display = "block";
+                        this.notificationDropdown.offsetHeight; // force repaint
+                        this.notificationDropdown.classList.add("active");
+                        this.loadNotifications();
+                    }
                 }
             });
         }
 
         document.addEventListener("click", () => {
             if (this.notificationDropdown) {
-                this.notificationDropdown.style.display = "none";
+                this.notificationDropdown.classList.remove("active");
+                setTimeout(() => {
+                    if (!this.notificationDropdown.classList.contains("active")) {
+                        this.notificationDropdown.style.display = "none";
+                    }
+                }, 200);
             }
         });
 
@@ -919,8 +935,10 @@ class CopyrightDefenderApp {
             if (clickedItem) {
                 if (item === clickedItem) {
                     item.classList.add("active");
+                    item.setAttribute("aria-current", "page");
                 } else {
                     item.classList.remove("active");
+                    item.removeAttribute("aria-current");
                 }
             } else {
                 // Programmatic selection: match by data-view but prioritize standard views
@@ -928,8 +946,10 @@ class CopyrightDefenderApp {
                 const isStandardView = !item.hasAttribute("onclick");
                 if (matchesView && isStandardView) {
                     item.classList.add("active");
+                    item.setAttribute("aria-current", "page");
                 } else {
                     item.classList.remove("active");
+                    item.removeAttribute("aria-current");
                 }
             }
         });
@@ -1212,6 +1232,7 @@ class CopyrightDefenderApp {
             this.casesTotalCount = allCases.length;
 
             if (this.activeView === "cases") {
+                this.showCasesTableSkeleton();
                 const queryParams = new URLSearchParams();
                 if (this.caseSearchInput && this.caseSearchInput.value.trim()) {
                     queryParams.append("q", this.caseSearchInput.value.trim());
@@ -2190,6 +2211,7 @@ class CopyrightDefenderApp {
 
         try {
             // Load evidence
+            this.showDashboardEvidenceSkeleton();
             const res = await this.authFetch(`/api/v1/evidence/${this.activeCaseId}`);
             const evidence = await res.json();
 
@@ -3376,7 +3398,7 @@ class CopyrightDefenderApp {
         if (this.activeView !== "security") return;
         if (!this.securityAuditTbody) return;
 
-        this.securityAuditTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 32px;"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--accent); margin-bottom: 8px; display: block;"></i> Loading audit trail...</td></tr>`;
+        this.showAuditTableSkeleton();
 
         const action = this.securityActionFilter ? this.securityActionFilter.value : "";
         const limit = this.securityAuditLimit;
@@ -3482,6 +3504,7 @@ class CopyrightDefenderApp {
             this.verifyDetailPanel.style.display = "none";
         }
         this.activeVerificationRecord = null;
+        this.showVerificationTableSkeleton();
 
         try {
             const res = await this.authFetch("/api/v1/verification");
@@ -3904,6 +3927,88 @@ class CopyrightDefenderApp {
         } catch (err) {
             this.showToast("Network error trying to delete verification record.", "danger");
         }
+    }
+
+    showCasesTableSkeleton() {
+        const tbody = document.getElementById("cases-table-body");
+        if (!tbody) return;
+        let skeletonHtml = "";
+        for (let i = 0; i < 5; i++) {
+            skeletonHtml += `
+                <tr>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 30px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 140px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 80px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 70px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 60px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 60px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 70px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 70px;"></div></td>
+                    <td style="padding: 14px 16px; text-align: center;"><div class="skeleton" style="height: 18px; width: 40px; margin: 0 auto;"></div></td>
+                    <td style="padding: 14px 16px; text-align: center;"><div class="skeleton" style="height: 18px; width: 40px; margin: 0 auto;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 60px;"></div></td>
+                    <td style="padding: 14px 16px; text-align: center;"><div class="skeleton" style="height: 24px; width: 120px; margin: 0 auto;"></div></td>
+                </tr>
+            `;
+        }
+        tbody.innerHTML = skeletonHtml;
+    }
+
+    showVerificationTableSkeleton() {
+        if (!this.verifyTableBody) return;
+        let skeletonHtml = "";
+        for (let i = 0; i < 5; i++) {
+            skeletonHtml += `
+                <tr>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 40px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 150px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 60px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 120px;"></div></td>
+                    <td style="padding: 14px 16px; text-align: center;"><div class="skeleton" style="height: 18px; width: 50px; margin: 0 auto;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 120px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 60px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 120px;"></div></td>
+                    <td style="padding: 14px 16px; text-align: center;"><div class="skeleton" style="height: 24px; width: 80px; margin: 0 auto;"></div></td>
+                </tr>
+            `;
+        }
+        this.verifyTableBody.innerHTML = skeletonHtml;
+    }
+
+    showAuditTableSkeleton() {
+        if (!this.securityAuditTbody) return;
+        let skeletonHtml = "";
+        for (let i = 0; i < 5; i++) {
+            skeletonHtml += `
+                <tr>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 130px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 100px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 110px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 280px;"></div></td>
+                </tr>
+            `;
+        }
+        this.securityAuditTbody.innerHTML = skeletonHtml;
+    }
+
+    showDashboardEvidenceSkeleton() {
+        const recentList = document.getElementById("dashboard-recent-evidence");
+        if (!recentList) return;
+        let skeletonHtml = "";
+        for (let i = 0; i < 3; i++) {
+            skeletonHtml += `
+                <tr>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 40px; width: 60px; border-radius: 4px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 180px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 70px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 60px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 85px;"></div></td>
+                    <td style="padding: 14px 16px;"><div class="skeleton" style="height: 18px; width: 70px;"></div></td>
+                    <td style="padding: 14px 16px; text-align: center;"><div class="skeleton" style="height: 24px; width: 60px; margin: 0 auto;"></div></td>
+                </tr>
+            `;
+        }
+        recentList.innerHTML = skeletonHtml;
     }
 }
 

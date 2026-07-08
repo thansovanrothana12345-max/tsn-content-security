@@ -286,11 +286,14 @@ header {
     background-color: rgba(12, 15, 25, 0.6);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    height: 100%;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-6px);
+    border-color: var(--border-accent);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Card-specific custom themes */
@@ -404,7 +407,7 @@ header {
     padding: 24px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.3);
     margin-bottom: 32px;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -658,15 +661,15 @@ header {
 
 /* Form Styling */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .form-label {
     display: block;
-    font-size: 18px;
+    font-size: 14px;
     color: var(--text-secondary);
     margin-bottom: 8px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .form-input {
@@ -674,12 +677,12 @@ header {
     background-color: var(--bg-primary);
     border: 1px solid var(--border-light);
     color: var(--text-primary);
-    padding: 14px 20px;
+    padding: 12px 16px;
     border-radius: var(--radius-md);
     outline: none;
-    font-size: 18px;
+    font-size: 15px;
     transition: var(--transition-fast);
-    min-height: 48px;
+    min-height: 44px;
 }
 
 .form-input:focus {
@@ -2064,4 +2067,131 @@ textarea.form-input {
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
     }
+}
+
+/* Accessibility Focus Ring Standards (Sprint 7) */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+.nav-item:focus-visible,
+.case-selector:focus-visible {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px !important;
+}
+
+/* Sticky Headers & Enhanced Table Formatting (Sprint 7) */
+.data-table th,
+.enterprise-table th,
+.audit-table th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+    background-color: #0b0e17 !important; /* solid opaque background matching panel cards */
+    border-bottom: 2px solid var(--border-light) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.data-table tbody tr,
+.enterprise-table tbody tr,
+.audit-table tbody tr {
+    transition: background-color var(--transition-fast) ease-out;
+}
+
+.data-table tbody tr:hover,
+.enterprise-table tbody tr:hover,
+.audit-table tbody tr:hover {
+    background-color: rgba(130, 84, 255, 0.04) !important;
+}
+
+.table-empty-state {
+    padding: 48px 24px !important;
+    text-align: center !important;
+    color: var(--text-secondary) !important;
+}
+
+.table-empty-state i {
+    font-size: 32px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: block;
+}
+
+/* Premium Skeleton Loaders (Sprint 7) */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-sm);
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.03) 20%,
+        rgba(255, 255, 255, 0.08) 60%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: skeleton-sweep 1.6s infinite;
+}
+
+@keyframes skeleton-sweep {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Notifications Bell Badge Pulse-Glow (Sprint 7) */
+.bell-badge {
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(255, 82, 82, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+    }
+}
+
+/* Dropdown Animation (Sprint 7) */
+#notification-dropdown {
+    transform: scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    transform-origin: top right;
+    transition: transform var(--transition-fast) ease-out, opacity var(--transition-fast) ease-out;
+}
+
+#notification-dropdown.active {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.notification-item {
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-light);
+    background: transparent;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.notification-item:hover {
+    background: rgba(130, 84, 255, 0.04) !important;
+    border-color: var(--border-accent);
 }
