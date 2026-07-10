@@ -854,6 +854,9 @@ class CopyrightDefenderApp {
         if (this.btnWFlag) {
             this.btnWFlag.addEventListener("click", () => this.saveWorkspaceReview("Flagged"));
         }
+
+        // Custom Profile avatar initialization
+        this.initProfileAvatarEvents();
     }
 
     switchWorkspaceTab(tab) {
@@ -1017,6 +1020,12 @@ class CopyrightDefenderApp {
         if (dropdownUsername) dropdownUsername.textContent = username;
         if (dropdownRole) dropdownRole.textContent = role;
 
+        const dropdownPreviewLetter = document.getElementById("dropdown-avatar-preview-letter");
+        if (dropdownPreviewLetter) dropdownPreviewLetter.textContent = username.substring(0, 1).toUpperCase();
+
+        // Update custom profile photo avatars
+        this.updateProfileAvatarUI();
+
         if (this.role === "Admin") {
             if (document.getElementById("panel-user-management")) {
                 document.getElementById("panel-user-management").style.display = "block";
@@ -1029,6 +1038,124 @@ class CopyrightDefenderApp {
 
         if (this.loginOverlay) {
             this.loginOverlay.classList.remove("active");
+        }
+    }
+
+    updateProfileAvatarUI() {
+        const savedPhoto = localStorage.getItem("profile_avatar_photo");
+
+        const headerLetter = document.getElementById("header-avatar-letter");
+        const headerImg = document.getElementById("header-avatar-img");
+
+        const sidebarLetter = document.getElementById("sidebar-user-avatar");
+        const sidebarWrapper = document.querySelector(".user-panel-avatar-wrapper");
+
+        const dropdownLetter = document.getElementById("dropdown-avatar-preview-letter");
+        const dropdownImg = document.getElementById("dropdown-avatar-preview-img");
+        const btnRemove = document.getElementById("btn-remove-avatar");
+
+        let sidebarImg = document.getElementById("sidebar-user-avatar-img");
+        if (!sidebarImg && sidebarWrapper) {
+            sidebarImg = document.createElement("img");
+            sidebarImg.id = "sidebar-user-avatar-img";
+            sidebarImg.style.cssText = "display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;";
+            sidebarWrapper.appendChild(sidebarImg);
+        }
+
+        if (savedPhoto) {
+            if (headerLetter) headerLetter.style.display = "none";
+            if (headerImg) {
+                headerImg.src = savedPhoto;
+                headerImg.style.display = "block";
+            }
+
+            if (sidebarLetter) sidebarLetter.style.display = "none";
+            if (sidebarImg) {
+                sidebarImg.src = savedPhoto;
+                sidebarImg.style.display = "block";
+            }
+
+            if (dropdownLetter) dropdownLetter.style.display = "none";
+            if (dropdownImg) {
+                dropdownImg.src = savedPhoto;
+                dropdownImg.style.display = "block";
+            }
+
+            if (btnRemove) btnRemove.style.display = "flex";
+        } else {
+            if (headerLetter) headerLetter.style.display = "flex";
+            if (headerImg) {
+                headerImg.removeAttribute("src");
+                headerImg.style.display = "none";
+            }
+
+            if (sidebarLetter) sidebarLetter.style.display = "flex";
+            if (sidebarImg) {
+                sidebarImg.removeAttribute("src");
+                sidebarImg.style.display = "none";
+            }
+
+            if (dropdownLetter) dropdownLetter.style.display = "flex";
+            if (dropdownImg) {
+                dropdownImg.removeAttribute("src");
+                dropdownImg.style.display = "none";
+            }
+
+            if (btnRemove) btnRemove.style.display = "none";
+        }
+    }
+
+    initProfileAvatarEvents() {
+        const btnUpload = document.getElementById("btn-upload-avatar");
+        const btnRemove = document.getElementById("btn-remove-avatar");
+        const fileInput = document.getElementById("avatar-file-input");
+        const avatarDropdown = document.getElementById("avatar-dropdown-panel");
+
+        if (avatarDropdown) {
+            avatarDropdown.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        if (btnUpload && fileInput) {
+            btnUpload.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInput.click();
+            });
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        this.showToast("Avatar image must be under 2MB.", "warning");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            localStorage.setItem("profile_avatar_photo", event.target.result);
+                            this.updateProfileAvatarUI();
+                            this.showToast("Profile photo updated successfully.", "success");
+                        } catch (err) {
+                            this.showToast("Failed to save profile photo.", "danger");
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (btnRemove) {
+            btnRemove.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                localStorage.removeItem("profile_avatar_photo");
+                this.updateProfileAvatarUI();
+                this.showToast("Profile photo removed.", "success");
+            });
         }
     }
 
@@ -1381,15 +1508,7 @@ class CopyrightDefenderApp {
 
                 list.forEach(item => {
                     const el = document.createElement("div");
-                    el.style.padding = "10px";
-                    el.style.borderRadius = "var(--radius-sm)";
-                    el.style.border = "1px solid var(--border-light)";
-                    el.style.background = item.is_read ? "transparent" : "rgba(130, 84, 255, 0.05)";
-                    el.style.cursor = "pointer";
-                    el.style.transition = "background 0.2s";
-                    el.style.display = "flex";
-                    el.style.flexDirection = "column";
-                    el.style.gap = "4px";
+                    el.className = "notification-item" + (item.is_read ? " read" : " unread");
 
                     const header = document.createElement("div");
                     header.style.display = "flex";
@@ -1397,25 +1516,18 @@ class CopyrightDefenderApp {
                     header.style.alignItems = "center";
 
                     const title = document.createElement("span");
-                    title.style.fontWeight = item.is_read ? "600" : "800";
-                    title.style.fontSize = "12px";
-                    title.style.color = item.is_read ? "var(--text-secondary)" : "white";
+                    title.className = "notification-title";
                     title.textContent = item.title;
                     header.appendChild(title);
 
                     if (!item.is_read) {
                         const dot = document.createElement("span");
-                        dot.style.width = "6px";
-                        dot.style.height = "6px";
-                        dot.style.background = "var(--accent)";
-                        dot.style.borderRadius = "50%";
+                        dot.className = "notification-unread-dot";
                         header.appendChild(dot);
                     }
 
                     const msg = document.createElement("span");
-                    msg.style.fontSize = "11px";
-                    msg.style.color = item.is_read ? "var(--text-muted)" : "var(--text-secondary)";
-                    msg.style.lineHeight = "1.3";
+                    msg.className = "notification-message";
                     msg.textContent = item.message;
 
                     el.appendChild(header);
@@ -2583,7 +2695,7 @@ class CopyrightDefenderApp {
                         <td style="padding: 12px 8px;"><span class="badge ${statusBadgeClass}">${caseStatus}</span></td>
                         <td style="padding: 12px 8px; color: var(--text-secondary);">${updatedDate}</td>
                         <td style="padding: 12px 8px; text-align: right;">
-                            <button class="btn btn-secondary btn-sm" style="min-height: 28px; padding: 4px 10px; font-size: 11px;">View</button>
+                            <button class="btn btn-action-view">View</button>
                         </td>
                     `;
                     recentCasesList.appendChild(row);
@@ -3228,13 +3340,13 @@ class CopyrightDefenderApp {
                 <div style="font-size: 10px; color: var(--text-secondary); margin-top: 1px;">${timeStr || "10:30 AM"}</div>
             </td>
             <td style="padding: 12px 8px; vertical-align: middle;">
-                <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-success); font-weight: 600;">
-                    <span style="width: 6px; height: 6px; background: var(--color-success); border-radius: 50%;"></span>
+                <span class="status-pill active">
+                    <span class="pulse-dot"></span>
                     Active
                 </span>
             </td>
             <td style="padding: 12px 8px; vertical-align: middle; text-align: right;">
-                <button class="btn btn-secondary btn-xs" style="padding: 4px 8px; min-width: 28px; height: 28px; border-radius: 6px; background: #F3F4F6; border: 1px solid var(--border-light); font-size: 11px; color: var(--text-primary);" onclick="app.switchDMCAEvidence(${ev.id})" title="View Details">
+                <button class="btn btn-action-view" onclick="app.switchDMCAEvidence(${ev.id})" title="View Details">
                     View
                 </button>
             </td>

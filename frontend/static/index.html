@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
     <!-- Sidebar Navigation -->
@@ -20,80 +22,166 @@
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
             <div class="brand-name-container">
-                <span class="brand-name">TSN Copyright</span>
+                <span class="brand-name">TSN Copyright<svg class="verify-tick" viewBox="0 0 24 24" width="16"
+                        height="16"
+                        style="display: inline-block; vertical-align: middle; margin-left: 6px; fill: #1877F2; flex-shrink: 0;"
+                        aria-hidden="true">
+                        <path
+                            d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.99-3.818-3.99-.48 0-.94.1-1.348.27C14.825 2.515 13.512 1.5 12 1.5s-2.825 1.015-3.422 2.28c-.408-.17-.868-.27-1.348-.27-2.108 0-3.818 1.78-3.818 3.99 0 .495.084.965.238 1.4-1.273.65-2.148 2.02-2.148 3.6 0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.71 3.99 3.818 3.99.48 0 .94-.1 1.348-.27.597 1.265 1.91 2.28 3.422 2.28s2.825-1.015 3.422-2.28c.408.17.868.27 1.348.27 2.108 0 3.818-1.78 3.818-3.99 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.72 4.13-3.9-3.89 1.4-1.4 2.5 2.49 6.29-6.27 1.4 1.41-7.69 7.66z"
+                            fill="#1877F2"></path>
+                    </svg></span>
                 <span class="brand-subname">Defender</span>
             </div>
         </div>
-        
+
         <nav class="nav-menu">
             <a href="#" class="nav-item active" data-view="dashboard">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <rect x="3" y="3" width="7" height="9"></rect>
+                    <rect x="14" y="3" width="7" height="5"></rect>
+                    <rect x="14" y="12" width="7" height="9"></rect>
+                    <rect x="3" y="16" width="7" height="5"></rect>
+                </svg>
                 <span>Dashboard</span>
             </a>
             <a href="#" class="nav-item" data-view="scanner">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
                 <span>Scan Videos</span>
             </a>
             <a href="#" class="nav-item" data-view="verification">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
                 <span>Detected Ads</span>
-                <span class="menu-badge" style="margin-left: auto; background: var(--color-danger); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700;">23</span>
+                <span class="menu-badge"
+                    style="margin-left: auto; background: var(--color-danger); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700;">23</span>
             </a>
             <a href="#" class="nav-item" data-view="cases">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
                 <span>Cases</span>
             </a>
             <a href="#" class="nav-item" data-view="library">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="22"></line>
+                </svg>
                 <span>Evidence</span>
             </a>
             <a href="#" class="nav-item" data-view="reports">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
                 <span>Reports</span>
             </a>
-            <a href="#" class="nav-item" data-view="reports" onclick="app.showToast('DMCA Templates feature coming soon in Enterprise tier.', 'info')">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <a href="#" class="nav-item" data-view="reports"
+                onclick="app.showToast('DMCA Templates feature coming soon in Enterprise tier.', 'info')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
                 <span>DMCA Templates</span>
             </a>
             <a href="#" class="nav-item" data-view="security">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
                 <span>Accounts</span>
             </a>
             <a href="#" class="nav-item" data-view="settings" onclick="app.showToast('No new notifications.', 'info')">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
                 <span>Notifications</span>
-                <span class="menu-badge" style="margin-left: auto; background: var(--color-info); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700;">12</span>
+                <span class="menu-badge"
+                    style="margin-left: auto; background: var(--color-info); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700;">12</span>
             </a>
             <a href="#" class="nav-item" data-view="settings">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
                 <span>Settings</span>
             </a>
-            <a href="#" class="nav-item" data-view="settings" onclick="app.showToast('Opening Help Center documentation...', 'info')">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px; width: 18px; height: 18px;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <a href="#" class="nav-item" data-view="settings"
+                onclick="app.showToast('Opening Help Center documentation...', 'info')">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
                 <span>Help Center</span>
             </a>
         </nav>
 
         <!-- Premium Plan Card -->
-        <div class="premium-card" style="background: linear-gradient(135deg, rgba(24, 119, 242, 0.08) 0%, rgba(130, 84, 255, 0.03) 100%); border: 1px solid var(--border-accent); border-radius: var(--radius-lg); padding: 20px 16px; margin: 24px 8px; text-align: left; position: relative;">
-            <div class="premium-card-icon" style="width: 32px; height: 32px; background: rgba(24, 119, 242, 0.06); border-radius: 8px; border: 1.5px solid rgba(24, 119, 242, 0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+        <div class="premium-card"
+            style="background: linear-gradient(135deg, rgba(24, 119, 242, 0.08) 0%, rgba(130, 84, 255, 0.03) 100%); border: 1px solid var(--border-accent); border-radius: var(--radius-lg); padding: 20px 16px; margin: 24px 8px; text-align: left; position: relative;">
+            <div class="premium-card-icon"
+                style="width: 32px; height: 32px; background: rgba(24, 119, 242, 0.06); border-radius: 8px; border: 1.5px solid rgba(24, 119, 242, 0.25); display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    style="display: block;">
                     <defs>
                         <linearGradient id="premium-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stop-color="#ffffff" />
                             <stop offset="100%" stop-color="#247cf2" />
                         </linearGradient>
                     </defs>
-                    <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3z" fill="url(#premium-logo-gradient)" />
+                    <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3z"
+                        fill="url(#premium-logo-gradient)" />
                     <circle cx="12" cy="12" r="5.5" fill="#030509" />
-                    <text x="12" y="15" font-family="'Inter', sans-serif" font-size="8.5" font-weight="900" fill="url(#premium-logo-gradient)" text-anchor="middle">C</text>
+                    <text x="12" y="15" font-family="'Inter', sans-serif" font-size="8.5" font-weight="900"
+                        fill="url(#premium-logo-gradient)" text-anchor="middle">C</text>
                 </svg>
             </div>
-            <h4 class="premium-card-title" style="font-size: 14px; font-weight: 700; color: white; margin-bottom: 6px;">Premium Plan</h4>
-            <p class="premium-card-desc" style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">Unlock all features and protect your content better.</p>
-            <button class="btn btn-primary btn-sm premium-card-btn" style="width: 100%; justify-content: center; font-weight: 600;" onclick="app.showToast('Premium upgrade workflow started!', 'success')">Upgrade Now</button>
+            <h4 class="premium-card-title" style="font-size: 14px; font-weight: 700; color: white; margin-bottom: 6px;">
+                Premium Plan</h4>
+            <p class="premium-card-desc"
+                style="font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">Unlock all
+                features and protect your content better.</p>
+            <button class="btn btn-primary btn-sm premium-card-btn"
+                style="width: 100%; justify-content: center; font-weight: 600;"
+                onclick="app.showToast('Premium upgrade workflow started!', 'success')">Upgrade Now</button>
         </div>
-        
+
         <div class="sidebar-footer">
             <div id="sidebar-user-panel" class="user-account-panel" style="display: none;">
                 <div class="user-panel-info">
@@ -108,7 +196,8 @@
                     </div>
                 </div>
                 <div class="user-panel-actions">
-                    <button type="button" class="panel-action-btn" id="btn-sidebar-profile" onclick="app.switchView('settings')" title="My Profile">
+                    <button type="button" class="panel-action-btn" id="btn-sidebar-profile"
+                        onclick="app.switchView('settings')" title="My Profile">
                         <i class="fa-solid fa-user-gear"></i>
                         <span>My Profile</span>
                     </button>
@@ -118,7 +207,8 @@
                     </button>
                 </div>
             </div>
-            <p style="margin-top: 12px; font-size: 10px; color: var(--text-muted);">© 2026 Copyright Security.<br>All rights reserved.</p>
+            <p style="margin-top: 12px; font-size: 10px; color: var(--text-muted);">© 2026 Copyright Security.<br>All
+                rights reserved.</p>
         </div>
     </aside>
 
@@ -132,7 +222,8 @@
                 </button>
                 <div class="header-title-group">
                     <div class="page-title" id="page-current-title">Dashboard Overview</div>
-                    <div class="page-subtitle" id="page-current-subtitle">Monitor and manage copyright protection in real time.</div>
+                    <div class="page-subtitle" id="page-current-subtitle">Monitor and manage copyright protection in
+                        real time.</div>
                 </div>
             </div>
             <div class="header-toolbar">
@@ -157,47 +248,72 @@
                 <div class="toolbar-item header-notification-bell" id="notification-bell-btn">
                     <i class="fa-solid fa-bell"></i>
                     <span class="bell-badge" id="notification-badge" style="display: none;">0</span>
-                    
+
                     <!-- Dropdown Panel -->
-                    <div id="notification-dropdown" class="panel" style="display: none; position: absolute; top: 54px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; z-index: 100; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); text-align: left;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; margin-bottom: 8px;">
+                    <div id="notification-dropdown" class="panel"
+                        style="display: none; position: absolute; top: 54px; right: 0; width: 320px; max-height: 400px; overflow-y: auto; z-index: 100; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); text-align: left;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px; margin-bottom: 8px;">
                             <h4 style="margin: 0; color: var(--text-primary); font-size: 14px;">Notifications</h4>
-                            <span id="mark-all-read-btn" style="font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600;">Mark all read</span>
+                            <span id="mark-all-read-btn"
+                                style="font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600;">Mark
+                                all read</span>
                         </div>
                         <div id="notification-list" style="display: flex; flex-direction: column; gap: 8px;">
                             <!-- Dynamically loaded notifications -->
-                            <div style="text-align: center; color: var(--text-secondary); padding: 16px; font-size: 12px;">No new notifications</div>
+                            <div
+                                style="text-align: center; color: var(--text-secondary); padding: 16px; font-size: 12px;">
+                                No new notifications</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- User profile avatar wrapper dropdown -->
-                <div class="header-user-avatar-wrapper" id="header-user-avatar-btn">
-                    <div class="header-avatar-circle">
+                <div class="header-user-avatar-wrapper" id="header-user-avatar-btn" aria-label="User profile menu"
+                    aria-haspopup="true">
+                    <div class="header-avatar-circle" id="header-avatar-circle">
                         <span id="header-avatar-letter">T</span>
+                        <img id="header-avatar-img" src="" alt="User Avatar"
+                            style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
                         <span class="avatar-status-dot"></span>
                     </div>
                     <!-- Dropdown Menu -->
-                    <div class="avatar-dropdown-menu" id="avatar-dropdown-panel">
+                    <div class="avatar-dropdown-menu" id="avatar-dropdown-panel" role="menu">
                         <div class="avatar-dropdown-header">
-                            <div class="dropdown-user-name" id="dropdown-username">Thansovanrothana</div>
-                            <div class="dropdown-user-role" id="dropdown-role">Administrator</div>
+                            <div class="dropdown-profile-edit">
+                                <div class="dropdown-avatar-preview-circle">
+                                    <span id="dropdown-avatar-preview-letter">T</span>
+                                    <img id="dropdown-avatar-preview-img" src="" alt="Avatar Preview"
+                                        style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                                </div>
+                                <div class="dropdown-avatar-actions">
+                                    <button type="button" class="avatar-edit-btn" id="btn-upload-avatar"
+                                        title="Upload Photo">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </button>
+                                    <button type="button" class="avatar-edit-btn btn-danger" id="btn-remove-avatar"
+                                        title="Remove Photo" style="display: none;">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                    <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
+                                </div>
+                            </div>
+                            <div class="dropdown-user-details">
+                                <div class="dropdown-user-name" id="dropdown-username">Thansovanrothana</div>
+                                <div class="dropdown-user-role" id="dropdown-role">Administrator</div>
+                            </div>
                         </div>
                         <div class="avatar-dropdown-divider"></div>
-                        <a href="#" class="avatar-dropdown-item" onclick="app.switchView('settings')">
+                        <a href="#" class="avatar-dropdown-item" onclick="app.switchView('settings')" role="menuitem">
                             <i class="fa-solid fa-user"></i>
-                            <span>My Profile</span>
+                            <span>Profile</span>
                         </a>
-                        <a href="#" class="avatar-dropdown-item" onclick="app.switchView('settings')">
-                            <i class="fa-solid fa-gears"></i>
-                            <span>Account Settings</span>
-                        </a>
-                        <a href="#" class="avatar-dropdown-item" onclick="app.switchView('settings')">
-                            <i class="fa-solid fa-sliders"></i>
-                            <span>Preferences</span>
+                        <a href="#" class="avatar-dropdown-item" onclick="app.switchView('settings')" role="menuitem">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Settings</span>
                         </a>
                         <div class="avatar-dropdown-divider"></div>
-                        <a href="#" class="avatar-dropdown-item logout-item" id="btn-header-logout">
+                        <a href="#" class="avatar-dropdown-item logout-item" id="btn-header-logout" role="menuitem">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
                             <span>Logout</span>
                         </a>
@@ -226,7 +342,8 @@
                 <div class="stats-grid">
                     <!-- Total Videos -->
                     <div class="stat-card">
-                        <div class="stat-icon-wrapper" style="background: linear-gradient(135deg, rgba(79, 124, 255, 0.1) 0%, rgba(109, 94, 247, 0.1) 100%); color: var(--accent);">
+                        <div class="stat-icon-wrapper"
+                            style="background: linear-gradient(135deg, rgba(79, 124, 255, 0.1) 0%, rgba(109, 94, 247, 0.1) 100%); color: var(--accent);">
                             <i class="fa-solid fa-video"></i>
                         </div>
                         <div class="stat-info">
@@ -240,7 +357,8 @@
                     </div>
                     <!-- Detected Ads -->
                     <div class="stat-card">
-                        <div class="stat-icon-wrapper" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%); color: var(--color-danger);">
+                        <div class="stat-icon-wrapper"
+                            style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%); color: var(--color-danger);">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
                         <div class="stat-info">
@@ -254,7 +372,8 @@
                     </div>
                     <!-- Active Cases -->
                     <div class="stat-card">
-                        <div class="stat-icon-wrapper" style="background: linear-gradient(135deg, rgba(109, 94, 247, 0.1) 0%, rgba(79, 124, 255, 0.1) 100%); color: var(--color-info);">
+                        <div class="stat-icon-wrapper"
+                            style="background: linear-gradient(135deg, rgba(109, 94, 247, 0.1) 0%, rgba(79, 124, 255, 0.1) 100%); color: var(--color-info);">
                             <i class="fa-solid fa-folder-open"></i>
                         </div>
                         <div class="stat-info">
@@ -268,7 +387,8 @@
                     </div>
                     <!-- Reports Generated -->
                     <div class="stat-card">
-                        <div class="stat-icon-wrapper" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(109, 94, 247, 0.1) 100%); color: var(--color-success);">
+                        <div class="stat-icon-wrapper"
+                            style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(109, 94, 247, 0.1) 100%); color: var(--color-success);">
                             <i class="fa-solid fa-file-signature"></i>
                         </div>
                         <div class="stat-info">
@@ -283,49 +403,68 @@
                 </div>
 
                 <!-- Middle Section -->
-                <div class="dashboard-middle-grid" id="dashboard-charts-container" style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 24px; margin-bottom: 24px;">
+                <div class="dashboard-middle-grid" id="dashboard-charts-container"
+                    style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 24px;">
                     <!-- Left: Detection Statistics Donut Chart -->
-                    <div class="panel" style="display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
+                    <div class="panel"
+                        style="display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
                         <div>
-                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Detection Statistics</h3>
-                                <select style="background: transparent; border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; outline: none;">
+                            <div class="panel-header"
+                                style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                                <h3 class="panel-title"
+                                    style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Detection
+                                    Statistics</h3>
+                                <select
+                                    style="background: transparent; border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; outline: none;">
                                     <option>Last 30 Days</option>
                                 </select>
                             </div>
-                            
-                            <div style="display: flex; flex-direction: column; gap: 24px; align-items: center; justify-content: center; min-height: 280px; position: relative; width: 100%;">
-                                <div class="chart-canvas-container" style="width: 220px; height: 220px; position: relative; background: transparent; border: none; padding: 0;">
+
+                            <div
+                                style="display: flex; flex-direction: column; gap: 24px; align-items: center; justify-content: center; min-height: 320px; position: relative; width: 100%;">
+                                <div class="chart-canvas-container"
+                                    style="width: 260px; height: 260px; position: relative; background: transparent; border: none; padding: 0;">
                                     <canvas id="chart-platform-dist"></canvas>
-                                    <div style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px;">
-                                        <div style="font-size: 48px; font-weight: 800; color: var(--text-primary); line-height: 1;" id="donut-total-count-label">0</div>
-                                        <div style="font-size: 18px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">TOTAL</div>
+                                    <div
+                                        style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px;">
+                                        <div style="font-size: 54px; font-weight: 800; color: var(--text-primary); line-height: 1;"
+                                            id="donut-total-count-label">0</div>
+                                        <div
+                                            style="font-size: 14px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">
+                                            TOTAL</div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Legend Row -->
-                                <div class="chart-custom-legend" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; width: 100%; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-top: 16px; border-top: 1px solid var(--border-light); padding-top: 16px;">
+                                <div class="chart-custom-legend"
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; width: 100%; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-top: 20px; border-top: 1px solid var(--border-light); padding-top: 20px;">
                                     <!-- Dynamic content injected by app.js -->
                                 </div>
                             </div>
                         </div>
-                        
-                        <button class="btn btn-secondary btn-sm" onclick="app.switchView('scanner')" style="width: 100%; justify-content: center; font-size: 13px; padding: 10px; border-radius: var(--radius-sm); margin-top: 16px; font-weight: 600; background: #F3F4F6; border: 1px solid var(--border-light); color: var(--text-primary);">
+
+                        <button class="btn btn-action-view" onclick="app.switchView('scanner')"
+                            style="width: 100%; justify-content: center; margin-top: 20px;">
                             <i class="fa-solid fa-chart-line" style="margin-right: 6px;"></i> View Full Analytics
                         </button>
                     </div>
-                    
+
                     <!-- Right: Recent Detections table -->
                     <div class="panel" style="display: flex; flex-direction: column; margin-bottom: 0;">
-                        <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Recent Detections</h3>
-                            <button class="btn btn-secondary btn-sm" onclick="app.switchView('verification')" style="font-size: 12px; padding: 6px 12px; font-weight: 600; background: #F3F4F6; border: 1px solid var(--border-light); color: var(--text-primary);">View All Detections</button>
+                        <div class="panel-header"
+                            style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="panel-title"
+                                style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Recent Detections
+                            </h3>
+                            <button class="btn btn-action-view" onclick="app.switchView('verification')">View All Detections</button>
                         </div>
-                        
+
                         <div class="table-responsive" style="overflow-x: auto; flex: 1;">
-                            <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                            <table class="data-table"
+                                style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
                                 <thead>
-                                    <tr style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
+                                    <tr
+                                        style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
                                         <th style="padding: 10px 8px;">Platform</th>
                                         <th style="padding: 10px 8px;">Similarity Score</th>
                                         <th style="padding: 10px 8px;">First Seen</th>
@@ -335,7 +474,8 @@
                                 </thead>
                                 <tbody id="dashboard-recent-evidence">
                                     <tr>
-                                        <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                                        <td colspan="5"
+                                            style="text-align: center; padding: 30px; color: var(--text-secondary);">
                                             Select a case above to load recent detections.
                                         </td>
                                     </tr>
@@ -352,18 +492,23 @@
                 </div>
 
                 <!-- Bottom split dashboard area -->
-                <div class="dashboard-bottom-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px; align-items: start;">
+                <div class="dashboard-bottom-grid"
+                    style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
                     <!-- Left: Active Cases -->
                     <div class="panel" style="padding: 20px; margin-bottom: 0;">
-                        <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Active Cases</h3>
-                            <button class="btn btn-secondary btn-sm" onclick="app.switchView('cases')" style="font-size: 12px; padding: 6px 12px; font-weight: 600; background: #F3F4F6; border: 1px solid var(--border-light); color: var(--text-primary);">View All</button>
+                        <div class="panel-header"
+                            style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="panel-title"
+                                style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Active Cases</h3>
+                            <button class="btn btn-action-view" onclick="app.switchView('cases')">View All</button>
                         </div>
-                        
+
                         <div class="table-responsive" style="overflow-x: auto;">
-                            <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                            <table class="data-table"
+                                style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
                                 <thead>
-                                    <tr style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
+                                    <tr
+                                        style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
                                         <th style="padding: 10px 8px;">Case ID</th>
                                         <th style="padding: 10px 8px;">Case Name</th>
                                         <th style="padding: 10px 8px;">Status</th>
@@ -373,48 +518,75 @@
                                 </thead>
                                 <tbody id="dashboard-recent-cases-list">
                                     <tr>
-                                        <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-secondary);">Loading cases...</td>
+                                        <td colspan="5"
+                                            style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                                            Loading cases...</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    
+
                     <!-- Right: System Overview -->
                     <div class="panel" style="padding: 20px; margin-bottom: 0;">
                         <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
-                            <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);">System Overview</h3>
+                            <h3 class="panel-title"
+                                style="font-size: 16px; font-weight: 700; color: var(--text-primary);">System Overview
+                            </h3>
                         </div>
-                        
-                        <div class="system-overview-list" style="display: flex; flex-direction: column; gap: 14px; font-size: 13px;">
+
+                        <div class="system-overview-list"
+                            style="display: flex; flex-direction: column; gap: 14px; font-size: 13px;">
                             <!-- Storage -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-hard-drive" style="margin-right: 8px; color: var(--accent);"></i> Storage Usage</span>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                <span style="color: var(--text-secondary); font-weight: 500;"><i
+                                        class="fa-solid fa-hard-drive"
+                                        style="margin-right: 8px; color: var(--accent);"></i> Storage Usage</span>
                                 <strong id="metric-storage" style="color: var(--text-primary);">12.4 MB</strong>
                             </div>
                             <!-- Database Size -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-database" style="margin-right: 8px; color: var(--color-info);"></i> Database Size</span>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                <span style="color: var(--text-secondary); font-weight: 500;"><i
+                                        class="fa-solid fa-database"
+                                        style="margin-right: 8px; color: var(--color-info);"></i> Database Size</span>
                                 <strong id="metric-db-size" style="color: var(--text-primary);">4.8 MB</strong>
                             </div>
                             <!-- System Health -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-heart-pulse" style="margin-right: 8px; color: var(--color-success);"></i> System Health</span>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                <span style="color: var(--text-secondary); font-weight: 500;"><i
+                                        class="fa-solid fa-heart-pulse"
+                                        style="margin-right: 8px; color: var(--color-success);"></i> System
+                                    Health</span>
                                 <strong id="metric-health" style="color: var(--color-success);">Good</strong>
                             </div>
                             <!-- Average Response Time -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-gauge-high" style="margin-right: 8px; color: var(--color-warning);"></i> Avg Response Time</span>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                <span style="color: var(--text-secondary); font-weight: 500;"><i
+                                        class="fa-solid fa-gauge-high"
+                                        style="margin-right: 8px; color: var(--color-warning);"></i> Avg Response
+                                    Time</span>
                                 <strong id="metric-response-time" style="color: var(--text-primary);">124 ms</strong>
                             </div>
                             <!-- Worker Queue -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px; color: var(--color-info);"></i> Worker Queue</span>
-                                <strong id="metric-queue" style="color: var(--text-primary);">0 Active / 0 Queued</strong>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                <span style="color: var(--text-secondary); font-weight: 500;"><i
+                                        class="fa-solid fa-spinner fa-spin"
+                                        style="margin-right: 8px; color: var(--color-info);"></i> Worker Queue</span>
+                                <strong id="metric-queue" style="color: var(--text-primary);">0 Active / 0
+                                    Queued</strong>
                             </div>
                             <!-- Fingerprint Jobs -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-circle-check" style="margin-right: 8px; color: var(--color-success);"></i> Fingerprint Jobs</span>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
+                                <span style="color: var(--text-secondary); font-weight: 500;"><i
+                                        class="fa-solid fa-circle-check"
+                                        style="margin-right: 8px; color: var(--color-success);"></i> Fingerprint
+                                    Jobs</span>
                                 <strong id="metric-jobs" style="color: var(--text-primary);">12 Completed</strong>
                             </div>
                         </div>
@@ -431,12 +603,16 @@
                             <i class="fa-solid fa-plus"></i> Add New Case
                         </button>
                     </div>
-                    
+
                     <!-- Search, Filters, and Sorting Controls Bar -->
-                    <div class="filter-bar" style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; padding: 12px; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light);">
+                    <div class="filter-bar"
+                        style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; padding: 12px; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light);">
                         <div style="flex: 1; min-width: 200px; position: relative;">
-                            <input type="text" id="case-search-input" class="form-input" placeholder="Search by ID, title, client, platform, owner, or tags..." style="padding-left: 36px; margin-bottom: 0;">
-                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
+                            <input type="text" id="case-search-input" class="form-input"
+                                placeholder="Search by ID, title, client, platform, owner, or tags..."
+                                style="padding-left: 36px; margin-bottom: 0;">
+                            <i class="fa-solid fa-magnifying-glass"
+                                style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
                         </div>
                         <div style="min-width: 130px;">
                             <select id="case-filter-status" class="form-input" style="margin-bottom: 0;">
@@ -482,12 +658,15 @@
                             </select>
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">Date From:</span>
-                            <input type="date" id="case-filter-start-date" class="form-input" style="margin-bottom: 0; padding: 4px 8px; width: 120px;" title="Start Date">
+                            <span style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">Date
+                                From:</span>
+                            <input type="date" id="case-filter-start-date" class="form-input"
+                                style="margin-bottom: 0; padding: 4px 8px; width: 120px;" title="Start Date">
                         </div>
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <span style="font-size: 11px; color: var(--text-secondary); white-space: nowrap;">To:</span>
-                            <input type="date" id="case-filter-end-date" class="form-input" style="margin-bottom: 0; padding: 4px 8px; width: 120px;" title="End Date">
+                            <input type="date" id="case-filter-end-date" class="form-input"
+                                style="margin-bottom: 0; padding: 4px 8px; width: 120px;" title="End Date">
                         </div>
                         <div style="min-width: 130px;">
                             <select id="case-sort-by" class="form-input" style="margin-bottom: 0;">
@@ -504,11 +683,14 @@
 
                 <!-- Split Layout: List on Left, Details & Timeline on Right -->
                 <div class="enterprise-split-layout">
-                    <div class="panel" style="margin-bottom: 0; min-height: 500px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="panel"
+                        style="margin-bottom: 0; min-height: 500px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div class="table-responsive" style="overflow-x: auto; flex: 1;">
-                            <table class="enterprise-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; color: var(--text-primary);">
+                            <table class="enterprise-table"
+                                style="width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; color: var(--text-primary);">
                                 <thead>
-                                    <tr style="border-bottom: 2px solid var(--border-light); background: var(--bg-dark);">
+                                    <tr
+                                        style="border-bottom: 2px solid var(--border-light); background: var(--bg-dark);">
                                         <th style="padding: 10px 4px;">ID</th>
                                         <th style="padding: 10px 4px;">Case Name</th>
                                         <th style="padding: 10px 4px;">Owner</th>
@@ -529,12 +711,14 @@
                             </table>
                             <div id="cases-list-grid" style="display: none;"></div>
                         </div>
-                        
+
                         <!-- Pagination controls -->
-                        <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 6px 0 6px; border-top: 1px solid var(--border-light); margin-top: 12px;">
+                        <div class="pagination-container"
+                            style="display: flex; justify-content: space-between; align-items: center; padding: 12px 6px 0 6px; border-top: 1px solid var(--border-light); margin-top: 12px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span style="font-size: 11px; color: var(--text-secondary);">Show:</span>
-                                <select id="case-pagination-limit" class="form-input" style="width: 70px; margin-bottom: 0; padding: 4px 6px; height: auto; font-size: 11px; background: var(--bg-dark); border-color: var(--border-light); color: var(--text-primary);">
+                                <select id="case-pagination-limit" class="form-input"
+                                    style="width: 70px; margin-bottom: 0; padding: 4px 6px; height: auto; font-size: 11px; background: var(--bg-dark); border-color: var(--border-light); color: var(--text-primary);">
                                     <option value="10">10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
@@ -542,139 +726,201 @@
                                 </select>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <span id="case-pagination-info" style="font-size: 11px; color: var(--text-secondary);">0-0 of 0</span>
+                                <span id="case-pagination-info"
+                                    style="font-size: 11px; color: var(--text-secondary);">0-0 of 0</span>
                                 <div style="display: flex; gap: 4px;">
-                                    <button class="btn btn-secondary btn-sm" id="btn-case-page-prev" style="padding: 3px 6px; font-size: 11px;"><i class="fa-solid fa-chevron-left"></i></button>
-                                    <button class="btn btn-secondary btn-sm" id="btn-case-page-next" style="padding: 3px 6px; font-size: 11px;"><i class="fa-solid fa-chevron-right"></i></button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-case-page-prev"
+                                        style="padding: 3px 6px; font-size: 11px;"><i
+                                            class="fa-solid fa-chevron-left"></i></button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-case-page-next"
+                                        style="padding: 3px 6px; font-size: 11px;"><i
+                                            class="fa-solid fa-chevron-right"></i></button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Details & Timeline Panel -->
-                    <div class="panel" id="cases-details-panel" style="margin-bottom: 0; position: sticky; top: 20px; min-height: 500px;">
-                        <div id="case-details-empty-state" class="spinner-container" style="height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--text-secondary);">
-                             <i class="fa-solid fa-folder-open" style="font-size: 48px; margin-bottom: 16px; color: var(--border-light);"></i>
-                             <p>Select a case folder to view full details and chronological timeline activity history.</p>
+                    <div class="panel" id="cases-details-panel"
+                        style="margin-bottom: 0; position: sticky; top: 20px; min-height: 500px;">
+                        <div id="case-details-empty-state" class="spinner-container"
+                            style="height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--text-secondary);">
+                            <i class="fa-solid fa-folder-open"
+                                style="font-size: 48px; margin-bottom: 16px; color: var(--border-light);"></i>
+                            <p>Select a case folder to view full details and chronological timeline activity history.
+                            </p>
                         </div>
-                        
+
                         <div id="case-details-content" style="display: none;">
                             <!-- Header Info -->
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
                                 <div>
-                                    <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent);">Case ID: <span id="detail-case-id">N/A</span></span>
-                                    <h3 id="detail-case-title" class="panel-title" style="margin-top: 4px; font-size: 20px;">Case Folder Name</h3>
+                                    <span
+                                        style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent);">Case
+                                        ID: <span id="detail-case-id">N/A</span></span>
+                                    <h3 id="detail-case-title" class="panel-title"
+                                        style="margin-top: 4px; font-size: 20px;">Case Folder Name</h3>
                                 </div>
                                 <div style="display: flex; gap: 8px;">
-                                    <button class="btn btn-secondary btn-sm" id="btn-edit-case" style="padding: 6px 10px;">
+                                    <button class="btn btn-secondary btn-sm" id="btn-edit-case"
+                                        style="padding: 6px 10px;">
                                         <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
-                                    <button class="btn btn-danger btn-sm" id="btn-delete-case-action" style="padding: 6px 10px; background: #ea4335;">
+                                    <button class="btn btn-danger btn-sm" id="btn-delete-case-action"
+                                        style="padding: 6px 10px; background: #ea4335;">
                                         <i class="fa-solid fa-trash"></i> Delete
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <!-- Tabs Navigation -->
-                            <div class="tabs-nav" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); margin-bottom: 16px; padding-bottom: 8px;">
-                                <button class="btn btn-sm btn-secondary active" id="tab-btn-details" style="padding: 6px 12px; font-size: 12px;">Details & Activity</button>
-                                <button class="btn btn-sm btn-secondary" id="tab-btn-evidence" style="padding: 6px 12px; font-size: 12px;">Evidence Files</button>
+                            <div class="tabs-nav"
+                                style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); margin-bottom: 16px; padding-bottom: 8px;">
+                                <button class="btn btn-sm btn-secondary active" id="tab-btn-details"
+                                    style="padding: 6px 12px; font-size: 12px;">Details & Activity</button>
+                                <button class="btn btn-sm btn-secondary" id="tab-btn-evidence"
+                                    style="padding: 6px 12px; font-size: 12px;">Evidence Files</button>
                             </div>
-                            
+
                             <!-- Tab 1: Details & Activity Panel -->
                             <div id="panel-tab-details">
                                 <!-- Badges grid -->
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
-                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Client Name</span>
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                    <div
+                                        style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span
+                                            style="font-size: 11px; color: var(--text-secondary); display: block;">Client
+                                            Name</span>
                                         <strong id="detail-case-client" style="font-size: 13px;">Acme Corp</strong>
                                     </div>
-                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
-                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Platform</span>
-                                        <span id="detail-case-platform" class="badge badge-active" style="display: inline-block; margin-top: 4px;">YouTube</span>
+                                    <div
+                                        style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span
+                                            style="font-size: 11px; color: var(--text-secondary); display: block;">Platform</span>
+                                        <span id="detail-case-platform" class="badge badge-active"
+                                            style="display: inline-block; margin-top: 4px;">YouTube</span>
                                     </div>
-                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
-                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Priority</span>
-                                        <span id="detail-case-priority" class="badge" style="display: inline-block; margin-top: 4px;">High</span>
+                                    <div
+                                        style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span
+                                            style="font-size: 11px; color: var(--text-secondary); display: block;">Priority</span>
+                                        <span id="detail-case-priority" class="badge"
+                                            style="display: inline-block; margin-top: 4px;">High</span>
                                     </div>
-                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
-                                        <span style="font-size: 11px; color: var(--text-secondary); display: block;">Status</span>
-                                        <span id="detail-case-status" class="badge" style="display: inline-block; margin-top: 4px;">Active</span>
+                                    <div
+                                        style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light);">
+                                        <span
+                                            style="font-size: 11px; color: var(--text-secondary); display: block;">Status</span>
+                                        <span id="detail-case-status" class="badge"
+                                            style="display: inline-block; margin-top: 4px;">Active</span>
                                     </div>
-                                    <div style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); grid-column: span 2;">
-                                        <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Tags</span>
-                                        <div id="detail-case-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+                                    <div
+                                        style="background: var(--bg-dark); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-light); grid-column: span 2;">
+                                        <span
+                                            style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px;">Tags</span>
+                                        <div id="detail-case-tags" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                        </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Extra details -->
-                                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
-                                    <span style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 4px;">Description / Work Notes</span>
+                                <div
+                                    style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+                                    <span
+                                        style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 4px;">Description
+                                        / Work Notes</span>
                                     <p id="detail-case-description">No description notes available.</p>
                                 </div>
-                                
-                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; background: var(--bg-dark); padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;">
+
+                                <div
+                                    style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; background: var(--bg-dark); padding: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px;">
                                     <span>Owner: <strong id="detail-case-owner">Unknown</strong></span>
                                     <span>Date Created: <strong id="detail-case-created">N/A</strong></span>
                                 </div>
-                                
+
                                 <!-- Case Notes / Timeline Header -->
-                                <div style="border-top: 1px solid var(--border-light); padding-top: 16px; margin-top: 16px;">
-                                    <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent);"></i> Activity Timeline
+                                <div
+                                    style="border-top: 1px solid var(--border-light); padding-top: 16px; margin-top: 16px;">
+                                    <h4
+                                        style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent);"></i>
+                                        Activity Timeline
                                     </h4>
-                                    
+
                                     <!-- Add Note box -->
                                     <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                                        <input type="text" id="case-add-note-input" class="form-input" placeholder="Type a note to append to timeline..." style="margin-bottom: 0; font-size: 12px;">
-                                        <button class="btn btn-primary" id="btn-save-case-note" style="padding: 6px 12px; font-size: 12px;">Add</button>
+                                        <input type="text" id="case-add-note-input" class="form-input"
+                                            placeholder="Type a note to append to timeline..."
+                                            style="margin-bottom: 0; font-size: 12px;">
+                                        <button class="btn btn-primary" id="btn-save-case-note"
+                                            style="padding: 6px 12px; font-size: 12px;">Add</button>
                                     </div>
-                                    
+
                                     <!-- Timeline items list -->
-                                    <div id="case-timeline-container" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+                                    <div id="case-timeline-container"
+                                        style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
                                         <!-- Timeline components -->
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Tab 2: Evidence Files Panel -->
                             <div id="panel-tab-evidence" style="display: none;">
                                 <!-- Drag & Drop File Upload Region -->
-                                <div id="evidence-upload-zone" style="border: 2px dashed var(--border-light); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s; background: var(--bg-dark); margin-bottom: 16px;">
-                                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 32px; color: var(--accent); margin-bottom: 8px; display: block;"></i>
-                                    <span style="font-size: 12px; color: var(--text-primary); font-weight: 600; display: block;">Drag & drop evidence files here</span>
-                                    <span style="font-size: 11px; color: var(--text-secondary); display: block; margin-top: 4px;">Supports Images, Videos, Documents (Max 50MB)</span>
+                                <div id="evidence-upload-zone"
+                                    style="border: 2px dashed var(--border-light); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.2s; background: var(--bg-dark); margin-bottom: 16px;">
+                                    <i class="fa-solid fa-cloud-arrow-up"
+                                        style="font-size: 32px; color: var(--accent); margin-bottom: 8px; display: block;"></i>
+                                    <span
+                                        style="font-size: 12px; color: var(--text-primary); font-weight: 600; display: block;">Drag
+                                        & drop evidence files here</span>
+                                    <span
+                                        style="font-size: 11px; color: var(--text-secondary); display: block; margin-top: 4px;">Supports
+                                        Images, Videos, Documents (Max 50MB)</span>
                                     <input type="file" id="evidence-file-input" style="display: none;" multiple>
                                 </div>
-                                
+
                                 <!-- Search and Filters for Evidence -->
                                 <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                                    <input type="text" id="evidence-search-input" class="form-input" placeholder="Search files..." style="margin-bottom: 0; font-size: 11px; flex: 1; padding: 6px 8px;">
-                                    <select id="evidence-filter-type" class="form-input" style="margin-bottom: 0; font-size: 11px; width: 110px; padding: 6px;">
+                                    <input type="text" id="evidence-search-input" class="form-input"
+                                        placeholder="Search files..."
+                                        style="margin-bottom: 0; font-size: 11px; flex: 1; padding: 6px 8px;">
+                                    <select id="evidence-filter-type" class="form-input"
+                                        style="margin-bottom: 0; font-size: 11px; width: 110px; padding: 6px;">
                                         <option value="">All Types</option>
                                         <option value="image">Images</option>
                                         <option value="video">Videos</option>
                                         <option value="document">Documents</option>
                                         <option value="link">Links</option>
                                     </select>
-                                    <button class="btn btn-secondary btn-sm" id="btn-export-evidence-zip" title="Download all case evidence as ZIP" style="padding: 6px 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                                        <i class="fa-solid fa-file-zipper"></i> <span style="margin-left: 4px; font-size: 11px;">ZIP</span>
+                                    <button class="btn btn-secondary btn-sm" id="btn-export-evidence-zip"
+                                        title="Download all case evidence as ZIP"
+                                        style="padding: 6px 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa-solid fa-file-zipper"></i> <span
+                                            style="margin-left: 4px; font-size: 11px;">ZIP</span>
                                     </button>
                                 </div>
-                                
+
                                 <!-- File Uploading Progress Loader -->
-                                <div id="evidence-upload-progress" style="display: none; background: var(--bg-dark); border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px;">
+                                <div id="evidence-upload-progress"
+                                    style="display: none; background: var(--bg-dark); border: 1px solid var(--border-light); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 11px;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                                         <span>Uploading files...</span>
                                         <span id="evidence-upload-percent">0%</span>
                                     </div>
-                                    <div style="width: 100%; height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden;">
-                                        <div id="evidence-upload-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s;"></div>
+                                    <div
+                                        style="width: 100%; height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden;">
+                                        <div id="evidence-upload-fill"
+                                            style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s;">
+                                        </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Evidence files grid gallery -->
-                                <div id="evidence-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+                                <div id="evidence-gallery-grid"
+                                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
                                     <!-- Dynamic elements filled by JS -->
                                 </div>
                             </div>
@@ -685,8 +931,9 @@
 
             <!-- 2b. VERIFICATION CENTER VIEW -->
             <section id="view-verification" class="container view-pane" style="display: none;">
-                <p style="margin-top: -24px; margin-bottom: 24px; color: var(--text-secondary); font-size: 14px;">Verify copyright evidence before generating reports.</p>
-                
+                <p style="margin-top: -24px; margin-bottom: 24px; color: var(--text-secondary); font-size: 14px;">Verify
+                    copyright evidence before generating reports.</p>
+
                 <!-- Statistics Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -761,7 +1008,8 @@
 
                 <!-- Verification Detail Panel -->
                 <div class="panel" id="verification-detail-panel" style="display: none;">
-                    <div class="panel-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 16px; margin-bottom: 24px;">
+                    <div class="panel-header"
+                        style="border-bottom: 1px solid var(--border-light); padding-bottom: 16px; margin-bottom: 24px;">
                         <h2 class="panel-title" id="verify-detail-case-title">Case Verification Details</h2>
                         <div style="display: flex; gap: 12px;">
                             <button class="btn btn-success btn-sm" id="btn-verify-approve">
@@ -778,7 +1026,8 @@
                         <div>
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label class="form-label" style="font-weight: 600;">Evidence Summary</label>
-                                <div id="verify-detail-summary" style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.5; border: 1px solid var(--border-light);">
+                                <div id="verify-detail-summary"
+                                    style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.5; border: 1px solid var(--border-light);">
                                     No summary available.
                                 </div>
                             </div>
@@ -786,13 +1035,15 @@
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
                                 <div class="form-group">
                                     <label class="form-label" style="font-weight: 600;">Metadata Validation</label>
-                                    <div id="verify-detail-meta-val" style="padding: 8px 12px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <div id="verify-detail-meta-val"
+                                        style="padding: 8px 12px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
                                         Pending
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" style="font-weight: 600;">Hash Verification</label>
-                                    <div id="verify-detail-hash-val" style="padding: 8px 12px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <div id="verify-detail-hash-val"
+                                        style="padding: 8px 12px; border-radius: var(--radius-sm); font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
                                         Pending
                                     </div>
                                 </div>
@@ -800,14 +1051,16 @@
 
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label class="form-label" style="font-weight: 600;">Original Copyright Asset</label>
-                                <div id="verify-detail-originals" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div id="verify-detail-originals"
+                                    style="display: flex; flex-direction: column; gap: 8px;">
                                     <!-- List of originals -->
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label" style="font-weight: 600;">Evidence Files Under Scan</label>
-                                <div id="verify-detail-evidence" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;">
+                                <div id="verify-detail-evidence"
+                                    style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;">
                                     <!-- List of evidence -->
                                 </div>
                             </div>
@@ -817,25 +1070,32 @@
                         <div>
                             <div class="form-group" style="margin-bottom: 20px;">
                                 <label class="form-label" style="font-weight: 600;">AI Similarity Metrics</label>
-                                <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
+                                <div
+                                    style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
                                     <div>
-                                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Confidence Score</div>
-                                        <div style="font-size: 28px; font-weight: 700; color: white;" id="verify-detail-ai-score">0%</div>
+                                        <div
+                                            style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Confidence Score</div>
+                                        <div style="font-size: 28px; font-weight: 700; color: white;"
+                                            id="verify-detail-ai-score">0%</div>
                                     </div>
-                                    <div id="verify-detail-confidence-badge" style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">
+                                    <div id="verify-detail-confidence-badge"
+                                        style="padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">
                                         Medium Match
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group" style="margin-bottom: 20px;">
-                                <label class="form-label" style="font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+                                <label class="form-label"
+                                    style="font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
                                     Reviewer Activity & Audit Trail
                                     <button class="btn btn-secondary btn-xs" id="btn-verify-add-note">
                                         <i class="fa-solid fa-plus"></i> Add Note
                                     </button>
                                 </label>
-                                <div id="verify-detail-notes-timeline" style="display: flex; flex-direction: column; gap: 12px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
+                                <div id="verify-detail-notes-timeline"
+                                    style="display: flex; flex-direction: column; gap: 12px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
                                     <!-- Timeline notes -->
                                 </div>
                             </div>
@@ -851,7 +1111,7 @@
                         <h2 class="panel-title">Original Video Registry</h2>
                         <span id="library-case-badge" class="badge badge-info">No Active Case</span>
                     </div>
-                    
+
                     <!-- Drag and Drop Upload -->
                     <div class="upload-zone" id="original-upload-zone">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -859,21 +1119,28 @@
                         <p>Drag and drop MP4, MKV, or AVI file here, or click to browse</p>
                         <input type="file" id="original-file-input" style="display: none;" accept="video/*">
                     </div>
-                    
-                    <div class="upload-progress-container" id="upload-progress-bar-container" style="display: none; margin-top: 16px;">
-                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+
+                    <div class="upload-progress-container" id="upload-progress-bar-container"
+                        style="display: none; margin-top: 16px;">
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
                             <span>Uploading and Fingerprinting...</span>
                             <span id="upload-progress-percent">0%</span>
                         </div>
-                        <div style="width: 100%; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden;">
-                            <div id="upload-progress-fill" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s;"></div>
+                        <div
+                            style="width: 100%; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden;">
+                            <div id="upload-progress-fill"
+                                style="width: 0%; height: 100%; background: var(--accent); transition: width 0.1s;">
+                            </div>
                         </div>
                     </div>
 
                     <h3 style="margin: 32px 0 16px; font-size: 18px; color: white;">Fingerprinted Work Library</h3>
                     <div class="file-list" id="originals-file-list">
                         <!-- Dynamically listed original videos -->
-                        <div class="spinner-container"><p>Select an active case to list uploaded files.</p></div>
+                        <div class="spinner-container">
+                            <p>Select an active case to list uploaded files.</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -886,15 +1153,17 @@
                             <h2 class="panel-title">Scan Social Media URL for Infringements</h2>
                             <span id="scanner-case-badge" class="badge badge-info">No Active Case</span>
                         </div>
-                        
+
                         <div class="scanner-input-box">
-                            <input type="url" id="scanner-url-input" class="form-input" placeholder="Paste YouTube, TikTok, Facebook, or Instagram video URL...">
+                            <input type="url" id="scanner-url-input" class="form-input"
+                                placeholder="Paste YouTube, TikTok, Facebook, or Instagram video URL...">
                             <button class="btn btn-primary" id="btn-run-scan">
                                 <i class="fa-solid fa-magnifying-glass"></i> Scan URL
                             </button>
                         </div>
                         <p style="font-size: 13px; color: var(--text-secondary); margin-top: -12px;">
-                            * The scanner will inspect the link, read creator metadata, download a worst-resolution buffer, and check frame sequence similarity.
+                            * The scanner will inspect the link, read creator metadata, download a worst-resolution
+                            buffer, and check frame sequence similarity.
                         </p>
                     </div>
 
@@ -907,7 +1176,7 @@
                             <!-- Filled dynamically -->
                         </div>
                     </div>
-                    
+
                     <!-- Verified Case Matches list -->
                     <div class="panel">
                         <div class="panel-header">
@@ -915,7 +1184,9 @@
                         </div>
                         <div class="evidence-list" id="scanned-evidence-list">
                             <!-- Dynamically loaded evidence rows -->
-                            <div class="spinner-container"><p>Select a case to view scanned leaks.</p></div>
+                            <div class="spinner-container">
+                                <p>Select a case to view scanned leaks.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -928,12 +1199,14 @@
                         <h2 class="panel-title">DMCA Report notice generator</h2>
                         <span id="reports-case-badge" class="badge badge-info">No Active Case</span>
                     </div>
-                    
+
                     <div class="dmca-split-view">
                         <!-- Left Side: Select Evidence and Contact details -->
-                        <div class="panel" style="background: rgba(255,255,255,0.01); border-color: var(--border-light); margin: 0; padding: 20px;">
-                            <h3 style="font-size: 16px; color: white; margin-bottom: 16px;">Step 1: Notice Configuration</h3>
-                            
+                        <div class="panel"
+                            style="background: rgba(255,255,255,0.01); border-color: var(--border-light); margin: 0; padding: 20px;">
+                            <h3 style="font-size: 16px; color: white; margin-bottom: 16px;">Step 1: Notice Configuration
+                            </h3>
+
                             <form id="dmca-config-form">
                                 <div class="form-group">
                                     <label class="form-label">Target Infringement Match</label>
@@ -953,50 +1226,68 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Copyright Owner Legal Name</label>
-                                    <input type="text" id="dmca-owner-name" class="form-input" required placeholder="e.g. John Doe, Media Corp">
+                                    <input type="text" id="dmca-owner-name" class="form-input" required
+                                        placeholder="e.g. John Doe, Media Corp">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Authorized Sender Name</label>
-                                    <input type="text" id="dmca-sender-name" class="form-input" required placeholder="e.g. John Doe (Agent)">
+                                    <input type="text" id="dmca-sender-name" class="form-input" required
+                                        placeholder="e.g. John Doe (Agent)">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Sender Email Address</label>
-                                    <input type="email" id="dmca-sender-email" class="form-input" required placeholder="e.g. agent@company.com">
+                                    <input type="email" id="dmca-sender-email" class="form-input" required
+                                        placeholder="e.g. agent@company.com">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Sender Phone Number (Optional)</label>
-                                    <input type="tel" id="dmca-sender-phone" class="form-input" placeholder="e.g. +1 555 1234">
+                                    <input type="tel" id="dmca-sender-phone" class="form-input"
+                                        placeholder="e.g. +1 555 1234">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Sender Mailing Address (Optional)</label>
-                                    <textarea id="dmca-sender-address" class="form-input" rows="2" placeholder="Street Address, City, Country"></textarea>
+                                    <textarea id="dmca-sender-address" class="form-input" rows="2"
+                                        placeholder="Street Address, City, Country"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Draw Signature</label>
-                                    <div style="background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 8px;">
-                                        <canvas id="dmca-signature-canvas" width="300" height="100" style="background: white; border-radius: var(--radius-sm); cursor: crosshair; display: block; width: 100%; height: 100px;"></canvas>
+                                    <div
+                                        style="background: var(--bg-primary); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 8px;">
+                                        <canvas id="dmca-signature-canvas" width="300" height="100"
+                                            style="background: white; border-radius: var(--radius-sm); cursor: crosshair; display: block; width: 100%; height: 100px;"></canvas>
                                         <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-                                            <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-signature" style="padding: 4px 8px; font-size: 11px;">Clear Signature</button>
-                                            <span style="font-size: 11px; color: var(--text-secondary); align-self: center;">Draw with mouse or touch</span>
+                                            <button type="button" class="btn btn-secondary btn-sm"
+                                                id="btn-clear-signature"
+                                                style="padding: 4px 8px; font-size: 11px;">Clear Signature</button>
+                                            <span
+                                                style="font-size: 11px; color: var(--text-secondary); align-self: center;">Draw
+                                                with mouse or touch</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group" style="display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; margin-bottom: 16px;">
-                                    <input type="checkbox" id="dmca-declaration-check" required style="margin-top: 4px; cursor: pointer;">
-                                    <label class="form-label" style="font-size: 12px; cursor: pointer; user-select: none;" for="dmca-declaration-check">
-                                        I represent that the information in this notification is accurate, and under penalty of perjury, that I am authorized to act.
+                                <div class="form-group"
+                                    style="display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; margin-bottom: 16px;">
+                                    <input type="checkbox" id="dmca-declaration-check" required
+                                        style="margin-top: 4px; cursor: pointer;">
+                                    <label class="form-label"
+                                        style="font-size: 12px; cursor: pointer; user-select: none;"
+                                        for="dmca-declaration-check">
+                                        I represent that the information in this notification is accurate, and under
+                                        penalty of perjury, that I am authorized to act.
                                     </label>
                                 </div>
-                                
+
                                 <button type="submit" class="btn btn-primary" style="width: 100%;">
                                     <i class="fa-solid fa-gears"></i> Draft DMCA Notice
                                 </button>
                             </form>
                         </div>
-                        
+
                         <!-- Right Side: Draft Text Preview -->
-                        <div class="dmca-editor-panel panel" style="background: rgba(255,255,255,0.01); border-color: var(--border-light); margin: 0; padding: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div class="dmca-editor-panel panel"
+                            style="background: rgba(255,255,255,0.01); border-color: var(--border-light); margin: 0; padding: 20px;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                                 <h3 style="font-size: 16px; color: white;">Step 2: Legal Draft Preview</h3>
                                 <div style="display: flex; gap: 4px;">
                                     <button class="btn btn-secondary btn-sm" id="btn-copy-dmca" disabled>
@@ -1013,7 +1304,8 @@
                                     </button>
                                 </div>
                             </div>
-                            <textarea id="dmca-notice-output" class="dmca-textarea" readonly placeholder="Enter notice config details on the left and click 'Draft DMCA Notice' to preview legal text..."></textarea>
+                            <textarea id="dmca-notice-output" class="dmca-textarea" readonly
+                                placeholder="Enter notice config details on the left and click 'Draft DMCA Notice' to preview legal text..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -1023,9 +1315,12 @@
             <section id="view-security" class="container view-pane" style="display: none;">
                 <div class="panel">
                     <div class="panel-header">
-                        <h2 class="panel-title"><i class="fa-solid fa-user-shield" style="color: var(--accent); margin-right: 10px;"></i>System Audit Trail & Security Logs</h2>
+                        <h2 class="panel-title"><i class="fa-solid fa-user-shield"
+                                style="color: var(--accent); margin-right: 10px;"></i>System Audit Trail & Security Logs
+                        </h2>
                         <div style="display: flex; gap: 8px;">
-                            <select id="security-action-filter" class="case-selector" style="padding: 6px 12px; font-size: 13px;">
+                            <select id="security-action-filter" class="case-selector"
+                                style="padding: 6px 12px; font-size: 13px;">
                                 <option value="">-- All Actions --</option>
                                 <option value="LOGIN">LOGIN</option>
                                 <option value="LOGOUT">LOGOUT</option>
@@ -1040,14 +1335,17 @@
                                 <option value="CREATE_NOTE">CREATE_NOTE</option>
                                 <option value="CREATE_REPORT">CREATE_REPORT</option>
                             </select>
-                            <button class="btn btn-secondary btn-sm" id="btn-refresh-audit"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-refresh-audit"><i
+                                    class="fa-solid fa-arrows-rotate"></i> Refresh</button>
                         </div>
                     </div>
-                    
+
                     <div class="audit-log-container" style="overflow-x: auto; margin-top: 16px;">
-                        <table class="audit-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                        <table class="audit-table"
+                            style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
                             <thead>
-                                <tr style="border-bottom: 2px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
+                                <tr
+                                    style="border-bottom: 2px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
                                     <th style="padding: 12px 16px;">Timestamp</th>
                                     <th style="padding: 12px 16px;">Action</th>
                                     <th style="padding: 12px 16px;">Target</th>
@@ -1059,10 +1357,12 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <!-- Pagination Controls -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-light);">
-                        <span id="audit-pagination-info" style="font-size: 13px; color: var(--text-secondary);">Showing 0-0 entries</span>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+                        <span id="audit-pagination-info" style="font-size: 13px; color: var(--text-secondary);">Showing
+                            0-0 entries</span>
                         <div style="display: flex; gap: 8px;">
                             <button class="btn btn-secondary btn-sm" id="btn-audit-prev" disabled>Previous</button>
                             <button class="btn btn-secondary btn-sm" id="btn-audit-next" disabled>Next</button>
@@ -1088,24 +1388,29 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Default Representative Email</label>
-                            <input type="email" id="setting-email" class="form-input" placeholder="e.g. legal@acmestudios.com">
+                            <input type="email" id="setting-email" class="form-input"
+                                placeholder="e.g. legal@acmestudios.com">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Default Phone Number</label>
-                            <input type="tel" id="setting-phone" class="form-input" placeholder="e.g. +1 (555) 019-9011">
+                            <input type="tel" id="setting-phone" class="form-input"
+                                placeholder="e.g. +1 (555) 019-9011">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Default Mailing Address</label>
-                            <textarea id="setting-address" class="form-input" rows="3" placeholder="123 Creator Lane, Suite 100, Los Angeles, CA, 90210"></textarea>
+                            <textarea id="setting-address" class="form-input" rows="3"
+                                placeholder="123 Creator Lane, Suite 100, Los Angeles, CA, 90210"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Save Default Credentials</button>
                     </form>
                 </div>
 
                 <!-- USER REGISTRATION PANEL (Admin-Only) -->
-                <div class="panel" id="panel-user-management" style="max-width: 600px; margin: 24px auto 0; display: none;">
+                <div class="panel" id="panel-user-management"
+                    style="max-width: 600px; margin: 24px auto 0; display: none;">
                     <div class="panel-header">
-                        <h2 class="panel-title"><i class="fa-solid fa-users" style="color: var(--accent); margin-right: 8px;"></i>User Registration</h2>
+                        <h2 class="panel-title"><i class="fa-solid fa-users"
+                                style="color: var(--accent); margin-right: 8px;"></i>User Registration</h2>
                     </div>
                     <form id="user-registration-form">
                         <div class="form-group">
@@ -1114,12 +1419,14 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="reg-email">Email Address</label>
-                            <input type="email" id="reg-email" class="form-input" required placeholder="e.g. jsmith@company.com">
+                            <input type="email" id="reg-email" class="form-input" required
+                                placeholder="e.g. jsmith@company.com">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="reg-password">Password</label>
                             <div class="password-wrapper">
-                                <input type="password" id="reg-password" class="form-input" required placeholder="••••••••">
+                                <input type="password" id="reg-password" class="form-input" required
+                                    placeholder="••••••••">
                                 <button type="button" class="password-toggle-btn" aria-label="Show password">
                                     <i class="fa-solid fa-eye"></i>
                                 </button>
@@ -1151,15 +1458,19 @@
             </div>
             <form id="new-case-form">
                 <div class="form-group">
-                    <label class="form-label" for="case-title-input">Case Name <span style="color: var(--accent);">*</span></label>
-                    <input type="text" id="case-title-input" class="form-input" required placeholder="e.g. Summer Promo Campaign">
+                    <label class="form-label" for="case-title-input">Case Name <span
+                            style="color: var(--accent);">*</span></label>
+                    <input type="text" id="case-title-input" class="form-input" required
+                        placeholder="e.g. Summer Promo Campaign">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="case-client-input">Client Name <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="case-client-input">Client Name <span
+                            style="color: var(--accent);">*</span></label>
                     <input type="text" id="case-client-input" class="form-input" required placeholder="e.g. Acme Corp">
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="case-platform-input">Platform <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="case-platform-input">Platform <span
+                            style="color: var(--accent);">*</span></label>
                     <select id="case-platform-input" class="form-input" required>
                         <option value="YouTube">YouTube</option>
                         <option value="Facebook">Facebook</option>
@@ -1174,7 +1485,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="case-priority-input">Priority <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="case-priority-input">Priority <span
+                            style="color: var(--accent);">*</span></label>
                     <select id="case-priority-input" class="form-input" required>
                         <option value="Critical">Critical</option>
                         <option value="High">High</option>
@@ -1190,11 +1502,13 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="case-tags-input">Tags (comma-separated)</label>
-                    <input type="text" id="case-tags-input" class="form-input" placeholder="e.g. video, urgent, platform">
+                    <input type="text" id="case-tags-input" class="form-input"
+                        placeholder="e.g. video, urgent, platform">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="case-desc-input">Description / Work Notes</label>
-                    <textarea id="case-desc-input" class="form-input" rows="3" placeholder="e.g. Tracking copyright for Acme promo clips..."></textarea>
+                    <textarea id="case-desc-input" class="form-input" rows="3"
+                        placeholder="e.g. Tracking copyright for Acme promo clips..."></textarea>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
                     <button type="button" class="btn btn-secondary" id="btn-cancel-case-modal">Cancel</button>
@@ -1213,15 +1527,18 @@
             </div>
             <form id="edit-case-form">
                 <div class="form-group">
-                    <label class="form-label" for="edit-case-title-input">Case Name <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="edit-case-title-input">Case Name <span
+                            style="color: var(--accent);">*</span></label>
                     <input type="text" id="edit-case-title-input" class="form-input" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="edit-case-client-input">Client Name <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="edit-case-client-input">Client Name <span
+                            style="color: var(--accent);">*</span></label>
                     <input type="text" id="edit-case-client-input" class="form-input" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="edit-case-platform-input">Platform <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="edit-case-platform-input">Platform <span
+                            style="color: var(--accent);">*</span></label>
                     <select id="edit-case-platform-input" class="form-input" required>
                         <option value="YouTube">YouTube</option>
                         <option value="Facebook">Facebook</option>
@@ -1236,7 +1553,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="edit-case-priority-input">Priority <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="edit-case-priority-input">Priority <span
+                            style="color: var(--accent);">*</span></label>
                     <select id="edit-case-priority-input" class="form-input" required>
                         <option value="Critical">Critical</option>
                         <option value="High">High</option>
@@ -1245,7 +1563,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="edit-case-status-input">Status <span style="color: var(--accent);">*</span></label>
+                    <label class="form-label" for="edit-case-status-input">Status <span
+                            style="color: var(--accent);">*</span></label>
                     <select id="edit-case-status-input" class="form-input" required>
                         <option value="Draft">Draft</option>
                         <option value="Investigating">Investigating</option>
@@ -1269,7 +1588,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="edit-case-tags-input">Tags (comma-separated)</label>
-                    <input type="text" id="edit-case-tags-input" class="form-input" placeholder="e.g. video, urgent, platform">
+                    <input type="text" id="edit-case-tags-input" class="form-input"
+                        placeholder="e.g. video, urgent, platform">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="edit-case-desc-input">Description / Work Notes</label>
@@ -1287,48 +1607,66 @@
     <div class="modal-overlay" id="modal-evidence-viewer-overlay" style="display: none; z-index: 1100;">
         <div class="modal" style="max-width: 700px; width: 90%;">
             <div class="modal-header">
-                <h3 class="modal-title" id="evidence-viewer-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">Evidence File Preview</h3>
+                <h3 class="modal-title" id="evidence-viewer-title"
+                    style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">Evidence
+                    File Preview</h3>
                 <button class="modal-close" id="btn-close-evidence-viewer">&times;</button>
             </div>
-            <div class="modal-body" style="padding: 20px; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-dark);">
+            <div class="modal-body"
+                style="padding: 20px; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-dark);">
                 <!-- Image Container with Zoom support -->
-                <div id="evidence-viewer-image-container" style="display: none; text-align: center; width: 100%; overflow: hidden; position: relative;">
-                    <div style="overflow: auto; max-height: 400px; padding: 10px; border-radius: 6px; background: rgba(0,0,0,0.2);">
-                        <img id="evidence-viewer-image" src="" alt="Evidence Preview" style="max-width: 100%; height: auto; transform-origin: center center; transition: transform 0.1s ease-out; border-radius: 4px;">
+                <div id="evidence-viewer-image-container"
+                    style="display: none; text-align: center; width: 100%; overflow: hidden; position: relative;">
+                    <div
+                        style="overflow: auto; max-height: 400px; padding: 10px; border-radius: 6px; background: rgba(0,0,0,0.2);">
+                        <img id="evidence-viewer-image" src="" alt="Evidence Preview"
+                            style="max-width: 100%; height: auto; transform-origin: center center; transition: transform 0.1s ease-out; border-radius: 4px;">
                     </div>
                     <div style="margin-top: 12px; display: flex; justify-content: center; gap: 8px;">
-                        <button class="btn btn-secondary btn-sm" id="btn-zoom-out" style="padding: 6px 12px;"><i class="fa-solid fa-magnifying-glass-minus"></i> Zoom Out</button>
-                        <button class="btn btn-secondary btn-sm" id="btn-zoom-reset" style="padding: 6px 12px;"><i class="fa-solid fa-arrows-to-eye"></i> Reset</button>
-                        <button class="btn btn-secondary btn-sm" id="btn-zoom-in" style="padding: 6px 12px;"><i class="fa-solid fa-magnifying-glass-plus"></i> Zoom In</button>
+                        <button class="btn btn-secondary btn-sm" id="btn-zoom-out" style="padding: 6px 12px;"><i
+                                class="fa-solid fa-magnifying-glass-minus"></i> Zoom Out</button>
+                        <button class="btn btn-secondary btn-sm" id="btn-zoom-reset" style="padding: 6px 12px;"><i
+                                class="fa-solid fa-arrows-to-eye"></i> Reset</button>
+                        <button class="btn btn-secondary btn-sm" id="btn-zoom-in" style="padding: 6px 12px;"><i
+                                class="fa-solid fa-magnifying-glass-plus"></i> Zoom In</button>
                     </div>
                 </div>
-                
+
                 <!-- Video Container -->
                 <div id="evidence-viewer-video-container" style="display: none; width: 100%; text-align: center;">
-                    <video id="evidence-viewer-video" controls style="max-width: 100%; max-height: 400px; width: 100%; border-radius: 6px; outline: none; background: #000;"></video>
+                    <video id="evidence-viewer-video" controls
+                        style="max-width: 100%; max-height: 400px; width: 100%; border-radius: 6px; outline: none; background: #000;"></video>
                 </div>
-                
+
                 <!-- Document / General File Container -->
                 <div id="evidence-viewer-doc-container" style="display: none; text-align: center; padding: 20px;">
-                    <i class="fa-solid fa-file-shield" id="evidence-viewer-doc-icon" style="font-size: 64px; color: var(--accent); margin-bottom: 16px;"></i>
-                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;" id="evidence-viewer-doc-name">file_name.pdf</p>
-                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;" id="evidence-viewer-doc-size">0 KB</p>
-                    <a class="btn btn-primary" id="btn-download-evidence-doc" href="" download style="display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-file-shield" id="evidence-viewer-doc-icon"
+                        style="font-size: 64px; color: var(--accent); margin-bottom: 16px;"></i>
+                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;"
+                        id="evidence-viewer-doc-name">file_name.pdf</p>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;"
+                        id="evidence-viewer-doc-size">0 KB</p>
+                    <a class="btn btn-primary" id="btn-download-evidence-doc" href="" download
+                        style="display: inline-flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-download"></i> Download Document
                     </a>
                 </div>
-                
+
                 <!-- External URL / Link Container -->
                 <div id="evidence-viewer-link-container" style="display: none; text-align: center; padding: 20px;">
                     <i class="fa-solid fa-link" style="font-size: 64px; color: var(--accent); margin-bottom: 16px;"></i>
-                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;" id="evidence-viewer-link-title">Suspect Link</p>
-                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; word-break: break-all;" id="evidence-viewer-link-url">https://example.com</p>
-                    <a class="btn btn-primary" id="btn-open-evidence-link" href="" target="_blank" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;"
+                        id="evidence-viewer-link-title">Suspect Link</p>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; word-break: break-all;"
+                        id="evidence-viewer-link-url">https://example.com</p>
+                    <a class="btn btn-primary" id="btn-open-evidence-link" href="" target="_blank"
+                        style="display: inline-flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-up-right-from-square"></i> Open suspect link
                     </a>
                 </div>
             </div>
-            <div class="modal-footer" style="padding: 12px 20px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center;">
+            <div class="modal-footer"
+                style="padding: 12px 20px; border-top: 1px solid var(--border-light); font-size: 11px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center;">
                 <span>Uploaded by: <strong id="evidence-viewer-uploader">N/A</strong></span>
                 <span id="evidence-viewer-timestamp">N/A</span>
             </div>
@@ -1346,23 +1684,29 @@
             <form id="verify-approve-form">
                 <input type="hidden" id="verify-approve-record-id">
                 <div class="modal-body">
-                    <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">Select the validation steps that have been confirmed for this case asset:</p>
-                    
+                    <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">Select the validation
+                        steps that have been confirmed for this case asset:</p>
+
                     <div class="form-group" style="margin-bottom: 12px;">
-                        <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
-                            <input type="checkbox" id="verify-approve-meta-check" required style="width: 16px; height: 16px; accent-color: var(--accent);">
+                        <label class="form-label"
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="verify-approve-meta-check" required
+                                style="width: 16px; height: 16px; accent-color: var(--accent);">
                             Metadata Validation Confirmed (Owner matches Registry)
                         </label>
                     </div>
                     <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
-                            <input type="checkbox" id="verify-approve-hash-check" required style="width: 16px; height: 16px; accent-color: var(--accent);">
+                        <label class="form-label"
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="verify-approve-hash-check" required
+                                style="width: 16px; height: 16px; accent-color: var(--accent);">
                             Cryptographic File Hash Check Confirmed
                         </label>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Reviewer Notes (Optional)</label>
-                        <textarea id="verify-approve-notes" class="form-input" rows="3" placeholder="Add approval remarks or compliance details..."></textarea>
+                        <textarea id="verify-approve-notes" class="form-input" rows="3"
+                            placeholder="Add approval remarks or compliance details..."></textarea>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
@@ -1383,16 +1727,19 @@
             <form id="verify-reject-form">
                 <input type="hidden" id="verify-reject-record-id">
                 <div class="modal-body">
-                    <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">Please state the reason for rejecting this copyright case evidence:</p>
-                    
+                    <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-secondary);">Please state the
+                        reason for rejecting this copyright case evidence:</p>
+
                     <div class="form-group">
                         <label class="form-label">Reason for Rejection (Required)</label>
-                        <textarea id="verify-reject-notes" class="form-input" rows="3" required placeholder="e.g. Evidence hash mismatch or metadata verification failed."></textarea>
+                        <textarea id="verify-reject-notes" class="form-input" rows="3" required
+                            placeholder="e.g. Evidence hash mismatch or metadata verification failed."></textarea>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
                     <button type="button" class="btn btn-secondary" id="btn-cancel-verify-reject">Cancel</button>
-                    <button type="submit" class="btn btn-primary" style="background-color: var(--color-danger);">Reject Verification</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: var(--color-danger);">Reject
+                        Verification</button>
                 </div>
             </form>
         </div>
@@ -1410,7 +1757,8 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label">Note Message (Required)</label>
-                        <textarea id="verify-note-text" class="form-input" rows="4" required placeholder="Write details here..."></textarea>
+                        <textarea id="verify-note-text" class="form-input" rows="4" required
+                            placeholder="Write details here..."></textarea>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
@@ -1424,48 +1772,60 @@
     <!-- LOGIN SCREEN OVERLAY -->
     <div class="login-overlay" id="login-screen-overlay">
         <div class="login-card">
-            <div class="login-brand" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; margin-bottom: 24px;">
-                <div class="brand-icon" style="display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; background: rgba(24, 119, 242, 0.06); border-radius: 18px; border: 2px solid rgba(24, 119, 242, 0.25);">
-                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+            <div class="login-brand"
+                style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; margin-bottom: 24px;">
+                <div class="brand-icon"
+                    style="display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; background: rgba(24, 119, 242, 0.06); border-radius: 18px; border: 2px solid rgba(24, 119, 242, 0.25);">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        style="display: block;">
                         <defs>
                             <linearGradient id="login-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#ffffff" />
                                 <stop offset="100%" stop-color="#247cf2" />
                             </linearGradient>
                         </defs>
-                        <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3z" fill="url(#login-logo-gradient)" />
+                        <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3z"
+                            fill="url(#login-logo-gradient)" />
                         <circle cx="12" cy="12" r="6.2" fill="#0c0d12" />
-                        <text x="12" y="15.8" font-family="'Inter', sans-serif" font-size="10.2" font-weight="900" fill="url(#login-logo-gradient)" text-anchor="middle">C</text>
+                        <text x="12" y="15.8" font-family="'Inter', sans-serif" font-size="10.2" font-weight="900"
+                            fill="url(#login-logo-gradient)" text-anchor="middle">C</text>
                     </svg>
                 </div>
-                <span class="brand-name" style="font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px;">
+                <span class="brand-name"
+                    style="font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px;">
                     Copyright Security
-                    <svg viewBox="0 0 24 24" width="18" height="18" style="width: 18px; height: 18px; display: inline-block;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg viewBox="0 0 24 24" width="18" height="18"
+                        style="width: 18px; height: 18px; display: inline-block;" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="10" fill="#1877f2" />
-                        <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                        <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" fill="none" />
                     </svg>
                 </span>
             </div>
-            
+
             <div class="login-error" id="login-error-msg">
                 Invalid email/username or password.
             </div>
-            
+
             <form id="login-form">
                 <div class="form-group">
                     <label class="form-label" for="login-email-input">Email or Username</label>
-                    <input type="text" id="login-email-input" class="form-input" required placeholder="e.g. admin" autofocus autocomplete="username">
+                    <input type="text" id="login-email-input" class="form-input" required placeholder="e.g. admin"
+                        autofocus autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="login-password-input">Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="login-password-input" class="form-input" required placeholder="••••••••" autocomplete="current-password">
+                        <input type="password" id="login-password-input" class="form-input" required
+                            placeholder="••••••••" autocomplete="current-password">
                         <button type="button" class="password-toggle-btn" aria-label="Show password">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px; justify-content: center;">
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; margin-top: 12px; justify-content: center;">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
                 </button>
             </form>
@@ -1473,39 +1833,60 @@
     </div>
 
     <!-- Evidence Preview & Chain of Custody Modal (Sprint 8 AI Detection Workspace) -->
-    <div class="modal" id="evidence-preview-modal" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 2000; padding: 20px;">
-        <div class="modal-content" style="background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 12px; width: 100%; max-width: 1200px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.6);">
+    <div class="modal" id="evidence-preview-modal"
+        style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 2000; padding: 20px;">
+        <div class="modal-content"
+            style="background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 12px; width: 100%; max-width: 1200px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.6);">
             <!-- Modal Header -->
-            <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-dark);">
+            <div
+                style="padding: 16px 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-dark);">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <i class="fa-solid fa-circle-nodes" style="font-size: 20px; color: var(--accent);"></i>
-                    <h3 style="margin: 0; font-size: 16px; color: white;" id="workspace-main-title">AI Detection & Evidence Workspace</h3>
+                    <h3 style="margin: 0; font-size: 16px; color: white;" id="workspace-main-title">AI Detection &
+                        Evidence Workspace</h3>
                 </div>
-                <button class="btn btn-secondary btn-sm" id="btn-close-evidence-preview" style="padding: 4px 8px; font-size: 14px;"><i class="fa-solid fa-xmark"></i></button>
+                <button class="btn btn-secondary btn-sm" id="btn-close-evidence-preview"
+                    style="padding: 4px 8px; font-size: 14px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <!-- Workspace Tabs Navigation -->
-            <div class="workspace-tabs" style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); padding: 8px 20px; background: #030509;">
-                <button class="btn btn-sm btn-secondary active" id="workspace-tab-btn-detect" style="padding: 8px 16px; font-size: 12px; border-radius: var(--radius-sm);"><i class="fa-solid fa-square-poll-horizontal" style="color: var(--accent); margin-right: 6px;"></i> AI Similarity Detection</button>
-                <button class="btn btn-sm btn-secondary" id="workspace-tab-btn-registry" style="padding: 8px 16px; font-size: 12px; border-radius: var(--radius-sm);"><i class="fa-solid fa-server" style="color: var(--color-info); margin-right: 6px;"></i> Registry & Metadata</button>
-                <button class="btn btn-sm btn-secondary" id="workspace-tab-btn-review" style="padding: 8px 16px; font-size: 12px; border-radius: var(--radius-sm);"><i class="fa-solid fa-user-shield" style="color: var(--color-warning); margin-right: 6px;"></i> Review & Custody</button>
+            <div class="workspace-tabs"
+                style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-light); padding: 8px 20px; background: #030509;">
+                <button class="btn btn-sm btn-secondary active" id="workspace-tab-btn-detect"
+                    style="padding: 8px 16px; font-size: 12px; border-radius: var(--radius-sm);"><i
+                        class="fa-solid fa-square-poll-horizontal" style="color: var(--accent); margin-right: 6px;"></i>
+                    AI Similarity Detection</button>
+                <button class="btn btn-sm btn-secondary" id="workspace-tab-btn-registry"
+                    style="padding: 8px 16px; font-size: 12px; border-radius: var(--radius-sm);"><i
+                        class="fa-solid fa-server" style="color: var(--color-info); margin-right: 6px;"></i> Registry &
+                    Metadata</button>
+                <button class="btn btn-sm btn-secondary" id="workspace-tab-btn-review"
+                    style="padding: 8px 16px; font-size: 12px; border-radius: var(--radius-sm);"><i
+                        class="fa-solid fa-user-shield" style="color: var(--color-warning); margin-right: 6px;"></i>
+                    Review & Custody</button>
             </div>
-            
+
             <!-- Modal Body (Tab Panels) -->
             <div style="padding: 20px; overflow-y: auto; flex-grow: 1; background: var(--bg-primary);">
-                
+
                 <!-- TAB 1: AI DETECTION & VIDEO COMPARISON -->
                 <div id="workspace-panel-detect">
                     <!-- Similarity Metrics Header -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: var(--bg-dark); padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border-light);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: var(--bg-dark); padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border-light);">
                         <div>
-                            <span id="evidence-preview-platform-badge" class="badge badge-active" style="display: inline-block;">YouTube</span>
-                            <span id="evidence-preview-status-badge" class="badge badge-success" style="display: inline-block; margin-left: 6px;">Verified</span>
-                            <h4 id="evidence-preview-title" style="margin: 6px 0 0 0; font-size: 15px; color: white;">Evidence Title</h4>
+                            <span id="evidence-preview-platform-badge" class="badge badge-active"
+                                style="display: inline-block;">YouTube</span>
+                            <span id="evidence-preview-status-badge" class="badge badge-success"
+                                style="display: inline-block; margin-left: 6px;">Verified</span>
+                            <h4 id="evidence-preview-title" style="margin: 6px 0 0 0; font-size: 15px; color: white;">
+                                Evidence Title</h4>
                         </div>
                         <div style="text-align: right;">
-                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">AI Confidence Match</span>
-                            <strong id="evidence-preview-score" style="color: var(--accent); font-size: 20px;">85.0%</strong>
+                            <span style="font-size: 11px; color: var(--text-secondary); display: block;">AI Confidence
+                                Match</span>
+                            <strong id="evidence-preview-score"
+                                style="color: var(--accent); font-size: 20px;">85.0%</strong>
                         </div>
                     </div>
 
@@ -1513,10 +1894,16 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <!-- Left Panel: Original Video -->
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="font-size: 12px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Original Reference Video</div>
-                            <div style="background: #000; border-radius: 8px; border: 1px solid var(--border-light); height: 260px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
-                                <video id="workspace-ref-video" style="width: 100%; height: 100%; object-fit: contain; display: block;" muted loop></video>
-                                <div id="workspace-ref-video-placeholder" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-secondary); text-align: center; padding: 20px;">
+                            <div
+                                style="font-size: 12px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                                Original Reference Video</div>
+                            <div
+                                style="background: #000; border-radius: 8px; border: 1px solid var(--border-light); height: 260px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                                <video id="workspace-ref-video"
+                                    style="width: 100%; height: 100%; object-fit: contain; display: block;" muted
+                                    loop></video>
+                                <div id="workspace-ref-video-placeholder"
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-secondary); text-align: center; padding: 20px;">
                                     <i class="fa-solid fa-file-video fa-2x" style="color: var(--text-muted);"></i>
                                     <span style="font-size: 12px;">Reference video buffer loading...</span>
                                 </div>
@@ -1525,59 +1912,98 @@
 
                         <!-- Right Panel: Scanned Link Video -->
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="font-size: 12px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Detected Infringement Link</div>
-                            <div style="background: #000; border-radius: 8px; border: 1px solid var(--border-light); height: 260px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
-                                <video id="workspace-infringe-video" style="width: 100%; height: 100%; object-fit: contain; display: block;" muted loop></video>
-                                <div id="workspace-infringe-video-placeholder" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-secondary); text-align: center; padding: 20px;">
-                                    <i class="fa-brands fa-youtube fa-2x" style="color: red;" id="workspace-infringe-icon"></i>
-                                    <span style="font-size: 12px;" id="workspace-infringe-label">Loading scan buffer link...</span>
+                            <div
+                                style="font-size: 12px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
+                                Detected Infringement Link</div>
+                            <div
+                                style="background: #000; border-radius: 8px; border: 1px solid var(--border-light); height: 260px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+                                <video id="workspace-infringe-video"
+                                    style="width: 100%; height: 100%; object-fit: contain; display: block;" muted
+                                    loop></video>
+                                <div id="workspace-infringe-video-placeholder"
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-secondary); text-align: center; padding: 20px;">
+                                    <i class="fa-brands fa-youtube fa-2x" style="color: red;"
+                                        id="workspace-infringe-icon"></i>
+                                    <span style="font-size: 12px;" id="workspace-infringe-label">Loading scan buffer
+                                        link...</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Synchronized Control Bar -->
-                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; background: var(--bg-dark); padding: 12px; border-radius: 8px; border: 1px solid var(--border-light);">
-                        <button class="btn btn-secondary btn-sm" id="btn-workspace-sync-play" style="padding: 6px 12px; font-size: 12px; min-height: 32px;"><i class="fa-solid fa-play"></i> Sync Play</button>
+                    <div
+                        style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; background: var(--bg-dark); padding: 12px; border-radius: 8px; border: 1px solid var(--border-light);">
+                        <button class="btn btn-secondary btn-sm" id="btn-workspace-sync-play"
+                            style="padding: 6px 12px; font-size: 12px; min-height: 32px;"><i
+                                class="fa-solid fa-play"></i> Sync Play</button>
                         <div style="flex-grow: 1; display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 11px; color: var(--text-secondary);" id="lbl-workspace-time">00:00</span>
-                            <input type="range" id="slider-workspace-sync-seek" min="0" max="100" value="0" style="flex-grow: 1; accent-color: var(--accent); cursor: pointer; height: 4px; border-radius: 2px; background: var(--bg-primary); border: none;">
-                            <span style="font-size: 11px; color: var(--text-secondary);" id="lbl-workspace-duration">00:00</span>
+                            <span style="font-size: 11px; color: var(--text-secondary);"
+                                id="lbl-workspace-time">00:00</span>
+                            <input type="range" id="slider-workspace-sync-seek" min="0" max="100" value="0"
+                                style="flex-grow: 1; accent-color: var(--accent); cursor: pointer; height: 4px; border-radius: 2px; background: var(--bg-primary); border: none;">
+                            <span style="font-size: 11px; color: var(--text-secondary);"
+                                id="lbl-workspace-duration">00:00</span>
                         </div>
-                        <button class="btn btn-secondary btn-sm" id="btn-workspace-prev-frame" style="padding: 6px 10px; font-size: 11px; min-height: 32px;" title="Frame Step Backward"><i class="fa-solid fa-step-backward"></i></button>
-                        <button class="btn btn-secondary btn-sm" id="btn-workspace-next-frame" style="padding: 6px 10px; font-size: 11px; min-height: 32px;" title="Frame Step Forward"><i class="fa-solid fa-step-forward"></i></button>
+                        <button class="btn btn-secondary btn-sm" id="btn-workspace-prev-frame"
+                            style="padding: 6px 10px; font-size: 11px; min-height: 32px;" title="Frame Step Backward"><i
+                                class="fa-solid fa-step-backward"></i></button>
+                        <button class="btn btn-secondary btn-sm" id="btn-workspace-next-frame"
+                            style="padding: 6px 10px; font-size: 11px; min-height: 32px;" title="Frame Step Forward"><i
+                                class="fa-solid fa-step-forward"></i></button>
                     </div>
 
                     <!-- Fingerprint Visualization Cards -->
-                    <h4 style="margin: 0 0 12px 0; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Fingerprint Signature Verification</h4>
+                    <h4
+                        style="margin: 0 0 12px 0; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Fingerprint Signature Verification</h4>
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
-                        <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
+                            <div
+                                style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
                                 <i class="fa-solid fa-fingerprint" style="color: var(--accent);"></i> Visual Fingerprint
                             </div>
-                            <div style="font-size: 13px; color: white; font-weight: 700;" id="evidence-preview-fp-status">Registered</div>
-                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Perceptual pHash sequence verified.</div>
+                            <div style="font-size: 13px; color: white; font-weight: 700;"
+                                id="evidence-preview-fp-status">Registered</div>
+                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Perceptual pHash
+                                sequence verified.</div>
                         </div>
-                        <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
-                                <i class="fa-solid fa-volume-high" style="color: var(--color-success);"></i> Audio Fingerprint
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
+                            <div
+                                style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
+                                <i class="fa-solid fa-volume-high" style="color: var(--color-success);"></i> Audio
+                                Fingerprint
                             </div>
-                            <div style="font-size: 13px; color: white; font-weight: 700;" id="evidence-preview-hash-status">Active (aHash)</div>
-                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Audio spectrogram aligned.</div>
+                            <div style="font-size: 13px; color: white; font-weight: 700;"
+                                id="evidence-preview-hash-status">Active (aHash)</div>
+                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Audio spectrogram
+                                aligned.</div>
                         </div>
-                        <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
-                                <i class="fa-solid fa-clapperboard" style="color: var(--color-info);"></i> Scene Fingerprint
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
+                            <div
+                                style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
+                                <i class="fa-solid fa-clapperboard" style="color: var(--color-info);"></i> Scene
+                                Fingerprint
                             </div>
-                            <div style="font-size: 13px; color: white; font-weight: 700;" id="evidence-preview-embedding-status">Verified</div>
-                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Transition timestamp mapped.</div>
+                            <div style="font-size: 13px; color: white; font-weight: 700;"
+                                id="evidence-preview-embedding-status">Verified</div>
+                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Transition
+                                timestamp mapped.</div>
                         </div>
-                        <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
-                                <i class="fa-solid fa-timeline" style="color: var(--color-warning);"></i> Timeline Fingerprint
+                        <div
+                            style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; position: relative; overflow: hidden;">
+                            <div
+                                style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; margin-bottom: 6px;">
+                                <i class="fa-solid fa-timeline" style="color: var(--color-warning);"></i> Timeline
+                                Fingerprint
                             </div>
-                            <div style="font-size: 13px; color: white; font-weight: 700;" id="evidence-preview-processing-status">Match (100%)</div>
-                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Playback timeline synchronized.</div>
+                            <div style="font-size: 13px; color: white; font-weight: 700;"
+                                id="evidence-preview-processing-status">Match (100%)</div>
+                            <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Playback timeline
+                                synchronized.</div>
                         </div>
                     </div>
                 </div>
@@ -1586,8 +2012,10 @@
                 <div id="workspace-panel-registry" style="display: none; height: 100%;">
                     <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; height: 100%;">
                         <!-- Left Side Preview (standard image viewer/document viewer fallback) -->
-                        <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center; align-items: center; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light); padding: 16px; min-height: 320px; position: relative;">
-                            <div id="evidence-preview-media-container" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <div
+                            style="display: flex; flex-direction: column; gap: 12px; justify-content: center; align-items: center; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light); padding: 16px; min-height: 320px; position: relative;">
+                            <div id="evidence-preview-media-container"
+                                style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                                 <!-- Loaded dynamically -->
                             </div>
                         </div>
@@ -1595,30 +2023,57 @@
                         <!-- Right Side Details Cards -->
                         <div style="display: flex; flex-direction: column; gap: 16px; font-size: 13px;">
                             <div>
-                                <h4 style="margin: 0 0 10px 0; color: white; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Secure Registry Parameters</h4>
-                                <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 10px; color: var(--text-secondary);">
-                                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Uploader Investigator:</span><span id="evidence-preview-uploader" style="color: white; font-weight: 600;">john_doe</span></div>
-                                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">File Type (Mime):</span><span id="evidence-preview-mime" style="color: white;">video/mp4</span></div>
-                                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">File Storage Size:</span><span id="evidence-preview-size" style="color: white;">1.2 MB</span></div>
-                                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Resolution Aspect:</span><span id="evidence-preview-resolution" style="color: white;">1920 x 1080 (16:9)</span></div>
-                                    <div style="display: flex; justify-content: space-between;"><span style="font-weight: 500;">Scanned Segment Duration:</span><span id="evidence-preview-duration" style="color: white;">00:45</span></div>
+                                <h4
+                                    style="margin: 0 0 10px 0; color: white; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Secure Registry Parameters</h4>
+                                <div
+                                    style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 10px; color: var(--text-secondary);">
+                                    <div style="display: flex; justify-content: space-between;"><span
+                                            style="font-weight: 500;">Uploader Investigator:</span><span
+                                            id="evidence-preview-uploader"
+                                            style="color: white; font-weight: 600;">john_doe</span></div>
+                                    <div style="display: flex; justify-content: space-between;"><span
+                                            style="font-weight: 500;">File Type (Mime):</span><span
+                                            id="evidence-preview-mime" style="color: white;">video/mp4</span></div>
+                                    <div style="display: flex; justify-content: space-between;"><span
+                                            style="font-weight: 500;">File Storage Size:</span><span
+                                            id="evidence-preview-size" style="color: white;">1.2 MB</span></div>
+                                    <div style="display: flex; justify-content: space-between;"><span
+                                            style="font-weight: 500;">Resolution Aspect:</span><span
+                                            id="evidence-preview-resolution" style="color: white;">1920 x 1080
+                                            (16:9)</span></div>
+                                    <div style="display: flex; justify-content: space-between;"><span
+                                            style="font-weight: 500;">Scanned Segment Duration:</span><span
+                                            id="evidence-preview-duration" style="color: white;">00:45</span></div>
                                 </div>
                             </div>
 
                             <div>
-                                <h5 style="margin: 0 0 8px 0; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
-                                    <i class="fa-solid fa-network-wired" style="color: var(--accent);"></i> Cryptographic Chain of Custody
+                                <h5
+                                    style="margin: 0 0 8px 0; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-network-wired" style="color: var(--accent);"></i>
+                                    Cryptographic Chain of Custody
                                 </h5>
-                                <div style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 6px; padding: 14px; font-size: 11px; line-height: 1.4; display: flex; flex-direction: column; gap: 10px;">
+                                <div
+                                    style="background: var(--bg-dark); border: 1px solid var(--border-light); border-radius: 6px; padding: 14px; font-size: 11px; line-height: 1.4; display: flex; flex-direction: column; gap: 10px;">
                                     <div>
-                                        <span style="display: block; color: var(--text-secondary); font-weight: bold; margin-bottom: 2px;">Ingested / Crawled At</span>
-                                        <span id="evidence-preview-custody-time" style="color: white;">2026-07-04 15:30:12</span>
+                                        <span
+                                            style="display: block; color: var(--text-secondary); font-weight: bold; margin-bottom: 2px;">Ingested
+                                            / Crawled At</span>
+                                        <span id="evidence-preview-custody-time" style="color: white;">2026-07-04
+                                            15:30:12</span>
                                     </div>
                                     <div>
-                                        <span style="display: block; color: var(--text-secondary); font-weight: bold; margin-bottom: 2px;">Secured File Signature Hash (SHA-256)</span>
+                                        <span
+                                            style="display: block; color: var(--text-secondary); font-weight: bold; margin-bottom: 2px;">Secured
+                                            File Signature Hash (SHA-256)</span>
                                         <div style="display: flex; gap: 6px; align-items: center;">
-                                            <code id="evidence-preview-hash" style="color: #34a853; background: rgba(52, 168, 83, 0.08); padding: 4px; border-radius: 4px; word-break: break-all; flex-grow: 1;">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code>
-                                            <button class="btn btn-secondary btn-xs" id="btn-copy-evidence-hash" title="Copy SHA-256 Hash" style="padding: 4px 6px; font-size: 11px; min-height: 24px;"><i class="fa-solid fa-copy"></i></button>
+                                            <code id="evidence-preview-hash"
+                                                style="color: #34a853; background: rgba(52, 168, 83, 0.08); padding: 4px; border-radius: 4px; word-break: break-all; flex-grow: 1;">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code>
+                                            <button class="btn btn-secondary btn-xs" id="btn-copy-evidence-hash"
+                                                title="Copy SHA-256 Hash"
+                                                style="padding: 4px 6px; font-size: 11px; min-height: 24px;"><i
+                                                    class="fa-solid fa-copy"></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -1631,56 +2086,85 @@
                 <div id="workspace-panel-review" style="display: none;">
                     <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px;">
                         <!-- Timeline Column -->
-                        <div style="background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light); padding: 20px;">
-                            <h4 style="margin: 0 0 16px 0; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-timeline" style="color: var(--accent); margin-right: 6px;"></i> Scan Lifecycle Timeline</h4>
-                            <div class="workspace-timeline" style="display: flex; flex-direction: column; gap: 20px; padding-left: 8px;">
+                        <div
+                            style="background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light); padding: 20px;">
+                            <h4
+                                style="margin: 0 0 16px 0; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-timeline" style="color: var(--accent); margin-right: 6px;"></i>
+                                Scan Lifecycle Timeline</h4>
+                            <div class="workspace-timeline"
+                                style="display: flex; flex-direction: column; gap: 20px; padding-left: 8px;">
                                 <div style="display: flex; gap: 12px; position: relative;">
                                     <div style="display: flex; flex-direction: column; align-items: center;">
-                                        <span style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i class="fa-solid fa-check"></i></span>
-                                        <div style="width: 2px; height: 30px; background: var(--color-success); margin-top: 4px;"></div>
+                                        <span
+                                            style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i
+                                                class="fa-solid fa-check"></i></span>
+                                        <div
+                                            style="width: 2px; height: 30px; background: var(--color-success); margin-top: 4px;">
+                                        </div>
                                     </div>
                                     <div>
                                         <strong style="color: white; font-size: 12px;">Asset Ingested</strong>
-                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">File loaded into case evidence vault successfully.</p>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">File
+                                            loaded into case evidence vault successfully.</p>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 12px; position: relative;">
                                     <div style="display: flex; flex-direction: column; align-items: center;">
-                                        <span style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i class="fa-solid fa-check"></i></span>
-                                        <div style="width: 2px; height: 30px; background: var(--color-success); margin-top: 4px;"></div>
+                                        <span
+                                            style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i
+                                                class="fa-solid fa-check"></i></span>
+                                        <div
+                                            style="width: 2px; height: 30px; background: var(--color-success); margin-top: 4px;">
+                                        </div>
                                     </div>
                                     <div>
                                         <strong style="color: white; font-size: 12px;">Fingerprints Encoded</strong>
-                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Visual pHash vectors and metadata checksums generated.</p>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                                            Visual pHash vectors and metadata checksums generated.</p>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 12px; position: relative;">
                                     <div style="display: flex; flex-direction: column; align-items: center;">
-                                        <span style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i class="fa-solid fa-check"></i></span>
-                                        <div style="width: 2px; height: 30px; background: var(--color-success); margin-top: 4px;"></div>
+                                        <span
+                                            style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i
+                                                class="fa-solid fa-check"></i></span>
+                                        <div
+                                            style="width: 2px; height: 30px; background: var(--color-success); margin-top: 4px;">
+                                        </div>
                                     </div>
                                     <div>
-                                        <strong style="color: white; font-size: 12px;">Similarity Scan Query Completed</strong>
-                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Social media link scan check executed dynamically.</p>
+                                        <strong style="color: white; font-size: 12px;">Similarity Scan Query
+                                            Completed</strong>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                                            Social media link scan check executed dynamically.</p>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 12px; position: relative;">
                                     <div style="display: flex; flex-direction: column; align-items: center;">
-                                        <span style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i class="fa-solid fa-check"></i></span>
-                                        <div style="width: 2px; height: 30px; background: var(--border-light); margin-top: 4px;"></div>
+                                        <span
+                                            style="width: 16px; height: 16px; background: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px;"><i
+                                                class="fa-solid fa-check"></i></span>
+                                        <div
+                                            style="width: 2px; height: 30px; background: var(--border-light); margin-top: 4px;">
+                                        </div>
                                     </div>
                                     <div>
                                         <strong style="color: white; font-size: 12px;">AI Match Detected</strong>
-                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Frame similarity and duration checks verified.</p>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Frame
+                                            similarity and duration checks verified.</p>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 12px;">
                                     <div style="display: flex; flex-direction: column; align-items: center;">
-                                        <span style="width: 16px; height: 16px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px; box-shadow: 0 0 6px var(--accent);"><i class="fa-solid fa-circle"></i></span>
+                                        <span
+                                            style="width: 16px; height: 16px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px; box-shadow: 0 0 6px var(--accent);"><i
+                                                class="fa-solid fa-circle"></i></span>
                                     </div>
                                     <div>
                                         <strong style="color: white; font-size: 12px;">Takedown Report notice</strong>
-                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">Pending investigator review configuration approval.</p>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">
+                                            Pending investigator review configuration approval.</p>
                                     </div>
                                 </div>
                             </div>
@@ -1688,20 +2172,28 @@
 
                         <!-- Review Form Column -->
                         <div style="display: flex; flex-direction: column; gap: 16px;">
-                            <h4 style="margin: 0; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-user-shield" style="color: var(--color-warning); margin-right: 6px;"></i> Investigator Review Action Workspace</h4>
-                            
+                            <h4
+                                style="margin: 0; color: white; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-user-shield"
+                                    style="color: var(--color-warning); margin-right: 6px;"></i> Investigator Review
+                                Action Workspace</h4>
+
                             <form id="workspace-review-form" style="display: flex; flex-direction: column; gap: 14px;">
                                 <div class="form-group" style="margin-bottom: 0;">
-                                    <label class="form-label" for="workspace-review-investigator" style="font-size: 12px;">Assign Active Investigator</label>
-                                    <select id="workspace-review-investigator" class="form-input" style="font-size: 13px; min-height: 38px;">
+                                    <label class="form-label" for="workspace-review-investigator"
+                                        style="font-size: 12px;">Assign Active Investigator</label>
+                                    <select id="workspace-review-investigator" class="form-input"
+                                        style="font-size: 13px; min-height: 38px;">
                                         <option value="Admin">Admin Lead</option>
                                         <option value="Thansovanrothana">Thansovanrothana</option>
                                         <option value="Guest">Guest Reviewer</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
-                                    <label class="form-label" for="workspace-review-priority" style="font-size: 12px;">Case Threat Level Priority</label>
-                                    <select id="workspace-review-priority" class="form-input" style="font-size: 13px; min-height: 38px;">
+                                    <label class="form-label" for="workspace-review-priority"
+                                        style="font-size: 12px;">Case Threat Level Priority</label>
+                                    <select id="workspace-review-priority" class="form-input"
+                                        style="font-size: 13px; min-height: 38px;">
                                         <option value="Critical">Critical Priority</option>
                                         <option value="High">High Priority</option>
                                         <option value="Medium">Medium Priority</option>
@@ -1709,16 +2201,28 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
-                                    <label class="form-label" for="workspace-review-notes" style="font-size: 12px;">Reviewer Investigation Remarks</label>
-                                    <textarea id="workspace-review-notes" class="form-input" rows="3" style="font-size: 13px; min-height: 70px;" placeholder="Add remarks or compliance verification context..."></textarea>
+                                    <label class="form-label" for="workspace-review-notes"
+                                        style="font-size: 12px;">Reviewer Investigation Remarks</label>
+                                    <textarea id="workspace-review-notes" class="form-input" rows="3"
+                                        style="font-size: 13px; min-height: 70px;"
+                                        placeholder="Add remarks or compliance verification context..."></textarea>
                                 </div>
 
                                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-                                    <span style="font-size: 11px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase;">Set Resolution Status</span>
+                                    <span
+                                        style="font-size: 11px; font-weight: bold; color: var(--text-secondary); text-transform: uppercase;">Set
+                                        Resolution Status</span>
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                        <button type="button" class="btn btn-secondary btn-sm" id="btn-workspace-approve" style="background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.3); color: var(--color-success); font-size: 11px; min-height: 36px; justify-content: center;"><i class="fa-solid fa-circle-check"></i> Approve</button>
-                                        <button type="button" class="btn btn-secondary btn-sm" id="btn-workspace-reject" style="background: rgba(255, 82, 82, 0.15); border: 1px solid rgba(255, 82, 82, 0.3); color: var(--color-danger); font-size: 11px; min-height: 36px; justify-content: center;"><i class="fa-solid fa-circle-xmark"></i> Reject</button>
-                                        <button type="button" class="btn btn-secondary btn-sm" id="btn-workspace-flag" style="background: rgba(255, 214, 0, 0.15); border: 1px solid rgba(255, 214, 0, 0.3); color: var(--color-warning); font-size: 11px; min-height: 36px; justify-content: center; grid-column: span 2;"><i class="fa-solid fa-flag"></i> Flag Case Match</button>
+                                        <button type="button" class="btn btn-secondary btn-sm"
+                                            id="btn-workspace-approve"
+                                            style="background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.3); color: var(--color-success); font-size: 11px; min-height: 36px; justify-content: center;"><i
+                                                class="fa-solid fa-circle-check"></i> Approve</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="btn-workspace-reject"
+                                            style="background: rgba(255, 82, 82, 0.15); border: 1px solid rgba(255, 82, 82, 0.3); color: var(--color-danger); font-size: 11px; min-height: 36px; justify-content: center;"><i
+                                                class="fa-solid fa-circle-xmark"></i> Reject</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="btn-workspace-flag"
+                                            style="background: rgba(255, 214, 0, 0.15); border: 1px solid rgba(255, 214, 0, 0.3); color: var(--color-warning); font-size: 11px; min-height: 36px; justify-content: center; grid-column: span 2;"><i
+                                                class="fa-solid fa-flag"></i> Flag Case Match</button>
                                     </div>
                                 </div>
                             </form>
@@ -1727,17 +2231,21 @@
                 </div>
 
             </div>
-            
+
             <!-- Modal Footer -->
-            <div style="padding: 12px 20px; border-top: 1px solid var(--border-light); background: var(--bg-dark); display: flex; justify-content: space-between; align-items: center;">
-                <button class="btn btn-danger btn-sm" id="btn-delete-evidence-preview" style="background: rgba(234, 67, 53, 0.15); border: 1px solid rgba(234, 67, 53, 0.3); color: #ff5c5c; padding: 6px 12px; font-size: 12px; min-height: 32px;">
+            <div
+                style="padding: 12px 20px; border-top: 1px solid var(--border-light); background: var(--bg-dark); display: flex; justify-content: space-between; align-items: center;">
+                <button class="btn btn-danger btn-sm" id="btn-delete-evidence-preview"
+                    style="background: rgba(234, 67, 53, 0.15); border: 1px solid rgba(234, 67, 53, 0.3); color: #ff5c5c; padding: 6px 12px; font-size: 12px; min-height: 32px;">
                     <i class="fa-solid fa-trash"></i> Delete Record
                 </button>
                 <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary btn-sm" id="btn-copy-evidence-link" style="padding: 6px 12px; font-size: 12px; min-height: 32px;">
+                    <button class="btn btn-secondary btn-sm" id="btn-copy-evidence-link"
+                        style="padding: 6px 12px; font-size: 12px; min-height: 32px;">
                         <i class="fa-solid fa-link"></i> Copy Link
                     </button>
-                    <a id="btn-download-evidence-file" href="#" class="btn btn-primary btn-sm" style="padding: 6px 12px; font-size: 12px; text-decoration: none; color: white; display: inline-flex; align-items: center; justify-content: center; min-height: 32px;">
+                    <a id="btn-download-evidence-file" href="#" class="btn btn-primary btn-sm"
+                        style="padding: 6px 12px; font-size: 12px; text-decoration: none; color: white; display: inline-flex; align-items: center; justify-content: center; min-height: 32px;">
                         <i class="fa-solid fa-download" style="margin-right: 4px;"></i> Download File
                     </a>
                 </div>
@@ -1754,4 +2262,5 @@
     <!-- Main Client-Side Logic Javascript -->
     <script src="/static/js/app.js?v=1.0.3"></script>
 </body>
+
 </html>
