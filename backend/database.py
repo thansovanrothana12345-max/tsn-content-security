@@ -1048,6 +1048,44 @@ def init_db():
     END;
     """)
 
+    # 26. Copyright Registrations Table (Phase 1)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS copyright_registrations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        asset_id TEXT NOT NULL UNIQUE,
+        certificate_id TEXT NOT NULL UNIQUE,
+        registration_number TEXT NOT NULL UNIQUE,
+        status TEXT NOT NULL CHECK (status IN ('Draft', 'Uploading', 'Processing', 'Protected', 'Rejected', 'Archived')),
+        filename TEXT NOT NULL,
+        file_uuid TEXT NOT NULL,
+        file_size INTEGER NOT NULL,
+        duration REAL,
+        resolution TEXT,
+        codec TEXT,
+        frame_rate REAL,
+        bitrate INTEGER,
+        audio_channels INTEGER,
+        sha256_hash TEXT NOT NULL UNIQUE,
+        md5_hash TEXT NOT NULL,
+        thumbnail_path TEXT,
+        asset_title TEXT NOT NULL,
+        description TEXT,
+        category TEXT NOT NULL CHECK (category IN ('Video', 'Image', 'Audio', 'Document', 'Other')),
+        encrypted_owner_name TEXT NOT NULL,
+        encrypted_owner_email TEXT,
+        encrypted_owner_phone TEXT,
+        encrypted_owner_address TEXT,
+        organization TEXT,
+        country TEXT,
+        creation_date TEXT,
+        copyright_type TEXT,
+        license_type TEXT,
+        tags TEXT,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
     conn.commit()
     conn.close()
     print("Database schema verified and initialized successfully at", DATABASE_PATH)

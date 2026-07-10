@@ -7,7 +7,7 @@ import logging
 import logging.handlers
 from backend.config import Config
 from backend.database import init_db
-from backend.routes import auth, cases, originals, evidence, reports, verification, ai_fingerprint, assets_router, scans_router, health, detection, notifications
+from backend.routes import auth, cases, originals, evidence, reports, verification, ai_fingerprint, assets_router, scans_router, health, detection, notifications, copyright_registration
 from backend.middleware.rate_limiter import RateLimiterMiddleware
 
 app = FastAPI(
@@ -101,6 +101,7 @@ app.include_router(scans_router.router)
 app.include_router(health.router)
 app.include_router(detection.router)
 app.include_router(notifications.router)
+app.include_router(copyright_registration.router)
 
 # Mount Static Folders
 app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")

@@ -74,6 +74,15 @@
                 </svg>
                 <span>Cases</span>
             </a>
+            <a href="#" class="nav-item" data-view="copyright-registration">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 12px; width: 18px; height: 18px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M14.25 9.75a3.5 3.5 0 1 0 0 4.5"></path>
+                </svg>
+                <span>Copyright Registry</span>
+            </a>
             <a href="#" class="nav-item" data-view="library">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round"
@@ -221,12 +230,22 @@
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <div class="header-title-group">
+                    <div class="breadcrumb" style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;">
+                        <span>TSN Security</span>
+                        <i class="fa-solid fa-chevron-right" style="font-size: 8px; color: var(--text-muted);"></i>
+                        <span id="breadcrumb-current-view" style="color: var(--accent);">Dashboard</span>
+                    </div>
                     <div class="page-title" id="page-current-title">Dashboard Overview</div>
                     <div class="page-subtitle" id="page-current-subtitle">Monitor and manage copyright protection in
                         real time.</div>
                 </div>
             </div>
             <div class="header-toolbar">
+                <!-- Global Search Box -->
+                <div class="header-search-container" style="position: relative; flex-shrink: 0;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                    <input type="text" id="global-header-search" placeholder="Search cases or files..." style="width: 200px; height: 40px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-light); border-radius: 8px; padding: 0 12px 0 36px; color: var(--text-primary); font-size: 13px; outline: none; transition: all var(--transition-normal) ease;" />
+                </div>
                 <!-- Date Range Picker -->
                 <div class="toolbar-item header-date-picker">
                     <i class="fa-solid fa-calendar-days"></i>
@@ -340,143 +359,441 @@
             <section id="view-dashboard" class="container view-pane">
                 <!-- Stats Grid -->
                 <div class="stats-grid">
-                    <!-- Total Videos -->
+                    <!-- Total Copyright Cases -->
                     <div class="stat-card">
                         <div class="stat-icon-wrapper"
-                            style="background: linear-gradient(135deg, rgba(79, 124, 255, 0.1) 0%, rgba(109, 94, 247, 0.1) 100%); color: var(--accent);">
-                            <i class="fa-solid fa-video"></i>
+                            style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(109, 94, 247, 0.15) 100%); color: var(--color-info);">
+                            <i class="fa-solid fa-folder-closed"></i>
                         </div>
                         <div class="stat-info">
                             <div class="stat-header">
-                                <span class="stat-title">Total Videos</span>
-                                <span class="stat-growth success"><i class="fa-solid fa-arrow-up"></i> +12%</span>
+                                <span class="stat-title">Total Cases</span>
+                                <span class="stat-growth success"><i class="fa-solid fa-arrow-up"></i> +4%</span>
                             </div>
-                            <div class="stat-value" id="stat-originals-count">0</div>
-                            <span class="stat-subtitle">Original videos registered</span>
+                            <div class="stat-value" id="stat-cases-count">0</div>
+                            <span class="stat-subtitle">Registered cases in database</span>
                         </div>
                     </div>
-                    <!-- Detected Ads -->
+                    <!-- Active Detections -->
                     <div class="stat-card">
                         <div class="stat-icon-wrapper"
-                            style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%); color: var(--color-danger);">
+                            style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%); color: var(--color-danger);">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
                         <div class="stat-info">
                             <div class="stat-header">
-                                <span class="stat-title">Detected Ads</span>
+                                <span class="stat-title">Active Detections</span>
                                 <span class="stat-growth danger"><i class="fa-solid fa-arrow-up"></i> +8%</span>
                             </div>
                             <div class="stat-value" id="stat-leaks-count">0</div>
-                            <span class="stat-subtitle">Matches across social networks</span>
+                            <span class="stat-subtitle">Social media platform matches</span>
                         </div>
                     </div>
-                    <!-- Active Cases -->
+                    <!-- Protected Assets -->
                     <div class="stat-card">
                         <div class="stat-icon-wrapper"
-                            style="background: linear-gradient(135deg, rgba(109, 94, 247, 0.1) 0%, rgba(79, 124, 255, 0.1) 100%); color: var(--color-info);">
-                            <i class="fa-solid fa-folder-open"></i>
+                            style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%); color: var(--accent);">
+                            <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div class="stat-info">
                             <div class="stat-header">
-                                <span class="stat-title">Active Cases</span>
-                                <span class="stat-growth warning"><i class="fa-solid fa-arrow-right"></i> Stable</span>
+                                <span class="stat-title">Protected Assets</span>
+                                <span class="stat-growth success"><i class="fa-solid fa-arrow-right"></i> Stable</span>
                             </div>
-                            <div class="stat-value" id="stat-open-cases-count">0</div>
-                            <span class="stat-subtitle">Investigations in progress</span>
+                            <div class="stat-value" id="stat-originals-count">0</div>
+                            <span class="stat-subtitle">Reference fingerprints active</span>
                         </div>
                     </div>
-                    <!-- Reports Generated -->
+                    <!-- AI Matches -->
                     <div class="stat-card">
                         <div class="stat-icon-wrapper"
-                            style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(109, 94, 247, 0.1) 100%); color: var(--color-success);">
-                            <i class="fa-solid fa-file-signature"></i>
+                            style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%); color: var(--color-info);">
+                            <i class="fa-solid fa-brain"></i>
                         </div>
                         <div class="stat-info">
                             <div class="stat-header">
-                                <span class="stat-title">Reports Generated</span>
-                                <span class="stat-growth success"><i class="fa-solid fa-arrow-up"></i> +15%</span>
+                                <span class="stat-title">AI Matches</span>
+                                <span class="stat-growth success">98.6%</span>
                             </div>
                             <div class="stat-value" id="stat-verified-count">0</div>
-                            <span class="stat-subtitle">DMCA notice takedowns</span>
+                            <span class="stat-subtitle">High confidence detections</span>
+                        </div>
+                    </div>
+                    <!-- Pending Reviews -->
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper"
+                            style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%); color: var(--color-warning);">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-header">
+                                <span class="stat-title">Pending Reviews</span>
+                                <span class="stat-growth warning">Urgent</span>
+                            </div>
+                            <div class="stat-value" id="stat-pending-reviews-count">0</div>
+                            <span class="stat-subtitle">Awaiting expert verifications</span>
+                        </div>
+                    </div>
+                    <!-- Resolved Cases -->
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper"
+                            style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%); color: var(--color-success);">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-header">
+                                <span class="stat-title">Resolved Cases</span>
+                                <span class="stat-growth success"><i class="fa-solid fa-check"></i> 94%</span>
+                            </div>
+                            <div class="stat-value" id="stat-resolved-cases-count">0</div>
+                            <span class="stat-subtitle">Closed and settled copyright cases</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Middle Section -->
-                <div class="dashboard-middle-grid" id="dashboard-charts-container"
-                    style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 24px;">
-                    <!-- Left: Detection Statistics Donut Chart -->
-                    <div class="panel"
-                        style="display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
-                        <div>
-                            <div class="panel-header"
-                                style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                                <h3 class="panel-title"
-                                    style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Detection
-                                    Statistics</h3>
-                                <select
-                                    style="background: transparent; border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; outline: none;">
+                <!-- Middle Section - Charts Container -->
+                <div id="dashboard-charts-container" style="display: none; flex-direction: column; gap: 24px; margin-bottom: 24px;">
+                    <!-- Row 1: Detection Trend & Platform Distribution -->
+                    <div class="dashboard-middle-grid" style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 24px;">
+                        <!-- Detection Trend Chart -->
+                        <div class="panel" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-chart-line" style="color: var(--accent); margin-right: 8px;"></i>Detection Trend</h3>
+                            </div>
+                            <div style="height: 300px; position: relative;">
+                                <canvas id="chart-detection-trend"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Platform Distribution Donut Chart -->
+                        <div class="panel" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-chart-pie" style="color: var(--color-info); margin-right: 8px;"></i>Platform Distribution</h3>
+                                <select style="background: transparent; border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; outline: none;">
                                     <option>Last 30 Days</option>
                                 </select>
                             </div>
-
-                            <div
-                                style="display: flex; flex-direction: column; gap: 24px; align-items: center; justify-content: center; min-height: 320px; position: relative; width: 100%;">
-                                <div class="chart-canvas-container"
-                                    style="width: 260px; height: 260px; position: relative; background: transparent; border: none; padding: 0;">
+                            <div style="display: flex; flex-direction: column; gap: 24px; align-items: center; justify-content: center; min-height: 300px; position: relative; width: 100%;">
+                                <div class="chart-canvas-container" style="width: 200px; height: 200px; position: relative; background: transparent; border: none; padding: 0;">
                                     <canvas id="chart-platform-dist"></canvas>
-                                    <div
-                                        style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px;">
-                                        <div style="font-size: 54px; font-weight: 800; color: var(--text-primary); line-height: 1;"
-                                            id="donut-total-count-label">0</div>
-                                        <div
-                                            style="font-size: 14px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">
-                                            TOTAL</div>
+                                    <div style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px;">
+                                        <div style="font-size: 40px; font-weight: 800; color: var(--text-primary); line-height: 1;" id="donut-total-count-label">0</div>
+                                        <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">TOTAL</div>
                                     </div>
                                 </div>
-
                                 <!-- Legend Row -->
-                                <div class="chart-custom-legend"
-                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px; width: 100%; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-top: 20px; border-top: 1px solid var(--border-light); padding-top: 20px;">
+                                <div class="chart-custom-legend" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; width: 100%; font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-top: 10px; border-top: 1px solid var(--border-light); padding-top: 12px;">
                                     <!-- Dynamic content injected by app.js -->
                                 </div>
                             </div>
                         </div>
-
-                        <button class="btn btn-action-view" onclick="app.switchView('scanner')"
-                            style="width: 100%; justify-content: center; margin-top: 20px;">
-                            <i class="fa-solid fa-chart-line" style="margin-right: 6px;"></i> View Full Analytics
-                        </button>
                     </div>
 
-                    <!-- Right: Recent Detections table -->
-                    <div class="panel" style="display: flex; flex-direction: column; margin-bottom: 0;">
-                        <div class="panel-header"
-                            style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="panel-title"
-                                style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Recent Detections
-                            </h3>
-                            <button class="btn btn-action-view" onclick="app.switchView('verification')">View All Detections</button>
+                    <!-- Row 2: Risk Level, Copyright Reports, Weekly Activity -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                        <!-- Risk Level -->
+                        <div class="panel" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-triangle-exclamation" style="color: var(--color-warning); margin-right: 8px;"></i>Risk Level (Similarity)</h3>
+                            </div>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chart-similarity-ranges"></canvas>
+                            </div>
                         </div>
 
-                        <div class="table-responsive" style="overflow-x: auto; flex: 1;">
-                            <table class="data-table"
-                                style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                        <!-- Copyright Reports -->
+                        <div class="panel" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-file-shield" style="color: var(--color-success); margin-right: 8px;"></i>Enforcement Status</h3>
+                            </div>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chart-status-breakdown"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Weekly Activity -->
+                        <div class="panel" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-business-time" style="color: var(--accent); margin-right: 8px;"></i>Weekly Activity</h3>
+                            </div>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chart-weekly-activity"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom split dashboard area: Tables, Quick Actions, Activity -->
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+                    <!-- Tables Row -->
+                    <div class="dashboard-middle-grid" style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 24px;">
+                        <!-- Left: Recent Detections table -->
+                        <div class="panel" style="display: flex; flex-direction: column; margin-bottom: 0;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Recent Detections</h3>
+                                <button class="btn btn-action-view" onclick="app.switchView('verification')">View All Detections</button>
+                            </div>
+                            <div class="table-responsive" style="overflow-x: auto; flex: 1;">
+                                <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
+                                            <th style="padding: 10px 8px;">Platform</th>
+                                            <th style="padding: 10px 8px;">Similarity Score</th>
+                                            <th style="padding: 10px 8px;">First Seen</th>
+                                            <th style="padding: 10px 8px;">Status</th>
+                                            <th style="padding: 10px 8px; text-align: right;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-recent-evidence">
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                                                Select a case above to load recent detections.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Right: Active Cases -->
+                        <div class="panel" style="padding: 20px; margin-bottom: 0; display: flex; flex-direction: column;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Active Cases</h3>
+                                <button class="btn btn-action-view" onclick="app.switchView('cases')">View All</button>
+                            </div>
+                            <div class="table-responsive" style="overflow-x: auto; flex: 1;">
+                                <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
+                                            <th style="padding: 10px 8px;">Case ID</th>
+                                            <th style="padding: 10px 8px;">Case Name</th>
+                                            <th style="padding: 10px 8px;">Status</th>
+                                            <th style="padding: 10px 8px;">Updated Date</th>
+                                            <th style="padding: 10px 8px; text-align: right;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-recent-cases-list">
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                                                Loading cases...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions and Activity Row -->
+                    <div class="dashboard-bottom-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+                        <!-- Left: Quick Actions Grid -->
+                        <div class="panel" style="padding: 24px; margin-bottom: 0;">
+                            <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 20px;">
+                                <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-bolt" style="color: var(--color-warning); margin-right: 8px;"></i>Quick Actions</h3>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                                <!-- Upload Video -->
+                                <div class="quick-action-card" onclick="app.switchView('library')" style="cursor: pointer; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px; transition: all var(--transition-normal) ease; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(37, 99, 235, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">Upload Asset</h4>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">Register copyright video</p>
+                                    </div>
+                                </div>
+                                <!-- Scan Video -->
+                                <div class="quick-action-card" onclick="app.switchView('scanner')" style="cursor: pointer; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px; transition: all var(--transition-normal) ease; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        <i class="fa-solid fa-play"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">Scan Video Link</h4>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">Analyze video stream URL</p>
+                                    </div>
+                                </div>
+                                <!-- Scan Image -->
+                                <div class="quick-action-card" onclick="app.switchView('scanner')" style="cursor: pointer; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px; transition: all var(--transition-normal) ease; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(245, 158, 11, 0.1); color: var(--color-warning); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        <i class="fa-solid fa-image"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">Scan Image</h4>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">Analyze static image asset</p>
+                                    </div>
+                                </div>
+                                <!-- Generate Report -->
+                                <div class="quick-action-card" onclick="app.switchView('reports')" style="cursor: pointer; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px; transition: all var(--transition-normal) ease; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(34, 197, 94, 0.1); color: var(--color-success); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        <i class="fa-solid fa-file-contract"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">DMCA Takedown</h4>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">Generate legal notice draft</p>
+                                    </div>
+                                </div>
+                                <!-- Create Case -->
+                                <div class="quick-action-card" onclick="document.getElementById('btn-header-new-case').click()" style="cursor: pointer; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px; transition: all var(--transition-normal) ease; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(109, 94, 247, 0.1); color: var(--color-info); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">Create Case</h4>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">Open new protection case</p>
+                                    </div>
+                                </div>
+                                <!-- Evidence Center -->
+                                <div class="quick-action-card" onclick="app.switchView('verification')" style="cursor: pointer; background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 18px; transition: all var(--transition-normal) ease; display: flex; flex-direction: column; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(6, 182, 212, 0.1); color: #06B6D4; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                                        <i class="fa-solid fa-folder-tree"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                                        <h4 style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 0;">Evidence</h4>
+                                        <p style="font-size: 11px; color: var(--text-secondary); margin: 0; line-height: 1.4;">Verify collected evidence</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: System Overview & Activity Timeline Side by Side -->
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+                            <!-- Activity Timeline -->
+                            <div class="panel" style="padding: 20px; margin-bottom: 0;">
+                                <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 20px;">
+                                    <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent); margin-right: 8px;"></i>Recent Activity</h3>
+                                </div>
+                                <div class="activity-timeline" style="position: relative; padding-left: 20px; display: flex; flex-direction: column; gap: 20px;">
+                                    <!-- Timeline line -->
+                                    <div style="position: absolute; left: 4px; top: 6px; bottom: 6px; width: 1.5px; background: var(--border-light);"></div>
+                                    <!-- Item 1 -->
+                                    <div style="position: relative; display: flex; flex-direction: column; gap: 2px;">
+                                        <div style="position: absolute; left: -20px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); border: 2px solid var(--bg-primary);"></div>
+                                        <span style="font-size: 13px; color: var(--text-primary); font-weight: 600;">Copyright Leak Confirmed</span>
+                                        <span style="font-size: 11px; color: var(--text-secondary);">Case #103 - YouTube Match (94.2% similarity)</span>
+                                        <span style="font-size: 10px; color: var(--text-muted);">10 minutes ago</span>
+                                    </div>
+                                    <!-- Item 2 -->
+                                    <div style="position: relative; display: flex; flex-direction: column; gap: 2px;">
+                                        <div style="position: absolute; left: -20px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg-primary);"></div>
+                                        <span style="font-size: 13px; color: var(--text-primary); font-weight: 600;">DMCA Report Generated</span>
+                                        <span style="font-size: 11px; color: var(--text-secondary);">Case #101 - PDF notice exported</span>
+                                        <span style="font-size: 10px; color: var(--text-muted);">2 hours ago</span>
+                                    </div>
+                                    <!-- Item 3 -->
+                                    <div style="position: relative; display: flex; flex-direction: column; gap: 2px;">
+                                        <div style="position: absolute; left: -20px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--color-info); border: 2px solid var(--bg-primary);"></div>
+                                        <span style="font-size: 13px; color: var(--text-primary); font-weight: 600;">Reference Video Uploaded</span>
+                                        <span style="font-size: 11px; color: var(--text-secondary);">Avengers_Teaser_Final.mp4 registered</span>
+                                        <span style="font-size: 10px; color: var(--text-muted);">1 day ago</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- System Overview Metrics -->
+                            <div class="panel" style="padding: 20px; margin-bottom: 0;">
+                                <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                    <h3 class="panel-title" style="font-size: 16px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-server" style="color: var(--color-success); margin-right: 8px;"></i>System Overview</h3>
+                                </div>
+
+                                <div class="system-overview-list" style="display: flex; flex-direction: column; gap: 14px; font-size: 13px;">
+                                    <!-- Storage -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-hard-drive" style="margin-right: 8px; color: var(--accent);"></i> Storage Usage</span>
+                                        <strong id="metric-storage" style="color: var(--text-primary);">12.4 MB</strong>
+                                    </div>
+                                    <!-- Database Size -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-database" style="margin-right: 8px; color: var(--color-info);"></i> Database Size</span>
+                                        <strong id="metric-db-size" style="color: var(--text-primary);">4.8 MB</strong>
+                                    </div>
+                                    <!-- System Health -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-heart-pulse" style="margin-right: 8px; color: var(--color-success);"></i> System Health</span>
+                                        <strong id="metric-health" style="color: var(--color-success);">Good</strong>
+                                    </div>
+                                    <!-- Average Response Time -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-gauge-high" style="margin-right: 8px; color: var(--color-warning);"></i> Avg Response Time</span>
+                                        <strong id="metric-response-time" style="color: var(--text-primary);">124 ms</strong>
+                                    </div>
+                                    <!-- Worker Queue -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
+                                        <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px; color: var(--color-info);"></i> Worker Queue</span>
+                                        <strong id="metric-queue" style="color: var(--text-primary);">0 Active / 0 Queued</strong>
+                                    </div>
+                                    <!-- Fingerprint Jobs -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
+                                        <span style="color: var(--text-secondary); font-weight: 500;"><i class="fa-solid fa-circle-check" style="margin-right: 8px; color: var(--color-success);"></i> Fingerprint Jobs</span>
+                                        <strong id="metric-jobs" style="color: var(--text-primary);">12 Completed</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1.5 COPYRIGHT REGISTRATION VIEW -->
+            <section id="view-copyright-registration" class="container view-pane" style="display: none;">
+                <!-- Mode 1: Registry Directory -->
+                <div id="copyright-registry-mode">
+                    <div class="panel" style="margin-bottom: 20px;">
+                        <div class="panel-header" style="flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;">
+                            <div>
+                                <h2 class="panel-title" style="font-size: 20px; font-weight: 700;"><i class="fa-solid fa-copyright" style="color: var(--accent); margin-right: 8px;"></i>Copyright Registry Center</h2>
+                                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">Register new assets and verify digital copyright certificates.</p>
+                            </div>
+                            <button class="btn btn-primary" id="btn-copyright-go-register">
+                                <i class="fa-solid fa-plus"></i> Register New Asset
+                            </button>
+                        </div>
+
+                        <!-- Search & Filter Controls -->
+                        <div class="filter-bar" style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; padding: 12px; background: var(--bg-dark); border-radius: 8px; border: 1px solid var(--border-light);">
+                            <div style="flex: 1; min-width: 240px; position: relative;">
+                                <input type="text" id="copyright-search-input" class="form-input" placeholder="Search by Asset ID, Cert ID, Title, Owner or Filename...">
+                            </div>
+                            <div style="width: 150px;">
+                                <select id="copyright-filter-category" class="form-input" style="cursor: pointer;">
+                                    <option value="">All Categories</option>
+                                    <option value="Video">Video</option>
+                                    <option value="Audio">Audio</option>
+                                    <option value="Image">Image</option>
+                                    <option value="Document">Document</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div style="width: 150px;">
+                                <select id="copyright-filter-status" class="form-input" style="cursor: pointer;">
+                                    <option value="">All Statuses</option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Uploading">Uploading</option>
+                                    <option value="Processing">Processing</option>
+                                    <option value="Protected">Protected</option>
+                                    <option value="Rejected">Rejected</option>
+                                    <option value="Archived">Archived</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive" style="overflow-x: auto; margin-top: 20px; border-radius: 8px; border: 1px solid var(--border-light);">
+                            <table class="data-table">
                                 <thead>
-                                    <tr
-                                        style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
-                                        <th style="padding: 10px 8px;">Platform</th>
-                                        <th style="padding: 10px 8px;">Similarity Score</th>
-                                        <th style="padding: 10px 8px;">First Seen</th>
-                                        <th style="padding: 10px 8px;">Status</th>
-                                        <th style="padding: 10px 8px; text-align: right;">Action</th>
+                                    <tr>
+                                        <th>Thumbnail</th>
+                                        <th>Asset ID</th>
+                                        <th>Title</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Registration Date</th>
+                                        <th style="text-align: right; padding-right: 24px;">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="dashboard-recent-evidence">
+                                <tbody id="copyright-registry-table-body">
                                     <tr>
-                                        <td colspan="5"
-                                            style="text-align: center; padding: 30px; color: var(--text-secondary);">
-                                            Select a case above to load recent detections.
+                                        <td colspan="7" style="text-align: center; padding: 48px; color: var(--text-secondary);">
+                                            <i class="fa-solid fa-folder-open" style="font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
+                                            No registered copyright assets found. Click "Register New Asset" to begin.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -485,114 +802,258 @@
                     </div>
                 </div>
 
-                <!-- Hidden helper charts container for compatibility with ChartJS instance loads in app.js -->
-                <div style="display:none;">
-                    <canvas id="chart-similarity-ranges"></canvas>
-                    <canvas id="chart-status-breakdown"></canvas>
-                </div>
-
-                <!-- Bottom split dashboard area -->
-                <div class="dashboard-bottom-grid"
-                    style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
-                    <!-- Left: Active Cases -->
-                    <div class="panel" style="padding: 20px; margin-bottom: 0;">
-                        <div class="panel-header"
-                            style="border: none; padding-bottom: 0; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="panel-title"
-                                style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Active Cases</h3>
-                            <button class="btn btn-action-view" onclick="app.switchView('cases')">View All</button>
-                        </div>
-
-                        <div class="table-responsive" style="overflow-x: auto;">
-                            <table class="data-table"
-                                style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-                                <thead>
-                                    <tr
-                                        style="border-bottom: 1px solid var(--border-light); color: var(--text-secondary); font-weight: 600;">
-                                        <th style="padding: 10px 8px;">Case ID</th>
-                                        <th style="padding: 10px 8px;">Case Name</th>
-                                        <th style="padding: 10px 8px;">Status</th>
-                                        <th style="padding: 10px 8px;">Updated Date</th>
-                                        <th style="padding: 10px 8px; text-align: right;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dashboard-recent-cases-list">
-                                    <tr>
-                                        <td colspan="5"
-                                            style="text-align: center; padding: 20px; color: var(--text-secondary);">
-                                            Loading cases...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                <!-- Mode 2: Registration Wizard -->
+                <div id="copyright-wizard-mode" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <button class="btn btn-action-view" id="btn-copyright-back-to-registry">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Registry
+                        </button>
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0;" id="copyright-wizard-title">New Copyright Registration</h3>
                     </div>
 
-                    <!-- Right: System Overview -->
-                    <div class="panel" style="padding: 20px; margin-bottom: 0;">
-                        <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
-                            <h3 class="panel-title"
-                                style="font-size: 16px; font-weight: 700; color: var(--text-primary);">System Overview
-                            </h3>
+                    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; align-items: start;">
+                        <!-- Left Column: Upload and Form -->
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            <!-- Upload Center Card -->
+                            <div class="panel" style="padding: 24px; margin-bottom: 0;">
+                                <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                    <h4 class="panel-title" style="font-size: 14px; font-weight: 700;"><i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent); margin-right: 8px;"></i>Upload Center</h4>
+                                </div>
+                                
+                                <div id="copyright-dropzone" style="border: 2px dashed var(--border-light); border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; transition: all var(--transition-normal) ease; background: rgba(255, 255, 255, 0.01);">
+                                    <input type="file" id="copyright-file-input" style="display: none;">
+                                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 40px; color: var(--text-secondary); margin-bottom: 16px;"></i>
+                                    <p style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px 0;">Drag and drop file here</p>
+                                    <p style="font-size: 11px; color: var(--text-secondary); margin: 0 0 16px 0;">Supports Video, Audio, Image and Documents (Max 50MB)</p>
+                                    <button class="btn btn-action-view" type="button" onclick="document.getElementById('copyright-file-input').click()">Browse Files</button>
+                                    <button class="btn btn-action-view" id="btn-test-mock-upload" type="button" style="margin-left: 8px;" onclick="
+                                        const blob = new Blob(['Mock video file content'], { type: 'video/mp4' });
+                                        const file = new File([blob], 'test_mock_video.mp4', { type: 'video/mp4' });
+                                        app.handleCopyrightFileUpload(file);
+                                    ">Mock Upload</button>
+                                </div>
+
+                                <div id="copyright-upload-progress-container" style="display: none; margin-top: 16px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-bottom: 6px;">
+                                        <span id="copyright-upload-filename">File.mp4</span>
+                                        <span id="copyright-upload-percent">0%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; position: relative;">
+                                        <div id="copyright-upload-progress-bar" style="width: 0%; height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.1s ease;"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                                        <button class="btn btn-action-view" type="button" id="btn-copyright-cancel-upload" style="padding: 4px 8px; font-size: 11px; color: var(--color-danger); border-color: rgba(239, 68, 68, 0.2);">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Copyright Information Form -->
+                            <div class="panel" id="copyright-form-container" style="padding: 24px; margin-bottom: 0; display: none;">
+                                <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 20px;">
+                                    <h4 class="panel-title" style="font-size: 14px; font-weight: 700;"><i class="fa-solid fa-file-signature" style="color: var(--color-success); margin-right: 8px;"></i>Copyright Information</h4>
+                                </div>
+
+                                <form id="copyright-registration-form" style="display: flex; flex-direction: column; gap: 16px;" onsubmit="return false;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Asset Title *</label>
+                                            <input type="text" id="copyright-input-title" class="form-input" required placeholder="Enter descriptive asset title">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Category *</label>
+                                            <select id="copyright-input-category" class="form-input" required>
+                                                <option value="Video">Video</option>
+                                                <option value="Audio">Audio</option>
+                                                <option value="Image">Image</option>
+                                                <option value="Document">Document</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Description</label>
+                                        <textarea id="copyright-input-description" class="form-input" style="min-height: 80px; resize: vertical;" placeholder="Brief description of asset intellectual properties"></textarea>
+                                    </div>
+
+                                    <div style="background: rgba(37, 99, 235, 0.03); border: 1px dashed rgba(37, 99, 235, 0.15); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+                                            <span style="font-size: 12px; font-weight: 700; color: var(--accent);"><i class="fa-solid fa-lock" style="margin-right: 6px;"></i>Private Ownership Details</span>
+                                            <span style="font-size: 10px; color: var(--text-muted);">Encrypted in Database</span>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                            <div>
+                                                <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Owner Full Name *</label>
+                                                <input type="text" id="copyright-input-owner" class="form-input" required placeholder="Legal copyright owner name">
+                                            </div>
+                                            <div>
+                                                <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Owner Email</label>
+                                                <input type="email" id="copyright-input-email" class="form-input" placeholder="owner@domain.com">
+                                            </div>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                            <div>
+                                                <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Owner Phone</label>
+                                                <input type="text" id="copyright-input-phone" class="form-input" placeholder="+1 (555) 000-0000">
+                                            </div>
+                                            <div>
+                                                <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Owner Address</label>
+                                                <input type="text" id="copyright-input-address" class="form-input" placeholder="Legal residential/corporate address">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Organization</label>
+                                            <input type="text" id="copyright-input-organization" class="form-input" placeholder="e.g. TSN Content Ltd.">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Country</label>
+                                            <input type="text" id="copyright-input-country" class="form-input" placeholder="e.g. United States">
+                                        </div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Creation Date</label>
+                                            <input type="date" id="copyright-input-creation-date" class="form-input">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Copyright Type</label>
+                                            <select id="copyright-input-type" class="form-input">
+                                                <option value="Registered">Registered Copyright</option>
+                                                <option value="Common Law">Common Law Copyright</option>
+                                                <option value="Proprietary">Proprietary Assets</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">License Type</label>
+                                            <select id="copyright-input-license" class="form-input">
+                                                <option value="All Rights Reserved">All Rights Reserved</option>
+                                                <option value="Creative Commons BY">Creative Commons Attribution (CC BY)</option>
+                                                <option value="Non-Commercial">Creative Commons Non-Commercial (CC BY-NC)</option>
+                                                <option value="Proprietary Open Source">Proprietary Open Source</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Tags (comma separated)</label>
+                                            <input type="text" id="copyright-input-tags" class="form-input" placeholder="video, brand, trademark">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="form-label" style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); display: block; margin-bottom: 6px;">Internal Notes</label>
+                                        <textarea id="copyright-input-notes" class="form-input" style="min-height: 60px; resize: vertical;" placeholder="Add private administrator remarks..."></textarea>
+                                    </div>
+
+                                    <button class="btn btn-primary" type="button" id="btn-copyright-submit" style="width: 100%; justify-content: center; margin-top: 10px; font-weight: 700; height: 44px;">
+                                        <i class="fa-solid fa-shield-halved"></i> Complete Copyright Registration
+                                    </button>
+                                </form>
+                            </div>
                         </div>
 
-                        <div class="system-overview-list"
-                            style="display: flex; flex-direction: column; gap: 14px; font-size: 13px;">
-                            <!-- Storage -->
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i
-                                        class="fa-solid fa-hard-drive"
-                                        style="margin-right: 8px; color: var(--accent);"></i> Storage Usage</span>
-                                <strong id="metric-storage" style="color: var(--text-primary);">12.4 MB</strong>
+                        <!-- Right Column: Extracted Metadata & Certificate Live Preview -->
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            <!-- File Analysis Panel -->
+                            <div class="panel" id="copyright-analysis-container" style="padding: 24px; margin-bottom: 0; display: none;">
+                                <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                    <h4 class="panel-title" style="font-size: 14px; font-weight: 700;"><i class="fa-solid fa-list-check" style="color: var(--color-info); margin-right: 8px;"></i>File Information</h4>
+                                </div>
+
+                                <div id="copyright-file-preview" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.2); border: 1px solid var(--border-light); margin-bottom: 16px; display: flex; align-items: center; justify-content: center; min-height: 150px; position: relative;">
+                                    <!-- Dynamic elements loaded in js -->
+                                </div>
+
+                                <div class="system-overview-list" style="display: flex; flex-direction: column; gap: 10px; font-size: 12px;" id="copyright-metadata-list">
+                                    <!-- Filename, size, duration, resolution, codec, frame rate, bitrate, hashes -->
+                                </div>
                             </div>
-                            <!-- Database Size -->
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i
-                                        class="fa-solid fa-database"
-                                        style="margin-right: 8px; color: var(--color-info);"></i> Database Size</span>
-                                <strong id="metric-db-size" style="color: var(--text-primary);">4.8 MB</strong>
-                            </div>
-                            <!-- System Health -->
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i
-                                        class="fa-solid fa-heart-pulse"
-                                        style="margin-right: 8px; color: var(--color-success);"></i> System
-                                    Health</span>
-                                <strong id="metric-health" style="color: var(--color-success);">Good</strong>
-                            </div>
-                            <!-- Average Response Time -->
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i
-                                        class="fa-solid fa-gauge-high"
-                                        style="margin-right: 8px; color: var(--color-warning);"></i> Avg Response
-                                    Time</span>
-                                <strong id="metric-response-time" style="color: var(--text-primary);">124 ms</strong>
-                            </div>
-                            <!-- Worker Queue -->
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 8px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i
-                                        class="fa-solid fa-spinner fa-spin"
-                                        style="margin-right: 8px; color: var(--color-info);"></i> Worker Queue</span>
-                                <strong id="metric-queue" style="color: var(--text-primary);">0 Active / 0
-                                    Queued</strong>
-                            </div>
-                            <!-- Fingerprint Jobs -->
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px;">
-                                <span style="color: var(--text-secondary); font-weight: 500;"><i
-                                        class="fa-solid fa-circle-check"
-                                        style="margin-right: 8px; color: var(--color-success);"></i> Fingerprint
-                                    Jobs</span>
-                                <strong id="metric-jobs" style="color: var(--text-primary);">12 Completed</strong>
+
+                            <!-- Live Certificate Card Preview -->
+                            <div class="panel" id="copyright-cert-preview-container" style="padding: 24px; margin-bottom: 0; display: none;">
+                                <div class="panel-header" style="border: none; padding-bottom: 0; margin-bottom: 16px;">
+                                    <h4 class="panel-title" style="font-size: 14px; font-weight: 700;"><i class="fa-solid fa-file-medal" style="color: var(--color-warning); margin-right: 8px;"></i>Live Digital Certificate Preview</h4>
+                                </div>
+
+                                <!-- Design of Digital Certificate -->
+                                <div class="digital-certificate-card" style="border: 2px solid #b59410; background: linear-gradient(135deg, rgba(181, 148, 16, 0.05) 0%, rgba(17, 24, 39, 0.95) 100%); border-radius: 12px; padding: 24px; text-align: center; position: relative; box-shadow: 0 8px 32px rgba(181, 148, 16, 0.1); overflow: hidden;">
+                                    <div style="position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(181, 148, 16, 0.2) 0%, transparent 70%); pointer-events: none;"></div>
+                                    
+                                    <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+                                        <i class="fa-solid fa-certificate" style="font-size: 44px; color: #b59410; filter: drop-shadow(0 0 8px rgba(181,148,16,0.3));"></i>
+                                    </div>
+                                    <h4 style="font-family: 'Times New Roman', serif; font-size: 16px; color: #b59410; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 6px 0;">Certificate of Registration</h4>
+                                    <p style="font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px 0;">TSN Content Security Registry</p>
+                                    
+                                    <div style="border-top: 1px solid rgba(181, 148, 16, 0.25); border-bottom: 1px solid rgba(181, 148, 16, 0.25); padding: 12px 0; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; text-align: left;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span style="color: var(--text-secondary);">Asset Title:</span>
+                                            <strong style="color: white; max-width: 140px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" id="cert-prev-title">---</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span style="color: var(--text-secondary);">Asset ID:</span>
+                                            <strong style="color: white; font-family: monospace;" id="cert-prev-asset-id">---</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span style="color: var(--text-secondary);">Certificate ID:</span>
+                                            <strong style="color: white; font-family: monospace;" id="cert-prev-cert-id">---</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span style="color: var(--text-secondary);">Registration No:</span>
+                                            <strong style="color: white; font-family: monospace;" id="cert-prev-reg-num">---</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span style="color: var(--text-secondary);">SHA-256 Hash:</span>
+                                            <strong style="color: white; font-family: monospace; font-size: 9px; max-width: 130px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" id="cert-prev-hash">---</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                                            <span style="color: var(--text-secondary);">Created At:</span>
+                                            <strong style="color: white;" id="cert-prev-date">---</strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="text-align: left;">
+                                            <span class="status-badge status-active" style="padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; background: rgba(34, 197, 94, 0.1); color: var(--color-success); border: 1px solid rgba(34, 197, 94, 0.2);">
+                                                <i class="fa-solid fa-lock" style="margin-right: 4px;"></i> PROTECTED
+                                            </span>
+                                        </div>
+                                        <!-- QR code placeholder -->
+                                        <div style="width: 50px; height: 50px; border-radius: 4px; background: white; padding: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                            <i class="fa-solid fa-qrcode" style="font-size: 42px; color: black;"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+
+            <!-- Certificate Viewer Overlay Modal -->
+            <div id="copyright-cert-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(3, 5, 9, 0.85); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+                <div class="panel" style="max-width: 550px; width: 100%; border: 1px solid var(--border-light); background: var(--bg-card); border-radius: 16px; padding: 28px; box-shadow: var(--shadow-premium-hover); position: relative;">
+                    <button style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; transition: color var(--transition-fast) ease;" type="button" onclick="document.getElementById('copyright-cert-modal').style.display='none'">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    
+                    <div id="printable-certificate-area">
+                        <!-- Printed certificate details dynamically loaded -->
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+                        <button class="btn btn-action-view" type="button" onclick="document.getElementById('copyright-cert-modal').style.display='none'">Close</button>
+                        <button class="btn btn-primary" type="button" id="btn-copyright-print-cert">
+                            <i class="fa-solid fa-print"></i> Print / Save PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- 2. CASES VIEW -->
             <section id="view-cases" class="container view-pane" style="display: none;">

@@ -19,7 +19,9 @@ class CopyrightDefenderApp {
         this.charts = {
             platform: null,
             similarity: null,
-            status: null
+            status: null,
+            trend: null,
+            weekly: null
         };
 
         // Bind UI Elements
@@ -33,6 +35,7 @@ class CopyrightDefenderApp {
             if (this.token) {
                 this.loadCases();
             }
+            this.initCopyrightRegistry();
             this.initSignaturePad();
             this.initAutoRefresh();
             this.switchView(this.activeView);
@@ -1395,6 +1398,7 @@ class CopyrightDefenderApp {
         // Update Title Header & Subtitle
         const viewTitles = {
             dashboard: "Overview",
+            "copyright-registration": "Copyright Registry",
             cases: "Case Manager",
             verification: "Verification Center",
             library: "Video Fingerprinter",
@@ -1405,6 +1409,7 @@ class CopyrightDefenderApp {
         };
         const viewSubtitles = {
             dashboard: "",
+            "copyright-registration": "Register original copyright assets and verify digital certificates.",
             cases: "Organize copyright directories and monitor leaks Monitored.",
             verification: "Verify identified video and audio infringement occurrences.",
             library: "Register and reference original video copyright models.",
@@ -1414,6 +1419,10 @@ class CopyrightDefenderApp {
             settings: "Configure general parameters and threshold parameters."
         };
         this.pageTitle.textContent = viewTitles[viewName] || "TSN Copyright Defender";
+        const breadcrumbEl = document.getElementById("breadcrumb-current-view");
+        if (breadcrumbEl) {
+            breadcrumbEl.textContent = viewTitles[viewName] || "Dashboard";
+        }
         const subtitleEl = document.getElementById("page-current-subtitle");
         if (subtitleEl) {
             const subText = viewSubtitles[viewName] || "";
@@ -1444,6 +1453,9 @@ class CopyrightDefenderApp {
         switch (view) {
             case "dashboard":
                 this.loadDashboardData();
+                break;
+            case "copyright-registration":
+                this.loadCopyrightRegistrations();
                 break;
             case "cases":
                 this.renderCasesList();
@@ -2658,6 +2670,19 @@ class CopyrightDefenderApp {
         const archivedCases = this.allCases.filter(c => c.status === "Archived").length;
         this.updateStatsCounters(totalCases, openCases, resolvedCases, archivedCases);
 
+        // Fetch and update Pending Reviews count dynamically from verification records
+        try {
+            const verifRes = await this.authFetch("/api/v1/verification");
+            if (verifRes.ok) {
+                const verifData = await verifRes.json();
+                const pendingCount = verifData.filter(v => v.status === "Pending").length;
+                const el = document.getElementById("stat-pending-reviews-count");
+                if (el) el.textContent = pendingCount;
+            }
+        } catch (err) {
+            console.error("Failed to load verification metrics on dashboard:", err);
+        }
+
         // Populate recent cases list as a table body
         const recentCasesList = document.getElementById("dashboard-recent-cases-list");
         if (recentCasesList) {
@@ -3732,7 +3757,7 @@ class CopyrightDefenderApp {
             return;
         }
 
-        container.style.display = "grid";
+        container.style.display = "flex";
 
         // 1. Platform Counts
         const platformCounts = { YouTube: 0, TikTok: 0, Facebook: 0, Instagram: 0, Other: 0 };
@@ -3758,6 +3783,8 @@ class CopyrightDefenderApp {
         if (this.charts.platform) this.charts.platform.destroy();
         if (this.charts.similarity) this.charts.similarity.destroy();
         if (this.charts.status) this.charts.status.destroy();
+        if (this.charts.trend) this.charts.trend.destroy();
+        if (this.charts.weekly) this.charts.weekly.destroy();
 
         // Setup shared chart configurations
         const fontConfig = {
@@ -3772,22 +3799,22 @@ class CopyrightDefenderApp {
         }
 
         const platformColorsMap = {
-            "Facebook": "#4F7CFF",
-            "Instagram": "#6D5EF7",
-            "TikTok": "#111827",
+            "Facebook": "#2563EB",
+            "Instagram": "#EC4899",
+            "TikTok": "#10B981",
             "YouTube": "#EF4444",
-            "Other": "#9CA3AF"
+            "Other": "#6B7280"
         };
 
         // Update custom legend labels
         const legendContainer = document.querySelector(".chart-custom-legend");
         if (legendContainer) {
             const platforms = [
-                { name: "Facebook", key: "Facebook", color: "#4F7CFF" },
-                { name: "Instagram", key: "Instagram", color: "#6D5EF7" },
-                { name: "TikTok", key: "TikTok", color: "#111827" },
+                { name: "Facebook", key: "Facebook", color: "#2563EB" },
+                { name: "Instagram", key: "Instagram", color: "#EC4899" },
+                { name: "TikTok", key: "TikTok", color: "#10B981" },
                 { name: "YouTube", key: "YouTube", color: "#EF4444" },
-                { name: "Others", key: "Other", color: "#9CA3AF" }
+                { name: "Others", key: "Other", color: "#6B7280" }
             ];
 
             legendContainer.innerHTML = "";
@@ -3827,7 +3854,7 @@ class CopyrightDefenderApp {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '70%',
+                cutout: '75%',
                 plugins: {
                     legend: {
                         display: false
@@ -3845,8 +3872,8 @@ class CopyrightDefenderApp {
                 datasets: [{
                     label: 'Match Count',
                     data: [similarityCounts.High, similarityCounts.Medium, similarityCounts.Low],
-                    backgroundColor: ['#00e676', '#ff9100', '#8c9cb5'],
-                    borderRadius: 4
+                    backgroundColor: ['#EF4444', '#F59E0B', '#3B82F6'],
+                    borderRadius: 6
                 }]
             },
             options: {
@@ -3858,11 +3885,11 @@ class CopyrightDefenderApp {
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { color: '#8c9cb5', font: fontConfig }
+                        ticks: { color: 'var(--text-secondary)', font: fontConfig }
                     },
                     y: {
                         grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                        ticks: { color: '#8c9cb5', font: fontConfig, precision: 0 }
+                        ticks: { color: 'var(--text-secondary)', font: fontConfig, precision: 0 }
                     }
                 }
             }
@@ -3877,11 +3904,11 @@ class CopyrightDefenderApp {
                 datasets: [{
                     data: Object.values(statusCounts),
                     backgroundColor: [
-                        'rgba(0, 176, 255, 0.4)', // Detected
-                        'rgba(0, 230, 118, 0.4)', // Verified
-                        'rgba(255, 145, 0, 0.4)', // DMCA Drafted
-                        'rgba(255, 82, 82, 0.4)',  // DMCA Filed
-                        'rgba(140, 156, 181, 0.4)' // Resolved
+                        'rgba(59, 130, 246, 0.5)', // Detected
+                        'rgba(16, 185, 129, 0.5)', // Verified
+                        'rgba(245, 158, 11, 0.5)', // DMCA Drafted
+                        'rgba(139, 92, 246, 0.5)', // DMCA Filed
+                        'rgba(16, 185, 129, 0.5)'  // Resolved
                     ],
                     borderColor: 'rgba(255, 255, 255, 0.08)',
                     borderWidth: 1
@@ -3894,7 +3921,7 @@ class CopyrightDefenderApp {
                     legend: {
                         position: 'right',
                         labels: {
-                            color: '#8c9cb5',
+                            color: 'var(--text-secondary)',
                             font: fontConfig
                         }
                     }
@@ -3903,6 +3930,107 @@ class CopyrightDefenderApp {
                     r: {
                         grid: { color: 'rgba(255, 255, 255, 0.05)' },
                         ticks: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Create Detection Trend Line Chart
+        const ctxTrend = document.getElementById("chart-detection-trend").getContext("2d");
+        const trendLabels = [];
+        const trendData = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            trendLabels.push(dateStr);
+            
+            const count = evidence.filter(ev => {
+                if (!ev.created_at) return false;
+                const evDate = new Date(ev.created_at);
+                return evDate.toDateString() === d.toDateString();
+            }).length;
+            trendData.push(count);
+        }
+
+        const trendGradient = ctxTrend.createLinearGradient(0, 0, 0, 300);
+        trendGradient.addColorStop(0, 'rgba(37, 99, 235, 0.35)');
+        trendGradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+        this.charts.trend = new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'Detections',
+                    data: trendData,
+                    borderColor: '#2563EB',
+                    borderWidth: 3,
+                    backgroundColor: trendGradient,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#2563EB',
+                    pointBorderColor: 'rgba(255,255,255,0.8)',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'var(--text-secondary)', font: fontConfig }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: 'var(--text-secondary)', font: fontConfig, precision: 0 }
+                    }
+                }
+            }
+        });
+
+        // Create Weekly Activity Bar Chart
+        const ctxWeekly = document.getElementById("chart-weekly-activity").getContext("2d");
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const activityData = [0, 0, 0, 0, 0, 0, 0];
+        evidence.forEach(ev => {
+            if (ev.created_at) {
+                const dayIndex = new Date(ev.created_at).getDay();
+                activityData[dayIndex]++;
+            }
+        });
+
+        this.charts.weekly = new Chart(ctxWeekly, {
+            type: 'bar',
+            data: {
+                labels: daysOfWeek,
+                datasets: [{
+                    label: 'Activity',
+                    data: activityData,
+                    backgroundColor: 'rgba(59, 130, 246, 0.75)',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'var(--text-secondary)', font: fontConfig }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: 'var(--text-secondary)', font: fontConfig, precision: 0 }
                     }
                 }
             }
@@ -4527,6 +4655,638 @@ class CopyrightDefenderApp {
             `;
         }
         recentList.innerHTML = skeletonHtml;
+    }
+
+    // -------------------------------------------------------------
+    // ENTERPRISE COPYRIGHT REGISTRATION CENTER (Phase 1)
+    // -------------------------------------------------------------
+    initCopyrightRegistry() {
+        this.copyrightUploadedFile = null;
+        this.copyrightUploadXhr = null;
+        this.copyrightRegistrations = [];
+
+        // UI Bindings
+        const goRegisterBtn = document.getElementById("btn-copyright-go-register");
+        const backToRegistryBtn = document.getElementById("btn-copyright-back-to-registry");
+        const dropzone = document.getElementById("copyright-dropzone");
+        const fileInput = document.getElementById("copyright-file-input");
+        const cancelUploadBtn = document.getElementById("btn-copyright-cancel-upload");
+        const searchInput = document.getElementById("copyright-search-input");
+        const catFilter = document.getElementById("copyright-filter-category");
+        const statusFilter = document.getElementById("copyright-filter-status");
+        const formSubmitBtn = document.getElementById("btn-copyright-submit");
+        const printCertBtn = document.getElementById("btn-copyright-print-cert");
+
+        if (goRegisterBtn) {
+            goRegisterBtn.addEventListener("click", () => {
+                this.resetCopyrightUpload();
+                document.getElementById("copyright-registry-mode").style.display = "none";
+                document.getElementById("copyright-wizard-mode").style.display = "block";
+                document.getElementById("copyright-wizard-title").textContent = "New Copyright Registration";
+                formSubmitBtn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Complete Copyright Registration';
+                formSubmitBtn.dataset.editMode = "false";
+            });
+        }
+
+        if (backToRegistryBtn) {
+            backToRegistryBtn.addEventListener("click", () => {
+                document.getElementById("copyright-wizard-mode").style.display = "none";
+                document.getElementById("copyright-registry-mode").style.display = "block";
+                this.loadCopyrightRegistrations();
+            });
+        }
+
+        // Search & Filters
+        if (searchInput) {
+            let debounceTimer;
+            searchInput.addEventListener("input", () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => this.loadCopyrightRegistrations(), 300);
+            });
+        }
+        if (catFilter) catFilter.addEventListener("change", () => this.loadCopyrightRegistrations());
+        if (statusFilter) statusFilter.addEventListener("change", () => this.loadCopyrightRegistrations());
+
+        // Drag & Drop
+        if (dropzone) {
+            ["dragenter", "dragover"].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add("dragover");
+                }, false);
+            });
+
+            ["dragleave", "drop"].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove("dragover");
+                }, false);
+            });
+
+            dropzone.addEventListener("drop", (e) => {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                if (file) this.handleCopyrightFileUpload(file);
+            }, false);
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (file) this.handleCopyrightFileUpload(file);
+            });
+        }
+
+        if (cancelUploadBtn) {
+            cancelUploadBtn.addEventListener("click", () => {
+                if (this.copyrightUploadXhr) {
+                    this.copyrightUploadXhr.abort();
+                }
+            });
+        }
+
+        if (formSubmitBtn) {
+            formSubmitBtn.addEventListener("click", () => this.submitCopyrightRegistration());
+        }
+
+        if (printCertBtn) {
+            printCertBtn.addEventListener("click", () => {
+                window.print();
+            });
+        }
+
+        // Live Certificate Previews Binding
+        const inputTitle = document.getElementById("copyright-input-title");
+        if (inputTitle) {
+            inputTitle.addEventListener("input", (e) => {
+                document.getElementById("cert-prev-title").textContent = e.target.value || "---";
+            });
+        }
+    }
+
+    async loadCopyrightRegistrations() {
+        const query = document.getElementById("copyright-search-input")?.value || "";
+        const category = document.getElementById("copyright-filter-category")?.value || "";
+        const status = document.getElementById("copyright-filter-status")?.value || "";
+
+        const tbody = document.getElementById("copyright-registry-table-body");
+        if (!tbody) return;
+
+        // Render loading state
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                    <i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> Loading registered assets...
+                </td>
+            </tr>
+        `;
+
+        try {
+            let url = `/api/v1/copyright/registrations?limit=50&offset=0`;
+            if (query) url += `&query=${encodeURIComponent(query)}`;
+            if (category) url += `&category=${category}`;
+            if (status) url += `&status=${status}`;
+
+            const res = await this.authFetch(url);
+            if (!res.ok) throw new Error("Failed to fetch registrations.");
+
+            const data = await res.json();
+            this.copyrightRegistrations = data;
+
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 48px; color: var(--text-secondary);">
+                            <i class="fa-solid fa-folder-open" style="font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
+                            No registered copyright assets found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            data.forEach(reg => {
+                const tr = document.createElement("tr");
+                
+                // Determine icon or thumbnail
+                let thumbHtml = `<div style="width: 40px; height: 40px; border-radius: 4px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--border-light);"><i class="fa-solid fa-file-invoice"></i></div>`;
+                if (reg.thumbnail_path) {
+                    thumbHtml = `<img src="/${reg.thumbnail_path}" style="width: 48px; height: 36px; border-radius: 4px; object-fit: cover; border: 1px solid var(--border-light);">`;
+                } else if (reg.category === "Video") {
+                    thumbHtml = `<div style="width: 40px; height: 40px; border-radius: 4px; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--border-light);"><i class="fa-solid fa-circle-play"></i></div>`;
+                } else if (reg.category === "Audio") {
+                    thumbHtml = `<div style="width: 40px; height: 40px; border-radius: 4px; background: rgba(59, 130, 246, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--border-light);"><i class="fa-solid fa-music"></i></div>`;
+                } else if (reg.category === "Image") {
+                    thumbHtml = `<div style="width: 40px; height: 40px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: var(--color-success); display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--border-light);"><i class="fa-solid fa-image"></i></div>`;
+                }
+
+                // Determine badge color
+                let badgeClass = "warning";
+                if (reg.status === "Protected") badgeClass = "success";
+                else if (reg.status === "Rejected") badgeClass = "danger";
+                else if (reg.status === "Archived") badgeClass = "secondary";
+
+                const dateStr = reg.created_at ? new Date(reg.created_at).toLocaleDateString() : "N/A";
+                
+                // Build row content with action buttons
+                tr.innerHTML = `
+                    <td style="padding: 10px 8px; vertical-align: middle;">${thumbHtml}</td>
+                    <td style="padding: 10px 8px; vertical-align: middle; font-family: monospace; font-size: 11px;">${reg.asset_id}</td>
+                    <td style="padding: 10px 8px; vertical-align: middle; font-weight: 600;">${reg.asset_title}</td>
+                    <td style="padding: 10px 8px; vertical-align: middle;">${reg.category}</td>
+                    <td style="padding: 10px 8px; vertical-align: middle;"><span class="status-badge status-${badgeClass}" style="padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">${reg.status}</span></td>
+                    <td style="padding: 10px 8px; vertical-align: middle; color: var(--text-secondary);">${dateStr}</td>
+                    <td style="padding: 10px 8px; vertical-align: middle; text-align: right; white-space: nowrap;">
+                        <button class="btn btn-action-view" onclick="app.viewCopyrightCertificate(${reg.id})" title="View Certificate" style="padding: 4px 8px; font-size: 11px; min-height: 28px;"><i class="fa-solid fa-certificate"></i> View</button>
+                        <button class="btn btn-action-view" onclick="app.editCopyrightRegistration(${reg.id})" title="Edit Fields" style="padding: 4px 8px; font-size: 11px; min-height: 28px;"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        <button class="btn btn-action-view" onclick="app.downloadCopyrightCertificate(${reg.id})" title="Download Certificate" style="padding: 4px 8px; font-size: 11px; min-height: 28px;"><i class="fa-solid fa-download"></i></button>
+                        <button class="btn btn-action-view" onclick="app.archiveCopyrightRegistration(${reg.id})" title="Archive" style="padding: 4px 8px; font-size: 11px; min-height: 28px; color: var(--color-warning); border-color: rgba(245, 158, 11, 0.2);"><i class="fa-solid fa-box-archive"></i></button>
+                        ${this.role === "Admin" ? `<button class="btn btn-action-view" onclick="app.deleteCopyrightRegistration(${reg.id})" title="Delete" style="padding: 4px 8px; font-size: 11px; min-height: 28px; color: var(--color-danger); border-color: rgba(239, 68, 68, 0.2);"><i class="fa-solid fa-trash-can"></i></button>` : ""}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch(err) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 32px; color: var(--color-danger);">
+                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i> Failed to load registration center.
+                    </td>
+                </tr>
+            `;
+            console.error(err);
+        }
+    }
+
+    handleCopyrightFileUpload(file) {
+        if (!file) return;
+
+        // Size check (max 50MB)
+        if (file.size > 50 * 1024 * 1024) {
+            this.showToast("File size exceeds 50MB threshold.", "danger");
+            return;
+        }
+
+        const progressContainer = document.getElementById("copyright-upload-progress-container");
+        const filenameLabel = document.getElementById("copyright-upload-filename");
+        const percentLabel = document.getElementById("copyright-upload-percent");
+        const progressBar = document.getElementById("copyright-upload-progress-bar");
+
+        filenameLabel.textContent = file.name;
+        percentLabel.textContent = "0%";
+        progressBar.style.width = "0%";
+        progressContainer.style.display = "block";
+        document.getElementById("copyright-dropzone").style.display = "none";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const xhr = new XMLHttpRequest();
+        this.copyrightUploadXhr = xhr;
+
+        xhr.upload.addEventListener("progress", (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                percentLabel.textContent = `${percent}%`;
+                progressBar.style.width = `${percent}%`;
+            }
+        });
+
+        xhr.addEventListener("load", () => {
+            if (xhr.status === 200) {
+                const res = JSON.parse(xhr.responseText);
+                this.copyrightUploadedFile = res;
+                this.showToast("File processed and metadata extracted successfully!", "success");
+                this.renderFileAnalysis(res);
+            } else {
+                let errorMsg = "File upload failed.";
+                try {
+                    const res = JSON.parse(xhr.responseText);
+                    errorMsg = res.detail || errorMsg;
+                } catch(e) {}
+                this.showToast(errorMsg, "danger");
+                this.resetCopyrightUpload();
+            }
+        });
+
+        xhr.addEventListener("error", () => {
+            this.showToast("Network error during file upload.", "danger");
+            this.resetCopyrightUpload();
+        });
+
+        xhr.addEventListener("abort", () => {
+            this.showToast("Upload cancelled.", "info");
+            this.resetCopyrightUpload();
+        });
+
+        xhr.open("POST", "/api/v1/copyright/upload");
+        if (this.token) {
+            xhr.setRequestHeader("Authorization", `Bearer ${this.token}`);
+        }
+        xhr.send(formData);
+    }
+
+    renderFileAnalysis(res) {
+        document.getElementById("copyright-upload-progress-container").style.display = "none";
+        document.getElementById("copyright-analysis-container").style.display = "block";
+        document.getElementById("copyright-form-container").style.display = "block";
+        document.getElementById("copyright-cert-preview-container").style.display = "block";
+
+        // Category setting
+        document.getElementById("copyright-input-category").value = res.category;
+
+        // Auto ID previews
+        document.getElementById("cert-prev-title").textContent = document.getElementById("copyright-input-title").value || "---";
+        document.getElementById("cert-prev-asset-id").textContent = res.asset_id;
+        document.getElementById("cert-prev-cert-id").textContent = res.certificate_id;
+        document.getElementById("cert-prev-reg-num").textContent = res.registration_number;
+        document.getElementById("cert-prev-hash").textContent = res.sha256_hash;
+        document.getElementById("cert-prev-date").textContent = new Date().toLocaleDateString();
+
+        // Render preview element
+        const previewDiv = document.getElementById("copyright-file-preview");
+        previewDiv.innerHTML = "";
+        
+        const tempFilePath = `/${res.thumbnail_path ? res.thumbnail_path.replace('thumbnails', 'temp').replace('.jpg', res.filename.slice(res.filename.lastIndexOf('.'))) : ''}`;
+
+        if (res.category === "Video") {
+            previewDiv.innerHTML = `<video src="${tempFilePath}" controls style="max-height: 180px; width: 100%; object-fit: contain;"></video>`;
+        } else if (res.category === "Image") {
+            previewDiv.innerHTML = `<img src="${tempFilePath}" style="max-height: 180px; max-width: 100%; object-fit: contain;">`;
+        } else if (res.category === "Audio") {
+            previewDiv.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 20px;">
+                    <i class="fa-solid fa-music" style="font-size: 36px; color: var(--accent);"></i>
+                    <audio src="${tempFilePath}" controls style="width: 90%;"></audio>
+                </div>
+            `;
+        } else {
+            previewDiv.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-file-invoice" style="font-size: 40px; color: var(--text-secondary);"></i>
+                    <span style="font-size: 12px; color: var(--text-secondary);">${res.filename}</span>
+                </div>
+            `;
+        }
+
+        // Render metadata table list
+        const listDiv = document.getElementById("copyright-metadata-list");
+        const m = res.metadata;
+        const sizeMb = (res.file_size / (1024 * 1024)).toFixed(2);
+
+        listDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">Filename</span>
+                <strong style="color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 160px;" title="${res.filename}">${res.filename}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">File Size</span>
+                <strong style="color: var(--text-primary);">${sizeMb} MB</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">Format</span>
+                <strong style="color: var(--text-primary);">${res.category}</strong>
+            </div>
+            ${m.duration ? `
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">Duration</span>
+                <strong style="color: var(--text-primary);">${m.duration}s</strong>
+            </div>` : ""}
+            ${m.resolution !== "N/A" ? `
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">Resolution</span>
+                <strong style="color: var(--text-primary);">${m.resolution}</strong>
+            </div>` : ""}
+            ${m.codec !== "N/A" ? `
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">Codec</span>
+                <strong style="color: var(--text-primary);">${m.codec}</strong>
+            </div>` : ""}
+            ${m.frame_rate ? `
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">Frame Rate</span>
+                <strong style="color: var(--text-primary);">${m.frame_rate} FPS</strong>
+            </div>` : ""}
+            <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid var(--border-light); padding-bottom: 6px;">
+                <span style="color: var(--text-secondary);">SHA-256 Checksum</span>
+                <strong style="color: var(--text-primary); font-family: monospace; font-size: 10px; word-break: break-all;">${res.sha256_hash}</strong>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 2px;">
+                <span style="color: var(--text-secondary);">MD5 Checksum</span>
+                <strong style="color: var(--text-primary); font-family: monospace; font-size: 10px; word-break: break-all;">${res.md5_hash}</strong>
+            </div>
+        `;
+    }
+
+    resetCopyrightUpload() {
+        this.copyrightUploadedFile = null;
+        if (this.copyrightUploadXhr) {
+            this.copyrightUploadXhr.abort();
+            this.copyrightUploadXhr = null;
+        }
+
+        document.getElementById("copyright-dropzone").style.display = "block";
+        document.getElementById("copyright-upload-progress-container").style.display = "none";
+        document.getElementById("copyright-analysis-container").style.display = "none";
+        document.getElementById("copyright-form-container").style.display = "none";
+        document.getElementById("copyright-cert-preview-container").style.display = "none";
+
+        document.getElementById("copyright-registration-form").reset();
+        document.getElementById("copyright-file-input").value = "";
+    }
+
+    async submitCopyrightRegistration() {
+        const form = document.getElementById("copyright-registration-form");
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const submitBtn = document.getElementById("btn-copyright-submit");
+        const editMode = submitBtn.dataset.editMode === "true";
+        const regId = submitBtn.dataset.regId;
+
+        const bodyData = {
+            asset_title: document.getElementById("copyright-input-title").value,
+            category: document.getElementById("copyright-input-category").value,
+            description: document.getElementById("copyright-input-description").value,
+            owner_name: document.getElementById("copyright-input-owner").value,
+            owner_email: document.getElementById("copyright-input-email").value,
+            owner_phone: document.getElementById("copyright-input-phone").value,
+            owner_address: document.getElementById("copyright-input-address").value,
+            organization: document.getElementById("copyright-input-organization").value,
+            country: document.getElementById("copyright-input-country").value,
+            creation_date: document.getElementById("copyright-input-creation-date").value,
+            copyright_type: document.getElementById("copyright-input-type").value,
+            license_type: document.getElementById("copyright-input-license").value,
+            tags: document.getElementById("copyright-input-tags").value,
+            notes: document.getElementById("copyright-input-notes").value,
+            
+            // File specifics
+            asset_id: document.getElementById("cert-prev-asset-id").textContent,
+            certificate_id: document.getElementById("cert-prev-cert-id").textContent,
+            registration_number: document.getElementById("cert-prev-reg-num").textContent,
+            file_uuid: this.copyrightUploadedFile.file_uuid,
+            filename: this.copyrightUploadedFile.filename,
+            file_size: this.copyrightUploadedFile.file_size,
+            sha256_hash: this.copyrightUploadedFile.sha256_hash,
+            md5_hash: this.copyrightUploadedFile.md5_hash,
+            thumbnail_path: this.copyrightUploadedFile.thumbnail_path,
+            
+            // Metadata parameters
+            duration: this.copyrightUploadedFile.metadata.duration,
+            resolution: this.copyrightUploadedFile.metadata.resolution,
+            codec: this.copyrightUploadedFile.metadata.codec,
+            frame_rate: this.copyrightUploadedFile.metadata.frame_rate,
+            bitrate: this.copyrightUploadedFile.metadata.bitrate,
+            audio_channels: this.copyrightUploadedFile.metadata.audio_channels,
+            status: "Protected"
+        };
+
+        try {
+            let res;
+            if (editMode) {
+                res = await this.authFetch(`/api/v1/copyright/registrations/${regId}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(bodyData)
+                });
+            } else {
+                res = await this.authFetch("/api/v1/copyright/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(bodyData)
+                });
+            }
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || "Registration failed.");
+            }
+
+            this.showToast(editMode ? "Copyright registration updated!" : "Copyright registration completed!", "success");
+            
+            // Switch back to table view
+            document.getElementById("copyright-wizard-mode").style.display = "none";
+            document.getElementById("copyright-registry-mode").style.display = "block";
+            this.loadCopyrightRegistrations();
+        } catch(err) {
+            this.showToast(err.message, "danger");
+        }
+    }
+
+    async viewCopyrightCertificate(regId) {
+        try {
+            const res = await this.authFetch(`/api/v1/copyright/registrations/${regId}`);
+            if (!res.ok) throw new Error("Could not load registration certificate details.");
+
+            const reg = await res.json();
+            const dateStr = reg.created_at ? new Date(reg.created_at).toLocaleDateString() : "N/A";
+            
+            const area = document.getElementById("printable-certificate-area");
+            area.innerHTML = `
+                <div class="digital-certificate-card" style="border: 2px solid #b59410; background: linear-gradient(135deg, rgba(181, 148, 16, 0.05) 0%, rgba(17, 24, 39, 0.95) 100%); border-radius: 12px; padding: 32px; text-align: center; position: relative;">
+                    <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+                        <i class="fa-solid fa-certificate" style="font-size: 54px; color: #b59410; filter: drop-shadow(0 0 8px rgba(181,148,16,0.3));"></i>
+                    </div>
+                    <h4 style="font-family: 'Times New Roman', serif; font-size: 20px; color: #b59410; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 6px 0;">Certificate of Registration</h4>
+                    <p style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 24px 0;">TSN Content Security Registry</p>
+                    
+                    <div style="border-top: 1px solid rgba(181, 148, 16, 0.25); border-bottom: 1px solid rgba(181, 148, 16, 0.25); padding: 16px 0; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px; text-align: left; font-size: 13px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Asset Title:</span>
+                            <strong style="color: white;">${reg.asset_title}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Asset ID:</span>
+                            <strong style="color: white; font-family: monospace;">${reg.asset_id}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Certificate ID:</span>
+                            <strong style="color: white; font-family: monospace;">${reg.certificate_id}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Registration No:</span>
+                            <strong style="color: white; font-family: monospace;">${reg.registration_number}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">License Type:</span>
+                            <strong style="color: white;">${reg.license_type || "All Rights Reserved"}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Owner Name:</span>
+                            <strong style="color: white;">${reg.owner_name}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">SHA-256 Hash:</span>
+                            <strong style="color: white; font-family: monospace; font-size: 10px; word-break: break-all; max-width: 250px; text-align: right;">${reg.sha256_hash}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Registration Date:</span>
+                            <strong style="color: white;">${dateStr}</strong>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="text-align: left;">
+                            <span class="status-badge status-active" style="padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background: rgba(34, 197, 94, 0.1); color: var(--color-success); border: 1px solid rgba(34, 197, 94, 0.2);">
+                                <i class="fa-solid fa-lock" style="margin-right: 4px;"></i> PROTECTED
+                            </span>
+                        </div>
+                        <div style="width: 60px; height: 60px; border-radius: 4px; background: white; padding: 4px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-qrcode" style="font-size: 52px; color: black;"></i>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById("copyright-cert-modal").style.display = "flex";
+        } catch(err) {
+            this.showToast(err.message, "danger");
+        }
+    }
+
+    downloadCopyrightCertificate(regId) {
+        this.viewCopyrightCertificate(regId).then(() => {
+            setTimeout(() => window.print(), 300);
+        });
+    }
+
+    async editCopyrightRegistration(regId) {
+        try {
+            const res = await this.authFetch(`/api/v1/copyright/registrations/${regId}`);
+            if (!res.ok) throw new Error("Could not load registration details.");
+
+            const reg = await res.json();
+            
+            // Populate form fields
+            document.getElementById("copyright-input-title").value = reg.asset_title;
+            document.getElementById("copyright-input-category").value = reg.category;
+            document.getElementById("copyright-input-description").value = reg.description || "";
+            document.getElementById("copyright-input-owner").value = reg.owner_name === "[REDACTED]" ? "" : reg.owner_name;
+            document.getElementById("copyright-input-email").value = reg.owner_email === "[REDACTED]" ? "" : reg.owner_email;
+            document.getElementById("copyright-input-phone").value = reg.owner_phone === "[REDACTED]" ? "" : reg.owner_phone;
+            document.getElementById("copyright-input-address").value = reg.owner_address === "[REDACTED]" ? "" : reg.owner_address;
+            document.getElementById("copyright-input-organization").value = reg.organization || "";
+            document.getElementById("copyright-input-country").value = reg.country || "";
+            document.getElementById("copyright-input-creation-date").value = reg.creation_date || "";
+            document.getElementById("copyright-input-type").value = reg.copyright_type || "Registered";
+            document.getElementById("copyright-input-license").value = reg.license_type || "All Rights Reserved";
+            document.getElementById("copyright-input-tags").value = reg.tags || "";
+            document.getElementById("copyright-input-notes").value = reg.notes || "";
+
+            // Set file specific fields mock object so registration logic doesn't break on save
+            this.copyrightUploadedFile = {
+                file_uuid: reg.file_uuid,
+                filename: reg.filename,
+                file_size: reg.file_size,
+                sha256_hash: reg.sha256_hash,
+                md5_hash: reg.md5_hash,
+                thumbnail_path: reg.thumbnail_path,
+                category: reg.category,
+                metadata: {
+                    duration: reg.duration,
+                    resolution: reg.resolution,
+                    codec: reg.codec,
+                    frame_rate: reg.frame_rate,
+                    bitrate: reg.bitrate,
+                    audio_channels: reg.audio_channels
+                }
+            };
+
+            // Switch to form editor mode
+            document.getElementById("copyright-registry-mode").style.display = "none";
+            document.getElementById("copyright-wizard-mode").style.display = "block";
+            document.getElementById("copyright-wizard-title").textContent = "Edit Copyright Details";
+            
+            // Set submit button data-attrs
+            const submitBtn = document.getElementById("btn-copyright-submit");
+            submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Copyright Changes';
+            submitBtn.dataset.editMode = "true";
+            submitBtn.dataset.regId = regId;
+
+            // Render file info & dynamic cert
+            this.renderFileAnalysis(this.copyrightUploadedFile);
+            
+            // Override auto-gen IDs in certificate to represent database record values
+            document.getElementById("cert-prev-asset-id").textContent = reg.asset_id;
+            document.getElementById("cert-prev-cert-id").textContent = reg.certificate_id;
+            document.getElementById("cert-prev-reg-num").textContent = reg.registration_number;
+            document.getElementById("cert-prev-hash").textContent = reg.sha256_hash;
+            document.getElementById("cert-prev-date").textContent = reg.created_at ? new Date(reg.created_at).toLocaleDateString() : "N/A";
+
+        } catch(err) {
+            this.showToast(err.message, "danger");
+        }
+    }
+
+    async archiveCopyrightRegistration(regId) {
+        if (!confirm("Are you sure you want to archive this copyright registration?")) return;
+        try {
+            const res = await this.authFetch(`/api/v1/copyright/registrations/${regId}/archive`, {
+                method: "POST"
+            });
+            if (!res.ok) throw new Error("Archive failed.");
+            this.showToast("Registration status set to Archived.", "success");
+            this.loadCopyrightRegistrations();
+        } catch(err) {
+            this.showToast(err.message, "danger");
+        }
+    }
+
+    async deleteCopyrightRegistration(regId) {
+        if (!confirm("Are you sure you want to permanently delete this copyright registration? This action is irreversible.")) return;
+        try {
+            const res = await this.authFetch(`/api/v1/copyright/registrations/${regId}`, {
+                method: "DELETE"
+            });
+            if (!res.ok) throw new Error("Delete failed.");
+            this.showToast("Registration deleted from system.", "success");
+            this.loadCopyrightRegistrations();
+        } catch(err) {
+            this.showToast(err.message, "danger");
+        }
     }
 }
 
